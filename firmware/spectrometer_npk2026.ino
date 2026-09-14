@@ -248,78 +248,154 @@ void setup() {
 }
 
 // ============================================================
-// Page 0: System Dashboard
+// Draw Embedded Optical Spectrometer Logo
+// ============================================================
+void drawSpectrometerLogo(int x, int y) {
+  // 1. Triangular Optical Glass Prism
+  tft.fillTriangle(x + 24, y + 2, x + 6, y + 38, x + 42, y + 38, 0x10E4);
+  tft.drawTriangle(x + 24, y + 2, x + 6, y + 38, x + 42, y + 38, 0x07FF);
+  tft.drawTriangle(x + 24, y + 3, x + 7, y + 37, x + 41, y + 37, TFT_WHITE);
+
+  // 2. Incident White Light Beam from Left
+  tft.drawLine(x - 6, y + 26, x + 15, y + 22, TFT_WHITE);
+  tft.drawLine(x - 6, y + 27, x + 15, y + 23, TFT_WHITE);
+
+  // 3. Emerging Dispersed Spectrum Rays to the Right (5 spectral bands)
+  int ox = x + 28;
+  int oy = y + 23;
+  tft.drawLine(ox, oy, x + 60, y + 6,  0x07FF);    // 465 nm Blue/Cyan
+  tft.drawLine(ox, oy, x + 64, y + 14, 0x27E0);    // 500 nm Cyan
+  tft.drawLine(ox, oy, x + 66, y + 22, TFT_GREEN);  // 525 nm Green
+  tft.drawLine(ox, oy, x + 64, y + 30, TFT_YELLOW); // 590 nm Yellow
+  tft.drawLine(ox, oy, x + 60, y + 38, TFT_RED);    // 625 nm Red
+
+  // 4. Agri Seedling Sprout Emblem on right of prism base
+  tft.fillCircle(x + 36, y + 30, 4, TFT_GREEN);
+  tft.drawCircle(x + 36, y + 30, 4, TFT_YELLOW);
+  tft.drawFastVLine(x + 36, y + 32, 6, TFT_GREEN);
+  tft.fillCircle(x + 40, y + 25, 3, TFT_YELLOW);
+}
+
+// ============================================================
+// Page 0: System Dashboard (Thai Layout & Spectrometer Logo)
 // ============================================================
 void drawDashboardPage() {
   tft.fillScreen(TFT_BLACK);
 
-  // Top Header Bar
-  tft.fillRect(0, 0, 320, 28, 0x18E3);
-  tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE, 0x18E3);
-  tft.drawString("SYSTEM HEALTH & DASHBOARD", 10, 8);
-  tft.setTextColor(TFT_YELLOW, 0x18E3);
-  tft.drawString("[Page 1/4]", 250, 8);
+  // 1. Top Header Banner Box
+  tft.fillRect(0, 0, 320, 58, 0x0842);
 
-  // System Specs Box
-  tft.drawRect(8, 36, 304, 160, TFT_DARKGREY);
+  // Draw Vector Logo
+  drawSpectrometerLogo(10, 8);
 
-  tft.setTextSize(1);
-  tft.setTextColor(0x07FF, TFT_BLACK); // Cyan
-  tft.drawString("HARDWARE & MICROCONTROLLER SPECIFICATIONS", 16, 44);
+  // Banner Titles
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK30", SD);
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("สเปกโทรโฟโตมิเตอร์ดิน NPK", 82, 6);
 
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("Core: ARM Cortex-M4F @ 120 MHz (ATSAMD51)", 16, 62);
-  tft.drawString("Hardware FPU: Active (32-bit Single Precision)", 16, 76);
-  tft.drawString("Program Flash: 512 KB  |  SRAM: 192 KB", 16, 90);
-
-  tft.drawFastHLine(16, 106, 288, 0x2104);
-
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("PERIPHERAL MODULE STATUS:", 16, 114);
-
-  // Sensor status
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("Color Sensor (TCS34725):", 16, 130);
-  if (hasTCS) {
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.drawString("[ONLINE - OK]", 180, 130);
+    tft.loadFont("THSarabunPSK20", SD);
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("หน่วยวิจัยฟิสิกส์เกษตรดิจิทัล AI4D มรภ.รำไพพรรณี", 82, 34);
+    tft.unloadFont();
   } else {
-    tft.setTextColor(TFT_RED, TFT_BLACK);
-    tft.drawString("[NOT DETECTED]", 180, 130);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("NPK SPECTROMETER", 82, 10);
+
+    tft.setTextSize(1);
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("AI4D AgriPhysics - RBRU Research", 82, 36);
   }
 
-  // SD card status
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("MicroSD Card Storage:", 16, 146);
-  if (hasSD) {
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.drawString("[MOUNTED - REC]", 180, 146);
-  } else {
-    tft.setTextColor(TFT_DARKGREY, TFT_BLACK);
-    tft.drawString("[NO CARD]", 180, 146);
-  }
+  // Page Indicator Badge
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("[Page 1/4]", 255, 10);
 
-  // Active analytical model status
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("Active Analytical Model:", 16, 162);
+  // Double Divider Lines
+  tft.drawFastHLine(0, 58, 320, TFT_MAGENTA);
+  tft.drawFastHLine(0, 60, 320, 0x07FF);
+
+  // 2. Card 1: Hardware & Processing Core (Left Box)
+  tft.fillRoundRect(6, 68, 150, 128, 4, 0x0842);
+  tft.drawRoundRect(6, 68, 150, 128, 4, 0x07FF);
+  tft.fillRoundRect(7, 69, 148, 18, 3, 0x10E4);
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, 0x10E4);
+  tft.drawString("[ ระบบประมวลผล ]", 28, 74);
+
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("Core: Cortex-M4F", 12, 92);
+  tft.drawString("Clock: 120 MHz", 12, 106);
+  tft.drawString("FPU: Hardware 32b", 12, 120);
+  tft.drawString("Flash: 512KB (19%)", 12, 134);
+  tft.drawString("SRAM: 192KB (OK)", 12, 148);
+
+  tft.setTextColor(TFT_YELLOW, 0x0842);
   if (currentModel == MODEL_TINYML) {
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.drawString("[TinyML Edge AI (6-12-8-3)]", 160, 162);
+    tft.drawString("Model: [AI TinyML]", 12, 166);
   } else if (currentModel == MODEL_POLY) {
-    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("[Classical Polynomial]", 160, 162);
+    tft.drawString("Model: [PL Poly]", 12, 166);
   } else {
-    tft.setTextColor(0x07FF, TFT_BLACK);
-    tft.drawString("[In-Situ Standard Curve]", 160, 162);
+    tft.drawString("Model: [SC StdCurv]", 12, 166);
   }
 
-  // Footer Navigation
-  tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
-  tft.setTextSize(1);
-  tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-  tft.drawString("Use Joystick [< / >] to Switch Pages | [UP]: Model Toggle", 10, 218);
+  // 3. Card 2: Sensors & Peripherals (Right Box)
+  tft.fillRoundRect(164, 68, 150, 128, 4, 0x0842);
+  tft.drawRoundRect(164, 68, 150, 128, 4, TFT_MAGENTA);
+  tft.fillRoundRect(165, 69, 148, 18, 3, 0x2084);
+
+  tft.setTextColor(TFT_WHITE, 0x2084);
+  tft.drawString("[ อุปกรณ์และเซนเซอร์ ]", 180, 74);
+
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("Sensor: TCS34725", 170, 92);
+  if (hasTCS) {
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("Status: [ONLINE OK]", 170, 106);
+  } else {
+    tft.setTextColor(TFT_RED, 0x0842);
+    tft.drawString("Status: [OFFLINE]", 170, 106);
+  }
+
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("Optics: 5-Band LED", 170, 120);
+
+  if (hasSD) {
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("SD Card: [REC OK]", 170, 134);
+  } else {
+    tft.setTextColor(TFT_DARKGREY, 0x0842);
+    tft.drawString("SD Card: [NO CARD]", 170, 134);
+  }
+
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("Log: NPK, SPEC.csv", 170, 148);
+
+  // Clock
+  char timeBuf[16];
+  sprintf(timeBuf, "Time: %02d:%02d:%02d", clockHour, clockMin, clockSec);
+  tft.setTextColor(0x07FF, 0x0842);
+  tft.drawString(timeBuf, 170, 166);
+
+  // 4. Footer Bar
+  tft.drawFastHLine(0, 202, 320, TFT_DARKGREY);
+  tft.drawFastHLine(0, 204, 320, 0x2104);
+
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK20", SD);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.drawString("จอยสติ๊ก [< / >] สลับหน้า  |  [UP] สลับโหมด AI  |  A/B/C เปิด/ปิดไฟ", 15, 212);
+    tft.unloadFont();
+  } else {
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.drawString("[< / >] Switch Page | [UP] AI Mode | A,B,C: LEDs", 14, 216);
+  }
 }
+
 
 // ============================================================
 // Page 1: NPK Level Meter 1.02 (Exact Original Layout)
