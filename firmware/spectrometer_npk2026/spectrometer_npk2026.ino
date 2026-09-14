@@ -147,9 +147,11 @@ void setup() {
   if (SD.begin(SDCARD_SS_PIN, SDCARD_SPI)) {
     Serial.println("SD card initialization successful!");
     hasSD = true;
-    myFile = SD.open("NPK.txt", FILE_APPEND);
+    myFile = SD.open("NPK.csv", FILE_APPEND);
     if (myFile) {
-      myFile.println("Time,b,g,r,c,N,P,K,Model");
+      if (myFile.size() == 0) {
+        myFile.println("Sample,Time,Blue,Green,Red,Clear,N_mg_kg,P_mg_kg,K_mg_kg,Model");
+      }
       myFile.close();
     }
   } else {
@@ -279,8 +281,9 @@ void drawStaticLayout() {
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
   tft.drawString("AI4D AGRIPHYSICS", 108, 218);
 
-  // Initial LED Tag
+  // Initial LED & SD Status Tags
   drawLedStatusTag();
+  drawSdStatusTag();
 }
 
 // ============================================================
@@ -324,6 +327,20 @@ void drawLedStatusTag() {
 
   tft.setTextColor(ledCol, TFT_BLACK);
   tft.drawString(ledTag, 245, 202);
+}
+
+// ============================================================
+// Draw SD Card Logging Indicator (SD:REC or SD:--)
+// ============================================================
+void drawSdStatusTag() {
+  tft.setTextSize(1);
+  if (hasSD) {
+    tft.setTextColor(TFT_GREEN, TFT_BLACK);
+    tft.drawString("SD:REC", 245, 218);
+  } else {
+    tft.setTextColor(TFT_DARKGREY, TFT_BLACK);
+    tft.drawString("SD:-- ", 245, 218);
+  }
 }
 
 // ============================================================
@@ -519,11 +536,32 @@ void loop() {
     Serial.print(" G="); Serial.print(ledGreenState);
     Serial.print(" B="); Serial.println(ledBlueState);
 
+    // Auto-detect SD card if plugged in while running
+    static unsigned long lastSdRetry = 0;
+    if (!hasSD && (now - lastSdRetry >= 5000)) {
+      lastSdRetry = now;
+      if (SD.begin(SDCARD_SS_PIN, SDCARD_SPI)) {
+        hasSD = true;
+        Serial.println("microSD Card mounted dynamically!");
+        myFile = SD.open("NPK.csv", FILE_APPEND);
+        if (myFile) {
+          if (myFile.size() == 0) {
+            myFile.println("Sample,Time,Blue,Green,Red,Clear,N_mg_kg,P_mg_kg,K_mg_kg,Model");
+          }
+          myFile.close();
+        }
+        drawSdStatusTag();
+      }
+    }
+
     // Save to SD Card if present
     if (hasSD) {
-      myFile = SD.open("NPK.txt", FILE_APPEND);
+      myFile = SD.open("NPK.csv", FILE_APPEND);
       if (myFile) {
+        char timeStr[12];
+        sprintf(timeStr, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
         myFile.print(sampleCount); myFile.print(",");
+        myFile.print(timeStr); myFile.print(",");
         myFile.print(b); myFile.print(",");
         myFile.print(g); myFile.print(",");
         myFile.print(r); myFile.print(",");
