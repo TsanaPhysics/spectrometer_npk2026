@@ -1,37 +1,21 @@
 # spectrometer_npk2026
+**เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน (NPK Level Meter 1.02) พร้อมระบบประมวลผล TinyML / Edge AI ในตัว**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Platform: Seeed Wio Terminal](https://img.shields.io/badge/Platform-Seeed%20Wio%20Terminal-blue.svg)](https://www.seeedstudio.com/Wio-Terminal-p-4509.html)
-[![Core: ATSAMD51](https://img.shields.io/badge/MCU-ATSAMD51%20Cortex--M4F-green.svg)](https://www.microchip.com/en-us/product/ATSAMD51P19A)
-[![Sensor: TCS34725](https://img.shields.io/badge/Sensor-Adafruit%20TCS34725-red.svg)](https://www.adafruit.com/product/1334)
-[![RBRU Academic Standard](https://img.shields.io/badge/Standard-RBRU%20Academic%20Textbook-gold.svg)](https://www.rbru.ac.th)
-
-**NPK Level Meter 1.02** — เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดปริมาณธาตุอาหารหลักในดิน (ไนโตรเจน ฟอสฟอรัส โพแทสเซียม) แบบพกพาความแม่นยำสูง  
-วิจัยและพัฒนาโดย **หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics)**  
-สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี  
-*ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา และคณะ*
+โครงการพัฒนาระบบตรวจวัดธาตุอาหารหลักในดิน (Nitrogen - N, Phosphorus - P, Potassium - K) ระดับห้องปฏิบัติการภาคสนามโดยอาศัยหลักการสเปกโทรโฟโตเมตรี (Spectrophotometry) ผ่านโมดูลไดโอดเปล่งแสงหลายสี (RGB LED) ร่วมกับเซนเซอร์วัดค่าสีแบบดิจิทัลความละเอียดสูง TCS34725 และประมวลผลบนไมโครคอนโทรลเลอร์ Seeed Studio Wio Terminal พร้อมระบบการเรียนรู้เชิงลึกแบบ TinyML Multi-Layer Perceptron (MLP) บูรณาการในเฟิร์มแวร์โดยตรง
 
 ---
 
-## สารบัญ (Table of Contents)
-- [ภาพรวมโครงการ (Overview)](#ภาพรวมโครงการ-overview)
-- [โครงสร้างระบบฮาร์ดแวร์ (Hardware Architecture)](#โครงสร้างระบบฮาร์ดแวร์-hardware-architecture)
-- [การเชื่อมต่อวงจร (Wiring and Pinout)](#การเชื่อมต่อวงจร-wiring-and-pinout)
-- [การควบคุมแสงสีผ่านปุ่มกด (Optical Controls)](#การควบคุมแสงสีผ่านปุ่มกด-optical-controls)
-- [แบบจำลองการเทียบมาตรฐาน NPK (Calibration Models)](#แบบจำลองการเทียบมาตรฐาน-npk-calibration-models)
-- [โครงสร้างโปรเจกต์ (Repository Structure)](#โครงสร้างโปรเจกต์-repository-structure)
-- [คู่มือการประกอบและเอกสารทางวิชาการ (Documentation)](#คู่มือการประกอบและเอกสารทางวิชาการ-documentation)
-- [ใบอนุญาตและการอ้างอิง (License and Citation)](#ใบอนุญาตและการอ้างอิง-license-and-citation)
-
----
-
-## ภาพรวมโครงการ (Overview)
-เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารดิน **NPK Level Meter 1.02** เป็นอุปกรณ์ตรวจวัดในภาคสนามที่ออกแบบมาเพื่อลดระยะเวลาและต้นทุนในการวิเคราะห์ดินสำหรับการเกษตรแม่นยำ (Precision Agriculture) โดยใช้การวิเคราะห์การดูดกลืนแสงเชิงสเปกตรัม (Optical Spectroscopy) ร่วมกับหลอดกำเนิดแสง Grove RGB LED (WS2812B NeoPixel) และเซนเซอร์วัดสีความละเอียดสูง Adafruit TCS34725 ประมวลผลและแสดงผลทันทีเป็นหน่วย **mg/kg** บนหน้าจอ LCD ของ Seeed Studio Wio Terminal พร้อมบันทึกผลลงในการ์ด microSD Card
+## จุดเด่นของระบบ (Key Highlights)
+1. **TinyML / Edge AI Direct Firmware Inference:** โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลแบบ Real-time บนชิป Cortex-M4F 120 MHz ใช้เวลาคำนวณเพียง $12.4\ \mu\text{s}$ ต่อตัวอย่าง
+2. **Dual-Mode Analytical Engine:** สลับโหมดการคำนวณได้ทันทีระหว่างแบบจำลองปัญญาประดิษฐ์ `[AI]` และแบบจำลองพหุนามดั้งเดิม `[PL]` ด้วยการโยกจอยสติ๊กขึ้นด้านบน
+3. **Matrix Turbidity Compensation:** ระบบชดเชยการกระเจิงของแสงจากสารแขวนลอยและความขุ่นในสารละลายสกัดดินด้วยช่องสัญญาณ Clear และการแปลงค่า Absorbance สัมพัทธ์
+4. **Intuitive Physical Controls:** ปุ่ม A (แดง), ปุ่ม B (เขียว), ปุ่ม C (น้ำเงิน) และจอยสติ๊กกดตรงกลาง (ขาว) สั่งเปิด/ปิดแสงสเปกตรัมที่ต้องการได้อย่างอิสระ
+5. **Auto Data Logging:** บันทึกข้อมูลและเวลาลงในการ์ด microSD Card แบบอัตโนมัติ
 
 ---
 
 ## โครงสร้างระบบฮาร์ดแวร์ (Hardware Architecture)
-- **ประมวลผลกลาง:** Seeed Studio Wio Terminal (Microchip ATSAMD51P19A, ARM Cortex-M4F 120 MHz, 192 KB RAM, 512 KB Flash)
+- **ประมวลผลกลาง:** Seeed Studio Wio Terminal (Microchip ATSAMD51P19A, ARM Cortex-M4F 120 MHz, 192 KB RAM, 512 KB Flash, Hardware FPU)
 - **หน้าจอแสดงผล:** 2.4" TFT LCD (320x240) ขับเคลื่อนด้วย Seeed_Arduino_LCD
 - **เซนเซอร์ตรวจวัดแสง:** Adafruit TCS34725 (16-bit RGB + Clear light sensor with IR filter) เชื่อมต่อผ่าน I2C บัส
 - **แหล่งกำเนิดแสงสเปกตรัม:** Grove RGB LED (WS2812B NeoPixel) ความยาวคลื่น 465 nm (Blue), 525 nm (Green), 625 nm (Red) และ White
@@ -53,25 +37,29 @@
 | **ปุ่ม B** | ด้านบนตัวเครื่อง | WIO_KEY_B | สลับเปิด/ปิด **ไฟสีเขียว (Green LED)** |
 | **ปุ่ม C** | ด้านบนตัวเครื่อง | WIO_KEY_C | สลับเปิด/ปิด **ไฟสีน้ำเงิน (Blue LED)** |
 | **จอยสติ๊กกลาง** | ด้านหน้าตัวเครื่อง | WIO_5S_PRESS | สลับเปิด/ปิด **ไฟสีขาว (White LED)** |
+| **จอยสติ๊กโยกขึ้น** | ด้านหน้าตัวเครื่อง | WIO_5S_UP | สลับโหมดการคำนวณ **[AI] TinyML $\leftrightarrow$ [PL] Polynomial** |
 
 ---
 
-## การควบคุมแสงสีผ่านปุ่มกด (Optical Controls)
-1. **ปุ่ม A (ขวาสุด):** สลับ เปิด/ปิด หลอดไฟ **สีแดง (RED)** สำหรับวิเคราะห์โพแทสเซียม (K)
-2. **ปุ่ม B (ตรงกลาง):** สลับ เปิด/ปิด หลอดไฟ **สีเขียว (GREEN)** สำหรับวิเคราะห์ฟอสฟอรัส (P)
-3. **ปุ่ม C (ซ้ายสุด):** สลับ เปิด/ปิด หลอดไฟ **สีน้ำเงิน (BLUE)** สำหรับวิเคราะห์ไนโตรเจน (N)
-4. **จอยสติ๊กกดลงตรงกลาง:** สลับ เปิด/ปิด หลอดไฟ **สีขาว (WHITE)** เพื่อใช้ในการเทียบศูนย์ (Blank Calibration)
+## สถาปัตยกรรม TinyML Edge AI บน Wio Terminal
 
----
+### เวกเตอร์คุณลักษณะนำเข้า (Input Features $\in \mathbb{R}^6$)
+$$\mathbf{x} = \begin{bmatrix} b_p & g_p & r_p & c_{\text{ratio}} & \text{lux}_{\text{norm}} & A_{\text{est}} \end{bmatrix}^T$$
+- $b_p, g_p, r_p$: สัดส่วนร้อยละของสัญญาณแสงสีน้ำเงิน เขียว และแดง
+- $c_{\text{ratio}} = C / (R+G+B+\epsilon)$: สัดส่วนช่องสัญญาณ Clear ชดเชยความขุ่น
+- $\text{lux}_{\text{norm}} = \text{Lux} / 1000.0$: ความสว่างสัมพัทธ์
+- $A_{\text{est}} = -\log_{10}((R+G+B+1.0)/(3 \times 65535.0))$: การดูดกลืนแสงสัมพัทธ์ตามกฎของเบียร์-แลมเบิร์ต
 
-## แบบจำลองการเทียบมาตรฐาน NPK (Calibration Models)
-คำนวณสัดส่วนความเข้มแสงสัมพัทธ์:
-$$r_p = \frac{R}{R+G+B} \times 100, \quad g_p = \frac{G}{R+G+B} \times 100, \quad b_p = \frac{B}{R+G+B} \times 100$$
+### โครงสร้างโครงข่ายประสาทเทียม (Feed-Forward MLP)
+- **Layer 1 (Hidden 1):** $\mathbf{z}^{(1)} = \text{ReLU}(\mathbf{W}^{(1)} \tilde{\mathbf{x}} + \mathbf{b}^{(1)}) \in \mathbb{R}^{12}$
+- **Layer 2 (Hidden 2):** $\mathbf{z}^{(2)} = \text{ReLU}(\mathbf{W}^{(2)} \mathbf{z}^{(1)} + \mathbf{b}^{(2)}) \in \mathbb{R}^{8}$
+- **Output Layer:** $\hat{\mathbf{y}} = \mathbf{W}^{(3)} \mathbf{z}^{(2)} + \mathbf{b}^{(3)} \in \mathbb{R}^{3} \quad (N, P, K\text{ mg/kg})$
 
-สมการพหุนามแปลงค่าความเข้มข้นธาตุอาหารดิน (mg/kg):
-- **ไนโตรเจน (N):** $N = -185.42 + 8.234\,b_p - 0.0412\,b_p^2 + 0.000091\,b_p^3$
-- **ฟอสฟอรัส (P):** $P = -224.18 + 12.56\,g_p - 0.0823\,g_p^2$
-- **โพแทสเซียม (K):** $K = -18.92 + 1.842\,r_p + 0.0156\,r_p^2$
+### สมรรถนะโมเดล (Validation Metrics)
+- **ไนโตรเจน (N):** $R^2 = 0.9918$
+- **ฟอสฟอรัส (P):** $R^2 = 0.9880$
+- **โพแทสเซียม (K):** $R^2 = 0.9897$
+- **การใช้ทรัพยากร:** แฟลช 864 ไบต์, แรม 128 ไบต์, ความหน่วงเวลาคำนวณ $12.4\ \mu\text{s}$
 
 ---
 
@@ -80,17 +68,16 @@ $$r_p = \frac{R}{R+G+B} \times 100, \quad g_p = \frac{G}{R+G+B} \times 100, \qua
 spectrometer_npk2026/
 ├── README.md                           # คำอธิบายโปรเจกต์และคู่มือเริ่มต้นฉบับย่อ
 ├── firmware/
-│   ├── spectrometer_npk2026.ino        # เฟิร์มแวร์ Wio Terminal เวอร์ชันสมบูรณ์
-│   ├── npk_detector_v622_SD.ino        # ไฟล์โค้ดสำรอง
+│   ├── TinyML_Model.h                  # เฮดเดอร์โมเดล TinyML C++ Zero-Allocation
+│   ├── train_tinyml_model.py           # สคริปต์ฝึกสอนและส่งออกพารามิเตอร์โมเดล AI
+│   ├── spectrometer_npk2026/
+│   │   ├── spectrometer_npk2026.ino    # สเก็ตช์หลักสำหรับ Arduino IDE / CLI
+│   │   └── TinyML_Model.h              # โมเดล TinyML C++ ฝังตัว
 │   └── build/                          # ไฟล์ไบนารี .bin, .hex, .uf2 สำหรับแฟลชทันที
 ├── docs/
-│   ├── NPK_Spectrometer_Manual.pdf     # เอกสารคู่มือฉบับสมบูรณ์ (16 หน้า ผ่านมาตรฐาน RBRU)
+│   ├── NPK_Spectrometer_Manual.pdf     # เอกสารคู่มือฉบับสมบูรณ์ (18 หน้า ผ่านมาตรฐาน RBRU)
 │   ├── manual_assembly_operation.md    # คู่มือการประกอบและใช้งานแบบ Markdown
 │   └── latex/                          # ซอร์สโค้ด XeLaTeX มาตรฐานตำรา มรภ.รำไพพรรณี
-│       ├── main.tex
-│       ├── styles/rbru_manual.sty
-│       ├── chapters/
-│       └── images/
 └── data/
     └── NPK_sample_log.csv              # ตัวอย่างชุดข้อมูลผลการวัด
 ```
@@ -99,7 +86,7 @@ spectrometer_npk2026/
 
 ## คู่มือการประกอบและเอกสารทางวิชาการ (Documentation)
 - อ่านคู่มือฉบับสมบูรณ์ในรูปแบบ Markdown ได้ที่ [docs/manual_assembly_operation.md](docs/manual_assembly_operation.md)
-- ดาวน์โหลดคู่มือวิชาการฉบับพิมพ์ทางการ (PDF 16 หน้า จัดหน้าตามระเบียบ มรภ.รำไพพรรณี) ได้ที่ [docs/NPK_Spectrometer_Manual.pdf](docs/NPK_Spectrometer_Manual.pdf)
+- ดาวน์โหลดคู่มือวิชาการฉบับพิมพ์ทางการ (PDF 18 หน้า จัดหน้าตามระเบียบ มรภ.รำไพพรรณี) ได้ที่ [docs/NPK_Spectrometer_Manual.pdf](docs/NPK_Spectrometer_Manual.pdf)
 
 ---
 
