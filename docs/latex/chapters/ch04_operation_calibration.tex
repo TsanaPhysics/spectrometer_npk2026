@@ -33,7 +33,7 @@
 \end{table}
 
 \subsection{ระบบประมวลผลการคำนวณ 3 รูปแบบ (Triple Analytical Engine)}
-ในหน้าจอตรวจวัด NPK Level Meter ผู้ใช้งานสามารถกดโยกจอยสติ๊กขึ้นเพื่อสลับโหมดการคำนวณได้ 3 รูปแบบอย่างอิสระ:
+ในหน้าจอตรวจวัด NPK Level Meter ผู้ใช้งานสามารถกดโยกจอยสติ๊กขึ้นเพื่อสลับโหมดการคำนวณได้ 3 รูปแบบอย่างอิสระ
 \begin{enumerate}
     \item \textbf{โหมดปัญญาประดิษฐ์ [AI] (TinyML Deep Neural Network)} ใช้โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลบนฮาร์ดแวร์ FPU พร้อมระบบชดเชยความขุ่นของสารละลายดิน (Turbidity Matrix Compensation)
     \item \textbf{โหมดพหุนามสากล [PL] (Classical Literature Polynomial)} คำนวณความเข้มข้นจากสัดส่วนแสงสัมพัทธ์ $r_p, g_p, b_p$ ตามแบบจำลองพหุนามดั้งเดิม
@@ -44,7 +44,7 @@
 \end{enumerate}
 
 \subsection{ทฤษฎีการถดถอยเชิงเส้นและมาตรวิทยาเคมีวิเคราะห์ (Phase 2)}
-ระบบเฟิร์มแวร์ของ Wio Terminal ได้รับการพัฒนาให้มีระบบวิเคราะห์การถดถอยกำลังสองน้อยที่สุด (Ordinary Least Squares: OLS) บนชิป SAMD51 โดยตรง จากคู่ลำดับความเข้มข้นและค่าการดูดกลืนแสงของสารมาตรฐาน 5 จุด ($C_i, A_i$) สำหรับ $C \in \{0, 20, 40, 80, 160\}\text{ mg/kg}$
+ระบบเฟิร์มแวร์ของ Wio Terminal ได้รับการพัฒนาให้มีระบบวิเคราะห์การถดถอยกำลังสองน้อยที่สุด (Ordinary Least Squares หรือ OLS) บนชิป SAMD51 โดยตรง จากคู่ลำดับความเข้มข้นและค่าการดูดกลืนแสงของสารมาตรฐาน 5 จุด ($C_i, A_i$) สำหรับ $C \in \{0, 20, 40, 80, 160\}\text{ mg/kg}$
 
 \subsubsection{ความชัน จุดตัดแกน และสัมประสิทธิ์การตัดสินใจ ($R^2$)}
 \begin{align}
@@ -54,19 +54,19 @@
 \end{align}
 
 \subsubsection{ขีดจำกัดการตรวจวัด (LOD) และขีดจำกัดการหาปริมาณ (LOQ)}
-ความคลาดเคลื่อนมาตรฐานของส่วนตกค้าง ($s_{y/x}$) คำนวณจาก:
+ความคลาดเคลื่อนมาตรฐานของส่วนตกค้าง ($s_{y/x}$) คำนวณจาก
 \begin{equation}
     s_{y/x} = \sqrt{\frac{\sum_{i=1}^N \left(A_i - (m C_i + c)\right)^2}{N - 2}}
 \end{equation}
 
-จากนั้นประเมินขีดจำกัดการตรวจวัด (Limit of Detection: LOD) และขีดจำกัดการหาปริมาณ (Limit of Quantification: LOQ) ตามเกณฑ์สากลของ IUPAC:
+จากนั้นประเมินขีดจำกัดการตรวจวัด (Limit of Detection หรือ LOD) และขีดจำกัดการหาปริมาณ (Limit of Quantification หรือ LOQ) ตามเกณฑ์สากลของ IUPAC:
 \begin{align}
     \text{LOD} &= \frac{3.3 \cdot s_{y/x}}{m} \\
     \text{LOQ} &= \frac{10.0 \cdot s_{y/x}}{m}
 \end{align}
 
 \subsection{การแสดงผลและการบันทึกข้อมูลการคาลิเบรตลง microSD Card}
-ในหน้าจอที่ 4 (Calibration Wizard) เครื่องจะแสดงกราฟเส้นตรงมาตรฐานพร้อมจุดข้อมูลจริงและแผงสถิติ $R^2$, ความชัน $m$, จุดตัด $c$, ค่า LOD และ LOQ และเมื่อมีการปรับปรุงสมการใหม่ ระบบจะบันทึกประวัติการคาลิเบรตลงในไฟล์ \texttt{CALIB\_LOG.csv} บนการ์ด microSD Card โดยอัตโนมัติ:
+ในหน้าจอที่ 4 (Calibration Wizard) เครื่องจะแสดงกราฟเส้นตรงมาตรฐานพร้อมจุดข้อมูลจริงและแผงสถิติ $R^2$, ความชัน $m$, จุดตัด $c$, ค่า LOD และ LOQ และเมื่อมีการปรับปรุงสมการใหม่ ระบบจะบันทึกประวัติการคาลิเบรตลงในไฟล์ \texttt{CALIB\_LOG.csv} บนการ์ด microSD Card โดยอัตโนมัติ
 \begin{verbatim}
 Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg
 12:46:25,N,465,0.00624,0.0350,0.9985,0.0082,4.33,13.14
@@ -74,10 +74,10 @@ Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg
 12:48:05,K,625,0.00548,0.0400,0.9980,0.0091,5.48,16.60
 \end{verbatim}
 
-\subsection{การวิเคราะห์สมบัติเชิงทัศนศาสตร์และความหนาแน่นของของเหลว (Page 5: Liquid Optics Metrology)}
-ในหน้าจอที่ 5 ผู้ใช้งานสามารถตรวจวิเคราะห์สมบัติเชิงแสงและกายภาพของตัวอย่างของเหลว (Liquid Optics \& Metrology) ได้อย่างละเอียด ประกอบด้วย:
+\subsection{การวิเคราะห์สมบัติเชิงทัศนศาสตร์และความหนาแน่นของของเหลว (Page 5 หรือ Liquid Optics Metrology)}
+ในหน้าจอที่ 5 ผู้ใช้งานสามารถตรวจวิเคราะห์สมบัติเชิงแสงและกายภาพของตัวอย่างของเหลว (Liquid Optics \& Metrology) ได้อย่างละเอียด ประกอบด้วย
 \begin{enumerate}
-    \item \textbf{ดัชนีหักเหของของเหลว (Refractive Index, $n$):} คำนวณจากความสัมพันธ์เชิงทัศนศาสตร์ของสารละลายตามมาตรฐานสากล ICUMSA:
+    \item \textbf{ดัชนีหักเหของของเหลว (Refractive Index, $n$):} คำนวณจากความสัมพันธ์เชิงทัศนศาสตร์ของสารละลายตามมาตรฐานสากล ICUMSA
     \begin{equation}
         n = 1.3330 + 0.00143 \cdot (\text{Brix}) + 0.0000045 \cdot (\text{Brix})^2
     \end{equation}
@@ -91,7 +91,7 @@ Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg
         \text{Brix} = A_{\text{mean}} \times 26.5
     \end{equation}
     \item \textbf{ความส่องผ่านแสง (\%T) และการจำแนกความขุ่น (Clarity / Turbidity):}
-    ระบบจะจำแนกสถานะความขุ่นออกเป็น 3 ระดับ:
+    ระบบจะจำแนกสถานะความขุ่นออกเป็น 3 ระดับ
     \begin{itemize}
         \item \textbf{CLEAR (ใส):} เมื่อค่าการดูดกลืนแสงเฉลี่ย $A < 0.12$
         \item \textbf{SLIGHT TURBID (ขุ่นเบา):} เมื่อ $0.12 \le A < 0.38$
@@ -101,7 +101,7 @@ Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg
 
 \subsubsection{การควบคุมและการบันทึกข้อมูลของเหลวลง microSD Card}
 \begin{itemize}
-    \item กดโยกจอยสติ๊กตรงกลาง (\texttt{WIO\_5S\_PRESS}) เพื่อตั้งค่าศูนย์เทียบน้ำกลั่นบริสุทธิ์ (Pure Water Blank Reference: $n = 1.3330$, $\rho = 0.9982\text{ g/cm}^3$)
+    \item กดโยกจอยสติ๊กตรงกลาง (\texttt{WIO\_5S\_PRESS}) เพื่อตั้งค่าศูนย์เทียบน้ำกลั่นบริสุทธิ์ (Pure Water Blank Reference หรือ $n = 1.3330$, $\rho = 0.9982\text{ g/cm}^3$)
     \item กดโยกจอยสติ๊กลง (\texttt{WIO\_5S\_DOWN}) เพื่อเริ่มการสแกนสเปกตรัมแสงและคำนวณดัชนีหักเห ความหนาแน่น และระดับความขุ่นโดยอัตโนมัติ
     \item ผลการตรวจวัดจะถูกบันทึกต่อท้ายไฟล์ \texttt{LIQUID\_LOG.csv} บน microSD Card ทันที
 \end{itemize}

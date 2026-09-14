@@ -1,0 +1,45 @@
+\section*{ภาคผนวก ก  ตารางค่าดัชนีหักเหและความหนาแน่นของสารละลายมาตรฐาน}
+\addcontentsline{toc}{section}{ภาคผนวก ก  ตารางค่าดัชนีหักเหและความหนาแน่นของสารละลายมาตรฐาน}
+
+ตารางที่ ก.1 แสดงค่าดัชนีหักเหของแสง (Refractive Index, $n$) และค่าความหนาแน่นของสารละลาย ($\rho$) ที่ระดับความเข้มข้นสารละลายของแข็งและน้ำตาลต่าง ๆ ($^\circ\text{Bx}$) ที่อุณหภูมิ 20 องศาเซลเซียส ตามมาตรฐานสากล ICUMSA และแบบจำลอง Lorentz-Lorenz
+
+\begin{table}[H]
+\centering
+\caption{ค่ามาตรฐานดัชนีหักเหและความหนาแน่นของสารละลายตามเกณฑ์ ICUMSA}
+\label{tab:appendix_icumsa}
+\begin{tabularx}{\textwidth}{YYYY}
+\toprule
+\textbf{ความเข้มข้น ($^\circ\text{Bx}$)} & \textbf{ดัชนีหักเห ($n$)} & \textbf{ความหนาแน่น ($\text{g/cm}^3$)} & \textbf{การนำไปใช้เทียบเคียง} \\
+\midrule
+0.0 (น้ำกลั่นบริสุทธิ์) & 1.3330 & 0.9982 & จุดอ้างอิงศูนย์ (Blank Reference) \\
+5.0 & 1.3403 & 1.0177 & สารละลายธาตุอาหารดินเจือจาง \\
+10.0 & 1.3478 & 1.0381 & สารละลายน้ำสกัดผลไม้หรือน้ำหมัก \\
+15.0 & 1.3557 & 1.0592 & สารละลายน้ำตาลกลูโคสเข้มข้น \\
+20.0 & 1.3639 & 1.0810 & สารละลายปุ๋ยน้ำเข้มข้น \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\vspace{0.8cm}
+\section*{ภาคผนวก ข  ข้อมูลจำเพาะเชิงเทคนิคและสถาปัตยกรรมฮาร์ดแวร์ Wio Terminal}
+\addcontentsline{toc}{section}{ภาคผนวก ข  ข้อมูลจำเพาะเชิงเทคนิคและสถาปัตยกรรมฮาร์ดแวร์ Wio Terminal}
+
+\begin{table}[H]
+\centering
+\caption{ข้อมูลจำเพาะเชิงเทคนิคของระบบประมวลผล Wio Terminal ATSAMD51}
+\label{tab:appendix_specs}
+\begin{tabularx}{\textwidth}{p{4.5cm}X}
+\toprule
+\textbf{พารามิเตอร์ทางเทคนิค} & \textbf{รายละเอียดคุณลักษณะ} \\
+\midrule
+ไมโครคอนโทรลเลอร์ & Microchip ATSAMD51P19A (ARM Cortex-M4F 120 MHz) \\
+หน่วยประมวลผลทศนิยม & Hardware Floating Point Unit (FPU Single-Precision 32-bit) \\
+หน่วยความจำโปรแกรมแฟลช & 512 KB Flash Memory (ใช้งานจริงประมาณ 103 KB คิดเป็น 20\%) \\
+หน่วยความจำแรมภายใน & 192 KB SRAM \\
+จอแสดงผลข้อมูล & TFT LCD ขนาด 2.4 นิ้ว ความละเอียด 320x240 พิกเซล \\
+โมดูลเซนเซอร์ตรวจวัดสี & Adafruit TCS34725 (RGBC Photodiode Array พร้อม IR Filter) \\
+โมดูลกำเนิดแสงสเปกตรัม & Grove WS2812B NeoPixel (ควบคุมความยาวคลื่นแม่นยำ 5 แถบแสง) \\
+ระบบจัดเก็บข้อมูลภายนอก & microSD Card Slot รองรับระบบไฟล์ FAT32 (Quadruple Logging) \\
+\bottomrule
+\end{tabularx}
+\end{table}

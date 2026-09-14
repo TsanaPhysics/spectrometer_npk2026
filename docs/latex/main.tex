@@ -9,30 +9,30 @@
 % -------------------------------------------------------------
 \begin{titlepage}
     \centering
-    \vspace*{0.5cm}
+    \vspace*{0.3cm}
     
-    {\fontsize{26}{32}\selectfont\bfseries\color{rbruNavy} มหาวิทยาลัยราชภัฏรำไพพรรณี\par}
-    \vspace{0.4cm}
-    {\fontsize{18}{22}\selectfont\color{rbruSlate} คณะวิทยาศาสตร์และเทคโนโลยี  สาขาวิชาฟิสิกส์\par}
-    {\fontsize{16}{20}\selectfont\color{agriGreen} หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics)\par}
+    {\fontsize{24}{30}\selectfont\bfseries\color{rbruNavy} มหาวิทยาลัยราชภัฏรำไพพรรณี\par}
+    \vspace{0.3cm}
+    {\fontsize{17}{22}\selectfont\color{rbruSlate} คณะวิทยาศาสตร์และเทคโนโลยี  สาขาวิชาฟิสิกส์\par}
+    {\fontsize{15}{20}\selectfont\color{agriGreen} หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics)\par}
     
-    \vspace{1.5cm}
+    \vspace{1.0cm}
     {\color{rbruGold}\rule{\textwidth}{2.5pt}\par}
-    \vspace{0.6cm}
+    \vspace{0.5cm}
     
-    {\fontsize{24}{30}\selectfont\bfseries\color{rbruNavy} คู่มือการประกอบ ติดตั้ง และใช้งาน\par}
+    {\fontsize{22}{28}\selectfont\bfseries\color{rbruNavy} คู่มือการประกอบ ติดตั้ง และใช้งาน\par}
     \vspace{0.4cm}
-    {\fontsize{20}{26}\selectfont\bfseries\color{rbruTeal} เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน\par}
-    \vspace{0.2cm}
-    {\fontsize{18}{22}\selectfont\bfseries\color{rbruSlate} NPK Level Meter 1.02\par}
+    {\fontsize{18}{24}\selectfont\bfseries\color{rbruTeal} เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน\\และสมบัติเชิงแสงของของเหลว\par}
+    \vspace{0.3cm}
+    {\fontsize{16}{20}\selectfont\bfseries\color{rbruSlate} NPK Level Meter 1.02 \& Liquid Optics Analyzer\par}
     
-    \vspace{0.6cm}
+    \vspace{0.5cm}
     {\color{rbruGold}\rule{\textwidth}{2.5pt}\par}
     
-    \vspace{1.5cm}
+    \vspace{0.8cm}
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.68\textwidth]{images/device_overview.jpg}
+        \includegraphics[width=0.62\textwidth]{images/device_overview.jpg}
     \end{figure}
     
     \vfill
@@ -41,19 +41,19 @@
     \vspace{0.2cm}
     {\fontsize{14}{18}\selectfont\color{rbruSlate} เอกสารทางวิชาการและคู่มือการวิจัยและพัฒนาสิ่งประดิษฐ์\par}
     {\fontsize{14}{18}\selectfont\color{rbruSlate} กันยายน 2569\par}
-    \vspace*{0.5cm}
+    \vspace*{0.3cm}
 \end{titlepage}
 
 \newpage
 \pagenumbering{roman}
 
 % -------------------------------------------------------------
-% สารบัญ
+% สารบัญหลัก สารบัญภาพ สารบัญตาราง
 % -------------------------------------------------------------
 \tableofcontents
 \newpage
 \listoffigures
-\vspace{1cm}
+\vspace{0.8cm}
 \listoftables
 \newpage
 
@@ -71,8 +71,14 @@
 \input{chapters/ch04_operation_calibration}
 \newpage
 \input{chapters/ch05_troubleshooting}
-
 \newpage
+
+% -------------------------------------------------------------
+% ภาคผนวก
+% -------------------------------------------------------------
+\input{chapters/appendix}
+\newpage
+
 % -------------------------------------------------------------
 % เอกสารอ้างอิงและบรรณานุกรม
 % -------------------------------------------------------------
@@ -84,5 +90,11 @@
 \noindent ชีวะ ทัศนา และ จิรภัทร จันทมาลี. (2568). \textit{การประยุกต์ใช้ปัญญาประดิษฐ์ฝังตัวและเซนเซอร์เชิงแสงในการตรวจวัดธาตุอาหารในดินแบบทันที}. วารสารวิทยาศาสตร์และเทคโนโลยี, 33(2), 145--158.
 
 \noindent Seeed Technology Co., Ltd. (2024). \textit{Wio Terminal User Manual and Hardware Architecture}. Shenzhen: Seeed Studio.
+
+\newpage
+% -------------------------------------------------------------
+% ประวัติผู้เขียน
+% -------------------------------------------------------------
+\input{chapters/author_bio}
 
 \end{document}
