@@ -168,7 +168,7 @@ inline void drawSpectrumChart(TFT_eSPI &tft, const SpectrumScanResult &res, bool
   tft.drawString("ABSORBANCE SPECTRUM A(lambda)", 10, 8);
 
   tft.setTextColor(TFT_YELLOW, 0x18E3);
-  tft.drawString("[Page 3/4]", 250, 8);
+  tft.drawString("[Page 3/5]", 250, 8);
 
   // 2. Chart Plot Window Dimensions
   const int X0 = 36;

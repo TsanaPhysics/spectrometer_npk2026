@@ -243,7 +243,7 @@ inline void drawStandardCurvePlot(
   tft.setTextColor(TFT_WHITE, 0x18E3);
   tft.drawString("CALIBRATION CURVE & METROLOGY", 8, 8);
   tft.setTextColor(TFT_YELLOW, 0x18E3);
-  tft.drawString("[Page 4/4]", 250, 8);
+  tft.drawString("[Page 4/5]", 250, 8);
 
   // Plot Area: X in [34, 214] (W=180), Y in [34, 174] (H=140)
   const int X0 = 34;

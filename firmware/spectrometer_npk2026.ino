@@ -9,6 +9,7 @@
 #include "TinyML_Model.h"
 #include "Calibration_Engine.h"
 #include "Spectrum_Engine.h"
+#include "Liquid_Engine.h"
 
 // ============================================================
 // Pin Definitions
@@ -39,7 +40,8 @@ enum AppScreen {
   PAGE_NPK_METER = 1,
   PAGE_SPECTRUM  = 2,
   PAGE_CALIBRATE = 3,
-  NUM_PAGES      = 4
+  PAGE_LIQUID    = 4,
+  NUM_PAGES      = 5
 };
 
 enum ModelMode {
@@ -65,6 +67,11 @@ StandardCurve curveN;
 StandardCurve curveP;
 StandardCurve curveK;
 SpectrumScanResult currentSpectrum;
+LiquidScanResult currentLiquidResult = {
+  1.3330f, 0.9982f, 0.0f, 100.0f,
+  {0.002f, 0.001f, 0.003f, 0.001f, 0.002f},
+  525, 0.003f, "CLEAR", false, 0
+};
 
 File myFile;
 TFT_eSPI tft;
@@ -138,6 +145,7 @@ void drawDashboardPage();
 void drawActiveCalibrationScreen();
 void logSpectrumToSD();
 void logCalibToSD(const char* nutName, const StandardCurve &sc);
+void logLiquidToSD();
 
 // ============================================================
 // Setup Routine
@@ -205,6 +213,15 @@ void setup() {
     if (myFile) {
       if (myFile.size() == 0) {
         myFile.println("Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg");
+      }
+      myFile.close();
+    }
+
+    // Initialize LIQUID_LOG.csv
+    myFile = SD.open("LIQUID_LOG.csv", FILE_APPEND);
+    if (myFile) {
+      if (myFile.size() == 0) {
+        myFile.println("Time,n_Index,Density_g_cm3,Brix_deg,Transmittance_pct,A_465nm,A_500nm,A_525nm,A_590nm,A_625nm,Peak_nm,Clarity");
       }
       myFile.close();
     }
@@ -311,7 +328,7 @@ void drawDashboardPage() {
   // Page Indicator Badge
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("[1/4]", 285, 10);
+  tft.drawString("[1/5]", 285, 10);
 
   // Double Divider Lines
   tft.drawFastHLine(0, 56, 320, TFT_MAGENTA);
@@ -449,6 +466,11 @@ void drawNpkStaticLayout() {
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("NPK Level Meter 1.02", 15, 36);
+
+  // Page Indicator Badge
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString("[2/5]", 285, 12);
 
   // Upper Double Separator Line (Magenta + Cyan)
   tft.drawFastHLine(5, 62, 310, TFT_MAGENTA);
@@ -643,6 +665,31 @@ void logSpectrumToSD() {
 // ============================================================
 // Log Calibration Curve to SD Card
 // ============================================================
+// ============================================================
+// Log Liquid Optics Metrology to SD Card
+// ============================================================
+void logLiquidToSD() {
+  if (!hasSD) return;
+  myFile = SD.open("LIQUID_LOG.csv", FILE_APPEND);
+  if (myFile) {
+    char timeStr[12];
+    sprintf(timeStr, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
+
+    myFile.print(timeStr); myFile.print(",");
+    myFile.print(currentLiquidResult.refractiveIndex_n, 4); myFile.print(",");
+    myFile.print(currentLiquidResult.density_g_cm3, 4); myFile.print(",");
+    myFile.print(currentLiquidResult.brix_deg, 2); myFile.print(",");
+    myFile.print(currentLiquidResult.transmittance_pct, 1); myFile.print(",");
+    for (int i = 0; i < NUM_SPECTRAL_BANDS; i++) {
+      myFile.print(currentLiquidResult.absorbance[i], 3);
+      myFile.print(",");
+    }
+    myFile.print(currentLiquidResult.peakWavelength); myFile.print(",");
+    myFile.println(currentLiquidResult.clarity);
+    myFile.close();
+  }
+}
+
 void logCalibToSD(const char* nutName, const StandardCurve &sc) {
   if (!hasSD) return;
   myFile = SD.open("CALIB_LOG.csv", FILE_APPEND);
@@ -728,6 +775,13 @@ void loop() {
       logCalibToSD(nName, *targetCurve);
 
       drawActiveCalibrationScreen();
+    } else if (currentScreen == PAGE_LIQUID) {
+      // Execute Liquid Optics Multi-Wavelength Analysis
+      drawLiquidOpticsPage(tft, currentLiquidResult, true, fontLoaded);
+      analyzeLiquidOptics(strip, tcs, calibState, currentLiquidResult, hasTCS);
+      drawLiquidOpticsPage(tft, currentLiquidResult, false, fontLoaded);
+      logLiquidToSD();
+      updateLedOutput();
     }
     delay(150);
   }
@@ -775,13 +829,17 @@ void loop() {
 
   // 1.5 Joystick Press (Context Sensitive)
   if (btnJoyPress == LOW && lastBtnJoyPress == HIGH) {
-    if (currentScreen == PAGE_CALIBRATE) {
+    if (currentScreen == PAGE_CALIBRATE || currentScreen == PAGE_LIQUID) {
       // Capture & Save Zero Blanking on all 5 channels
       tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-      tft.drawString("MEASURING REFERENCE BLANK...", 16, 180);
+      tft.drawString("MEASURING WATER BLANK...", 16, 180);
       captureBlankReference(strip, tcs, calibState, hasTCS);
       updateLedOutput();
-      drawActiveCalibrationScreen();
+      if (currentScreen == PAGE_CALIBRATE) {
+        drawActiveCalibrationScreen();
+      } else {
+        drawLiquidOpticsPage(tft, currentLiquidResult, false, fontLoaded);
+      }
     } else {
       // Toggle White LED in other screens
       bool allOn = (ledRedState && ledGreenState && ledBlueState);
@@ -819,6 +877,9 @@ void loop() {
         break;
       case PAGE_CALIBRATE:
         drawActiveCalibrationScreen();
+        break;
+      case PAGE_LIQUID:
+        drawLiquidOpticsPage(tft, currentLiquidResult, false, fontLoaded);
         break;
     }
   }

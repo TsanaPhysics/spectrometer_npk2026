@@ -72,3 +72,40 @@ Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg
 12:47:10,P,525,0.00765,0.0280,0.9991,0.0065,2.80,8.49
 12:48:05,K,625,0.00548,0.0400,0.9980,0.0091,5.48,16.60
 \end{verbatim}
+
+\subsection{การวิเคราะห์สมบัติเชิงทัศนศาสตร์และความหนาแน่นของของเหลว (Page 5: Liquid Optics Metrology)}
+ในหน้าจอที่ 5 ผู้ใช้งานสามารถตรวจวิเคราะห์สมบัติเชิงแสงและกายภาพของตัวอย่างของเหลว (Liquid Optics \& Metrology) ได้อย่างละเอียด ประกอบด้วย:
+\begin{enumerate}
+    \item \textbf{ดัชนีหักเหของของเหลว (Refractive Index, $n$):} คำนวณจากความสัมพันธ์เชิงทัศนศาสตร์ของสารละลายตามมาตรฐานสากล ICUMSA:
+    \begin{equation}
+        n = 1.3330 + 0.00143 \cdot (\text{Brix}) + 0.0000045 \cdot (\text{Brix})^2
+    \end{equation}
+    โดยที่ $n_{\text{water}} = 1.3330$ ที่อุณหภูมิห้อง 20\,$^\circ$C
+    \item \textbf{ความหนาแน่นของของเหลว (Density, $\rho$):} คำนวณตามแบบจำลอง Lorentz-Lorenz และ Gladstone-Dale ในหน่วย $\text{g/cm}^3$:
+    \begin{equation}
+        \rho = 0.9982 + 0.00385 \cdot (\text{Brix}) + 0.000012 \cdot (\text{Brix})^2
+    \end{equation}
+    \item \textbf{ความเข้มข้นสารละลายและน้ำตาล (Brix Degree, $^\circ\text{Bx}$):} ประเมินจากการลดทอนความเข้มแสงและการดูดกลืนแสงเฉลี่ย ($A_{\text{mean}}$):
+    \begin{equation}
+        \text{Brix} = A_{\text{mean}} \times 26.5
+    \end{equation}
+    \item \textbf{ความส่องผ่านแสง (\%T) และการจำแนกความขุ่น (Clarity / Turbidity):}
+    ระบบจะจำแนกสถานะความขุ่นออกเป็น 3 ระดับ:
+    \begin{itemize}
+        \item \textbf{CLEAR (ใส):} เมื่อค่าการดูดกลืนแสงเฉลี่ย $A < 0.12$
+        \item \textbf{SLIGHT TURBID (ขุ่นเบา):} เมื่อ $0.12 \le A < 0.38$
+        \item \textbf{TURBID (ขุ่นแขวนลอย):} เมื่อ $A \ge 0.38$
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{การควบคุมและการบันทึกข้อมูลของเหลวลง microSD Card}
+\begin{itemize}
+    \item กดโยกจอยสติ๊กตรงกลาง (\texttt{WIO\_5S\_PRESS}) เพื่อตั้งค่าศูนย์เทียบน้ำกลั่นบริสุทธิ์ (Pure Water Blank Reference: $n = 1.3330$, $\rho = 0.9982\text{ g/cm}^3$)
+    \item กดโยกจอยสติ๊กลง (\texttt{WIO\_5S\_DOWN}) เพื่อเริ่มการสแกนสเปกตรัมแสงและคำนวณดัชนีหักเห ความหนาแน่น และระดับความขุ่นโดยอัตโนมัติ
+    \item ผลการตรวจวัดจะถูกบันทึกต่อท้ายไฟล์ \texttt{LIQUID\_LOG.csv} บน microSD Card ทันที
+\end{itemize}
+\begin{verbatim}
+Time,n_Index,Density_g_cm3,Brix_deg,Transmittance_pct,A_465nm,A_500nm,A_525nm,A_590nm,A_625nm,Peak_nm,Clarity
+14:15:30,1.3425,1.0238,6.60,86.2,0.112,0.089,0.075,0.062,0.054,465,CLEAR
+14:16:05,1.3650,1.0845,21.80,48.5,0.485,0.412,0.368,0.315,0.280,465,TURBID
+\end{verbatim}
