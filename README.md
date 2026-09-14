@@ -1,92 +1,77 @@
 # spectrometer_npk2026
-**เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน (NPK Level Meter 1.02) พร้อมระบบประมวลผล TinyML / Edge AI ในตัว**
+**เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน (NPK Level Meter 1.02) พร้อมระบบประมวลผล TinyML / Edge AI, ระบบสแกนความยาวคลื่นอัตโนมัติ และการพล็อตกราฟสเปกตรัมการดูดกลืนแสงบนจอ LCD**
 
-โครงการพัฒนาระบบตรวจวัดธาตุอาหารหลักในดิน (Nitrogen - N, Phosphorus - P, Potassium - K) ระดับห้องปฏิบัติการภาคสนามโดยอาศัยหลักการสเปกโทรโฟโตเมตรี (Spectrophotometry) ผ่านโมดูลไดโอดเปล่งแสงหลายสี (RGB LED) ร่วมกับเซนเซอร์วัดค่าสีแบบดิจิทัลความละเอียดสูง TCS34725 และประมวลผลบนไมโครคอนโทรลเลอร์ Seeed Studio Wio Terminal พร้อมระบบการเรียนรู้เชิงลึกแบบ TinyML Multi-Layer Perceptron (MLP) บูรณาการในเฟิร์มแวร์โดยตรง
-
----
-
-## จุดเด่นของระบบ (Key Highlights)
-1. **TinyML / Edge AI Direct Firmware Inference:** โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลแบบ Real-time บนชิป Cortex-M4F 120 MHz ใช้เวลาคำนวณเพียง $12.4\ \mu\text{s}$ ต่อตัวอย่าง
-2. **Dual-Mode Analytical Engine:** สลับโหมดการคำนวณได้ทันทีระหว่างแบบจำลองปัญญาประดิษฐ์ `[AI]` และแบบจำลองพหุนามดั้งเดิม `[PL]` ด้วยการโยกจอยสติ๊กขึ้นด้านบน
-3. **Matrix Turbidity Compensation:** ระบบชดเชยการกระเจิงของแสงจากสารแขวนลอยและความขุ่นในสารละลายสกัดดินด้วยช่องสัญญาณ Clear และการแปลงค่า Absorbance สัมพัทธ์
-4. **Intuitive Physical Controls:** ปุ่ม A (แดง), ปุ่ม B (เขียว), ปุ่ม C (น้ำเงิน) และจอยสติ๊กกดตรงกลาง (ขาว) สั่งเปิด/ปิดแสงสเปกตรัมที่ต้องการได้อย่างอิสระ
-5. **Auto Data Logging:** บันทึกข้อมูลและเวลาลงในการ์ด microSD Card แบบอัตโนมัติ
+โครงการพัฒนาระบบตรวจวัดธาตุอาหารหลักในดิน (Nitrogen - N, Phosphorus - P, Potassium - K) ระดับห้องปฏิบัติการภาคสนามโดยอาศัยหลักการสเปกโทรโฟโตเมตรี (Spectrophotometry) ร่วมกับเซนเซอร์วัดค่าสีแบบดิจิทัลความละเอียดสูง TCS34725 และโมดูลกำเนิดแสงหลายความยาวคลื่น ประมวลผลบนไมโครคอนโทรลเลอร์ Seeed Studio Wio Terminal ขับเคลื่อนด้วยโครงสร้างหลายหน้าจอ (Multi-Screen Carousel UI), ระบบสแกนความยาวคลื่นอัตโนมัติ (Automated Wavelength Sweep), การหักลบกระแสมืด (Dark Current Compensation) และโครงข่ายประสาทเทียม TinyML Edge AI
 
 ---
 
-## โครงสร้างระบบฮาร์ดแวร์ (Hardware Architecture)
-- **ประมวลผลกลาง:** Seeed Studio Wio Terminal (Microchip ATSAMD51P19A, ARM Cortex-M4F 120 MHz, 192 KB RAM, 512 KB Flash, Hardware FPU)
-- **หน้าจอแสดงผล:** 2.4" TFT LCD (320x240) ขับเคลื่อนด้วย Seeed_Arduino_LCD
-- **เซนเซอร์ตรวจวัดแสง:** Adafruit TCS34725 (16-bit RGB + Clear light sensor with IR filter) เชื่อมต่อผ่าน I2C บัส
-- **แหล่งกำเนิดแสงสเปกตรัม:** Grove RGB LED (WS2812B NeoPixel) ความยาวคลื่น 465 nm (Blue), 525 nm (Green), 625 nm (Red) และ White
-- **ช่องทางเดินแสง:** Standard Cuvette Holder ทางเดินแสง 10 mm
-- **การบันทึกข้อมูล:** microSD Card SPI Interface บันทึกไฟล์ `NPK.txt`
+## จุดเด่นของระบบ (Key Features)
+1. **ระบบควบคุม 4 หน้าจอ (4-Screen Carousel State Machine):**
+   - **Page 0: System Dashboard:** ตรวจสอบความสมบูรณ์ของระบบ ชิป ATSAMD51 120 MHz, หน่วยความจำ Flash/RAM, การเชื่อมต่อเซนเซอร์แสง และ microSD Card
+   - **Page 1: NPK Level Meter 1.02:** หน้าจอหลักแสดงความเข้มข้น N, P, K แบบเรียลไทม์ พร้อมป้ายสถานะโหมด `[AI]` หรือ `[PL]`
+   - **Page 2: Absorption Spectrum Plot:** กราฟิก 2D แสดงเส้นโค้งการดูดกลืนแสง $A(\lambda)$ ช่วง 400 - 700 nm แบบเรียลไทม์ พร้อมตรวจจับจุดยอดการดูดกลืนแสง ($\lambda_{\max}, A_{\max}$) และระบบเตือนความเข้มข้นสูงเกินย่านเชิงเส้น ($A > 1.5$)
+   - **Page 3: Calibration & Blank Wizard:** ระบบเทียบมาตรฐานสารละลายอ้างอิง ($I_0$) และตรวจวัดกระแสมืด ($I_{\text{dark}}$) บันทึกลงหน่วยความจำและ microSD Card
+2. **ระบบสแกนความยาวคลื่นอัตโนมัติ (Automated Wavelength Sweep):**
+   - ดับไฟ 50 ms เพื่อเก็บค่ากระแสมืดและแสงรบกวนแวดล้อม ($I_{\text{dark}}$)
+   - กวาดแสงกระตุ้น 5 ช่วงคลื่น: Blue (465 nm), Cyan (500 nm), Green (525 nm), Yellow (590 nm), Red (625 nm)
+   - คำนวณค่า Transmittance และ Absorbance ตามกฎของเบียร์-แลมเบิร์ต (Beer-Lambert Law)
+3. **TinyML / Edge AI Deep Neural Network:** โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลบนฮาร์ดแวร์ FPU ความเร็ว $12.4\ \mu\text{s}$ ต่อตัวอย่าง
+4. **Dual Data Logging on microSD:**
+   - `NPK.csv`: บันทึกค่าความเข้มข้นธาตุอาหาร NPK ต่อเนื่อง
+   - `SPECTRUM.csv`: บันทึกค่า Absorbance ของสเปกตรัมทุกช่วงความยาวคลื่นสำหรับการวิเคราะห์เชิงลึก
 
 ---
 
-## การเชื่อมต่อวงจร (Wiring and Pinout)
+## การควบคุมและสลับหน้าจอ (User Controls & Navigation)
 
-| อุปกรณ์ | พอร์ตบน Wio Terminal | ขาสัญญาณ | รายละเอียดหน้าที่ |
-| :--- | :--- | :--- | :--- |
-| **TCS34725 (SDA)** | Grove ขวา | SDA | สายสัญญาณข้อมูล I2C บัส |
-| **TCS34725 (SCL)** | Grove ขวา | SCL | สายสัญญาณนาฬิกา I2C บัส |
-| **TCS34725 (VCC/GND)** | Grove ขวา | 3V3 / GND | จ่ายไฟและกราวด์ให้เซนเซอร์ |
-| **RGB LED (DIN)** | Grove ซ้าย | **D0** | ควบคุมเม็ดสี NeoPixel WS2812B |
-| **RGB LED (VCC/GND)** | Grove ซ้าย | 5V / GND | จ่ายพลังงานให้หลอดไฟ |
-| **ปุ่ม A** | ด้านบนตัวเครื่อง | WIO_KEY_A | สลับเปิด/ปิด **ไฟสีแดง (Red LED)** |
-| **ปุ่ม B** | ด้านบนตัวเครื่อง | WIO_KEY_B | สลับเปิด/ปิด **ไฟสีเขียว (Green LED)** |
-| **ปุ่ม C** | ด้านบนตัวเครื่อง | WIO_KEY_C | สลับเปิด/ปิด **ไฟสีน้ำเงิน (Blue LED)** |
-| **จอยสติ๊กกลาง** | ด้านหน้าตัวเครื่อง | WIO_5S_PRESS | สลับเปิด/ปิด **ไฟสีขาว (White LED)** |
-| **จอยสติ๊กโยกขึ้น** | ด้านหน้าตัวเครื่อง | WIO_5S_UP | สลับโหมดการคำนวณ **[AI] TinyML $\leftrightarrow$ [PL] Polynomial** |
+| ปุ่มกด / จอยสติ๊ก | ตำแหน่ง | หน้าที่การทำงาน |
+| :--- | :--- | :--- |
+| **จอยสติ๊กโยกซ้าย (`WIO_5S_LEFT`)** | ด้านหน้า | สลับไปยัง **หน้าจอก่อนหน้า** (วนลูป 4 หน้าจอ) |
+| **จอยสติ๊กโยกขวา (`WIO_5S_RIGHT`)** | ด้านหน้า | สลับไปยัง **หน้าจอถัดไป** (Dashboard -> NPK -> Spectrum -> Calib) |
+| **จอยสติ๊กโยกลง (`WIO_5S_DOWN`)** | ด้านหน้า | สั่ง **Auto-Scan** กวาดแสงในหน้า Spectrum หรือสั่ง **Zero Blank** ในหน้า Calibrate |
+| **จอยสติ๊กโยกขึ้น (`WIO_5S_UP`)** | ด้านหน้า | สลับโหมดวิเคราะห์ **`[AI]` TinyML $\leftrightarrow$ `[PL]` Polynomial** (ในหน้า NPK) |
+| **จอยสติ๊กกดตรงกลาง (`WIO_5S_PRESS`)** | ด้านหน้า | เปิด/ปิด **ไฟสีขาว (White LED)** สำหรับการเทียบศูนย์ |
+| **ปุ่ม A (ขวาสุดด้านบน)** | ด้านบน | เปิด/ปิด **ไฟสีแดง (Red LED)** |
+| **ปุ่ม B (กลางด้านบน)** | ด้านบน | เปิด/ปิด **ไฟสีเขียว (Green LED)** |
+| **ปุ่ม C (ซ้ายสุดด้านบน)** | ด้านบน | เปิด/ปิด **ไฟสีน้ำเงิน (Blue LED)** |
 
 ---
 
-## สถาปัตยกรรม TinyML Edge AI บน Wio Terminal
+## การคำนวณทางฟิสิกส์สเปกโทรสโกปี (Spectroscopic Equations)
 
-### เวกเตอร์คุณลักษณะนำเข้า (Input Features $\in \mathbb{R}^6$)
-$$\mathbf{x} = \begin{bmatrix} b_p & g_p & r_p & c_{\text{ratio}} & \text{lux}_{\text{norm}} & A_{\text{est}} \end{bmatrix}^T$$
-- $b_p, g_p, r_p$: สัดส่วนร้อยละของสัญญาณแสงสีน้ำเงิน เขียว และแดง
-- $c_{\text{ratio}} = C / (R+G+B+\epsilon)$: สัดส่วนช่องสัญญาณ Clear ชดเชยความขุ่น
-- $\text{lux}_{\text{norm}} = \text{Lux} / 1000.0$: ความสว่างสัมพัทธ์
-- $A_{\text{est}} = -\log_{10}((R+G+B+1.0)/(3 \times 65535.0))$: การดูดกลืนแสงสัมพัทธ์ตามกฎของเบียร์-แลมเบิร์ต
+1. **การหักลบกระแสมืด (Dark Current Correction):**
+   $$I_{\text{sample, corr}}(\lambda) = \max(1.0, \, I_{\text{sample}}(\lambda) - I_{\text{dark}}(\lambda))$$
+   $$I_{\text{blank, corr}}(\lambda) = \max(1.0, \, I_{\text{blank}}(\lambda) - I_{\text{dark}}(\lambda))$$
 
-### โครงสร้างโครงข่ายประสาทเทียม (Feed-Forward MLP)
-- **Layer 1 (Hidden 1):** $\mathbf{z}^{(1)} = \text{ReLU}(\mathbf{W}^{(1)} \tilde{\mathbf{x}} + \mathbf{b}^{(1)}) \in \mathbb{R}^{12}$
-- **Layer 2 (Hidden 2):** $\mathbf{z}^{(2)} = \text{ReLU}(\mathbf{W}^{(2)} \mathbf{z}^{(1)} + \mathbf{b}^{(2)}) \in \mathbb{R}^{8}$
-- **Output Layer:** $\hat{\mathbf{y}} = \mathbf{W}^{(3)} \mathbf{z}^{(2)} + \mathbf{b}^{(3)} \in \mathbb{R}^{3} \quad (N, P, K\text{ mg/kg})$
+2. **การดูดกลืนแสงตามกฎของเบียร์-แลมเบิร์ต (Beer-Lambert Law):**
+   $$T(\lambda) = \frac{I_{\text{sample, corr}}(\lambda)}{I_{\text{blank, corr}}(\lambda)}$$
+   $$A(\lambda) = -\log_{10}(T(\lambda))$$
 
-### สมรรถนะโมเดล (Validation Metrics)
-- **ไนโตรเจน (N):** $R^2 = 0.9918$
-- **ฟอสฟอรัส (P):** $R^2 = 0.9880$
-- **โพแทสเซียม (K):** $R^2 = 0.9897$
-- **การใช้ทรัพยากร:** แฟลช 864 ไบต์, แรม 128 ไบต์, ความหน่วงเวลาคำนวณ $12.4\ \mu\text{s}$
+3. **ขีดจำกัดย่านความเป็นเส้นตรง (Linear Dynamic Range Alert):**
+   หากค่า $A_{\max} > 1.50$ หน้าจอจะแสดงป้ายเตือน:
+   `! WARN: HIGH ABS - DILUTE 1:5 !` เพื่อแนะนำให้ทำการเจือจางสารละลายตัวอย่างก่อนวัดซ้ำ
 
 ---
 
 ## โครงสร้างโปรเจกต์ (Repository Structure)
 ```
 spectrometer_npk2026/
-├── README.md                           # คำอธิบายโปรเจกต์และคู่มือเริ่มต้นฉบับย่อ
+├── README.md                           # คู่มือฉบับสมบูรณ์
 ├── firmware/
-│   ├── TinyML_Model.h                  # เฮดเดอร์โมเดล TinyML C++ Zero-Allocation
-│   ├── train_tinyml_model.py           # สคริปต์ฝึกสอนและส่งออกพารามิเตอร์โมเดล AI
 │   ├── spectrometer_npk2026/
-│   │   ├── spectrometer_npk2026.ino    # สเก็ตช์หลักสำหรับ Arduino IDE / CLI
-│   │   └── TinyML_Model.h              # โมเดล TinyML C++ ฝังตัว
-│   └── build/                          # ไฟล์ไบนารี .bin, .hex, .uf2 สำหรับแฟลชทันที
+│   │   ├── spectrometer_npk2026.ino    # สเก็ตช์หลักระบบ Multi-Screen & State Machine
+│   │   ├── Spectrum_Engine.h           # เอนจิน Auto-Scan & วาดกราฟสเปกตรัม A(lambda)
+│   │   ├── Calibration_Engine.h        # ระบบเทียบมาตรฐาน Blank Reference & Dark Current
+│   │   └── TinyML_Model.h              # โมเดล TinyML C++ Zero-Allocation
+│   └── train_tinyml_model.py           # สคริปต์ฝึกสอนและส่งออกโมเดล AI
 ├── docs/
-│   ├── NPK_Spectrometer_Manual.pdf     # เอกสารคู่มือฉบับสมบูรณ์ (18 หน้า ผ่านมาตรฐาน RBRU)
-│   ├── manual_assembly_operation.md    # คู่มือการประกอบและใช้งานแบบ Markdown
-│   └── latex/                          # ซอร์สโค้ด XeLaTeX มาตรฐานตำรา มรภ.รำไพพรรณี
+│   ├── NPK_Spectrometer_Manual.pdf     # เอกสารคู่มือวิชาการฉบับสมบูรณ์ (มาตรฐาน มรภ.รำไพพรรณี)
+│   ├── manual_assembly_operation.md    # คู่มือปฏิบัติการแบบ Markdown
+│   └── latex/                          # ซอร์สโค้ด XeLaTeX
 └── data/
-    └── NPK_sample_log.csv              # ตัวอย่างชุดข้อมูลผลการวัด
+    ├── NPK.csv                         # ตัวอย่างไฟล์บันทึกค่าความเข้มข้น NPK
+    └── SPECTRUM.csv                    # ตัวอย่างไฟล์บันทึกสเปกตรัมการดูดกลืนแสง
 ```
-
----
-
-## คู่มือการประกอบและเอกสารทางวิชาการ (Documentation)
-- อ่านคู่มือฉบับสมบูรณ์ในรูปแบบ Markdown ได้ที่ [docs/manual_assembly_operation.md](docs/manual_assembly_operation.md)
-- ดาวน์โหลดคู่มือวิชาการฉบับพิมพ์ทางการ (PDF 18 หน้า จัดหน้าตามระเบียบ มรภ.รำไพพรรณี) ได้ที่ [docs/NPK_Spectrometer_Manual.pdf](docs/NPK_Spectrometer_Manual.pdf)
 
 ---
 
