@@ -1,86 +1,250 @@
 # spectrometer_npk2026
+
 <p align="center">
   <img src="docs/images/npk_spec_logo.jpg" alt="NPK Spectrometer Logo" width="280" />
 </p>
 
-<h3 align="center"><b>เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน (NPK Level Meter 1.02)</b></h3>
+<h2 align="center"><b>เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดินและสมบัติเชิงแสงของของเหลว</b></h2>
+<h3 align="center"><b>(NPK Level Meter 1.02 & Liquid Optics Metrology Analyzer)</b></h3>
+
 <p align="center">
-  <b>ระบบประมวลผล TinyML / Edge AI ในตัว, ระบบสแกนความยาวคลื่นอัตโนมัติ และระบบเทียบมาตรฐานเชิงวิเคราะห์ (In-Situ Standard Curve: R², LOD, LOQ)</b><br>
+  <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/Platform-Seeed_Wio_Terminal-00979D.svg?style=for-the-badge&logo=arduino" alt="Platform"></a>
+  <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/MCU-ATSAMD51_120MHz_FPU-FF6F00.svg?style=for-the-badge&logo=microchip" alt="MCU"></a>
+  <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/TinyML-Deep_Neural_Net-00E676.svg?style=for-the-badge&logo=tensorflow" alt="TinyML"></a>
+  <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/Metrology-OLS_R²_LOD_LOQ-2979FF.svg?style=for-the-badge" alt="Metrology"></a>
+  <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/Liquid_Optics-n_rho_Brix-D500F9.svg?style=for-the-badge" alt="Liquid Optics"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"></a>
+</p>
+
+<p align="center">
+  <b>ระบบสเปกโทรโฟโตมิเตอร์แบบพกพา 5 หน้าจอ (5-Screen Carousel UI) ผสาน Edge AI TinyML ในตัว, การสร้างกราฟมาตรฐานสด (In-Situ Standard Curve: R², LOD, LOQ), การกวาดสเปกตรัมหลายช่วงคลื่น และการวิเคราะห์ดัชนีหักเห-ความหนาแน่นของของเหลว</b><br>
   <i>หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics) สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</i>
 </p>
 
 ---
 
-## จุดเด่นของระบบ (Key Features)
-1. **หน้าแรกโฉมใหม่ภาษาไทย พร้อมตราสัญลักษณ์สเปกโตรมิเตอร์ (Thai Dashboard & Logo):**
-   - ตราสัญลักษณ์เวกเตอร์ออปติคัลแสดงการกระจายแสงผ่านปริซึม 5 สเปกตรัมผสานต้นกล้าพืชการเกษตร
-   - การ์ดคู่แบ่งสัดส่วน: **[ ข้อมูลระบบประมวลผล ]** และ **[ อุปกรณ์และเซนเซอร์ ]**
-   - รองรับฟอนต์ภาษาไทยสารบรรณอย่างเป็นทางการ
-2. **ระบบควบคุม 5 หน้าจอ (5-Screen Carousel UI):
-   - **Page 1: System Dashboard:** แดชบอร์ดตรวจสอบความพร้อมของระบบ สเปกชิป ATSAMD51 120 MHz, FPU, แฟลช, แรม, เซนเซอร์ TCS34725 และสถานะการ์ด microSD
-   - **Page 2: NPK Level Meter 1.02:** หน้าจอหลักตรวจวัดความเข้มข้น N, P, K แบบเรียลไทม์ พร้อมป้ายสถานะโหมด `[AI]`, `[PL]`, หรือ `[SC]`
-   - **Page 3: Absorbance Spectrum Plot:** กราฟิก 2D แสดงเส้นโค้งการดูดกลืนแสง $A(\lambda)$ ช่วง 400 - 700 nm พร้อมตรวจจับพีคการดูดกลืนแสง ($\lambda_{\max}, A_{\max}$) และระบบเตือนความเข้มข้นสูงเกินย่านเชิงเส้น ($A > 1.50$)
-   - **Page 4: Calibration & Standard Curve Wizard:** ระบบเทียบมาตรฐานสารละลายมาตรฐาน 5 จุด ($0, 20, 40, 80, 160\text{ mg/kg}$) พร้อมพล็อตกราฟเส้นตรงการถดถอยและคำนวณค่า $R^2$, Slope $m$, Intercept $c$, LOD, LOQ บนหน้าจอ LCD
-   - **Page 5: Liquid Optics & Metrology Analyzer:** ระบบตรวจวัดและวิเคราะห์สมบัติเชิงแสงของของเหลว: ดัชนีหักเหแสง ($n$), ความหนาแน่น ($\rho$ ใน $\text{g/cm}^3$), ความเข้มข้นสารละลาย ($^\circ\text{Bx}$), ค่าการดูดกลืนแสงหลายช่วงคลื่น และการประเมินระดับความขุ่น (Clarity)**
-   - **Page 1: System Dashboard:** แดชบอร์ดตรวจสอบความพร้อมของระบบ สเปกชิป ATSAMD51 120 MHz, FPU, แฟลช, แรม, เซนเซอร์ TCS34725 และสถานะการ์ด microSD
-   - **Page 2: NPK Level Meter 1.02:** หน้าจอหลักตรวจวัดความเข้มข้น N, P, K แบบเรียลไทม์ พร้อมป้ายสถานะโหมด `[AI]`, `[PL]`, หรือ `[SC]`
-   - **Page 3: Absorbance Spectrum Plot:** กราฟิก 2D แสดงเส้นโค้งการดูดกลืนแสง $A(\lambda)$ ช่วง 400 - 700 nm พร้อมตรวจจับพีคการดูดกลืนแสง ($\lambda_{\max}, A_{\max}$) และระบบเตือนความเข้มข้นสูงเกินย่านเชิงเส้น ($A > 1.50$)
-   - **Page 4: Calibration & Standard Curve Wizard:** ระบบเทียบมาตรฐานสารละลายมาตรฐาน 5 จุด ($0, 20, 40, 80, 160\text{ mg/kg}$) พร้อมพล็อตกราฟเส้นตรงการถดถอยและคำนวณค่า $R^2$, Slope $m$, Intercept $c$, LOD, LOQ บนหน้าจอ LCD
-3. **ระบบการคำนวณ 3 โหมด (Triple Analytical Engine):**
-   - **`[AI]` (ป้ายเขียว):** พยากรณ์ด้วยโครงข่ายประสาทเทียม TinyML Deep Learning ($6 \to 12 \to 8 \to 3$) พร้อมระบบชดเชยความขุ่น
-   - **`[PL]` (ป้ายเหลือง):** คำนวณด้วยสมการพหุนามสากล (Classical Polynomial)
-   - **`[SC]` (ป้ายฟ้า):** คำนวณด้วยสมการเส้นตรงมาตรฐานที่ผู้ใช้วัดเทียบสดจากห้องปฏิบัติการ (In-Situ Standard Curve: $C = \frac{A - c}{m}$)
-4. **ระบบสแกนความยาวคลื่นอัตโนมัติและการหักลบกระแสมืด:** ดับไฟ 50 ms วัด Dark Current ($I_{\text{dark}}$) แล้วกวาดแสง 5 ช่วงคลื่น (465, 500, 525, 590, 625 nm)
-5. **Quadruple Data Logging on microSD (4 CSV Files):**
-   - `NPK.csv`: บันทึกค่าความเข้มข้นธาตุอาหาร NPK ต่อเนื่อง
-   - `SPECTRUM.csv`: บันทึกค่า Absorbance ของสเปกตรัมทุกช่วงความยาวคลื่นเมื่อกด Auto-Scan
-   - `CALIB_LOG.csv`: บันทึกประวัติสมการคาลิเบรต R2, LOD, LOQ และพารามิเตอร์การวัด
-   - `LIQUID_LOG.csv`: บันทึกค่าดัชนีหักเห (n), ความหนาแน่น (rho), Brix, %T, Absorbance 5 ย่านคลื่น และสถานะความขุ่น
+## สารบัญ (Table of Contents)
+- [ภาพรวมโครงการ (Project Overview)](#ภาพรวมโครงการ-project-overview)
+- [สถาปัตยกรรม 5 หน้าจอ (5-Screen Carousel UI)](#สถาปัตยกรรม-5-หน้าจอ-5-screen-carousel-ui)
+- [ทฤษฎีทางฟิสิกส์และเคมีวิเคราะห์ (Physics & Metrology Theory)](#ทฤษฎีทางฟิสิกส์และเคมีวิเคราะห์-physics--metrology-theory)
+  - [1. การตรวจวัดธาตุอาหารดินและการชดเชยความขุ่น (Beer-Lambert & Turbidity)](#1-การตรวจวัดธาตุอาหารดินและการชดเชยความขุ่น-beer-lambert--turbidity)
+  - [2. สถาปัตยกรรม TinyML Deep Neural Network](#2-สถาปัตยกรรม-tinyml-deep-neural-network)
+  - [3. ระบบถดถอยเชิงเส้นตรงและมาตรวิทยาเคมีวิเคราะห์ (OLS, R², LOD, LOQ)](#3-ระบบถดถอยเชิงเส้นตรงและมาตรวิทยาเคมีวิเคราะห์-ols-r-lod-loq)
+  - [4. การวิเคราะห์สมบัติเชิงแสงและความหนาแน่นของของเหลว (Liquid Optics Metrology)](#4-การวิเคราะห์สมบัติเชิงแสงและความหนาแน่นของของเหลว-liquid-optics-metrology)
+- [การเชื่อมต่อวงจรฮาร์ดแวร์ (Hardware Wiring & Pinout)](#การเชื่อมต่อวงจรฮาร์ดแวร์-hardware-wiring--pinout)
+- [การควบคุมและการนำทาง (Controls & Navigation)](#การควบคุมและการนำทาง-controls--navigation)
+- [โครงสร้างการบันทึกข้อมูล microSD Card (Quadruple Logging)](#โครงสร้างการบันทึกข้อมูล-microsd-card-quadruple-logging)
+- [การติดตั้ง คอมไพล์ และแฟลชโปรแกรม (Build & Flash Guide)](#การติดตั้ง-คอมไพล์-และแฟลชโปรแกรม-build--flash-guide)
+- [โครงสร้างโปรเจกต์ (Repository Tree)](#โครงสร้างโปรเจกต์-repository-tree)
+- [การอ้างอิงทางวิชาการ (Academic Citation)](#การอ้างอิงทางวิชาการ-academic-citation)
 
 ---
 
-## การควบคุมและสลับหน้าจอ (User Controls & Navigation)
+## ภาพรวมโครงการ (Project Overview)
 
-| ปุ่มกด / จอยสติ๊ก | ตำแหน่ง | หน้าที่การทำงาน |
-| :--- | :--- | :--- |
-| **จอยสติ๊กโยกซ้าย (`WIO_5S_LEFT`)** | ด้านหน้า | สลับไปยัง **หน้าจอก่อนหน้า** (วนลูป 5 หน้าจอ) |
-| **จอยสติ๊กโยกขวา (`WIO_5S_RIGHT`)** | ด้านหน้า | สลับไปยัง **หน้าจอถัดไป** (Dashboard -> NPK -> Spectrum -> Calib -> Liquid) |
-| **จอยสติ๊กโยกลง (`WIO_5S_DOWN`)** | ด้านหน้า | หน้า Spectrum: สั่ง **Auto-Scan**<br>หน้า Calibrate: สั่ง **บันทึกจุดสารมาตรฐาน (Step Calib)**<br>หน้า Liquid: สั่ง **วิเคราะห์สมบัติของเหลว (Analyze Liquid)** |
-| **จอยสติ๊กโยกขึ้น (`WIO_5S_UP`)** | ด้านหน้า | หน้า NPK: สลับโหมดคำนวณ **`[AI]` $\to$ `[PL]` $\to$ `[SC]`** |
-| **จอยสติ๊กกดตรงกลาง (`WIO_5S_PRESS`)** | ด้านหน้า | หน้า Calibrate / Liquid: สั่ง **Zero Blank ($I_0$)** เทียบน้ำกลั่นบริสุทธิ์<br>หน้าอื่น: เปิด/ปิด **ไฟสีขาว (White LED)** |
-| **ปุ่ม C (ซ้ายสุดด้านบน)** | ด้านบน | หน้า Calibrate: เลือกคาลิเบรต **ไนโตรเจน (N - 465 nm)**<br>หน้า NPK: เปิด/ปิด **ไฟสีน้ำเงิน (Blue LED)** |
-| **ปุ่ม B (กลางด้านบน)** | ด้านบน | หน้า Calibrate: เลือกคาลิเบรต **ฟอสฟอรัส (P - 525 nm)**<br>หน้า NPK: เปิด/ปิด **ไฟสีเขียว (Green LED)** |
-| **ปุ่ม A (ขวาสุดด้านบน)** | ด้านบน | หน้า Calibrate: เลือกคาลิเบรต **โพแทสเซียม (K - 625 nm)**<br>หน้า NPK: เปิด/ปิด **ไฟสีแดง (Red LED)** |
+เครื่อง **NPK Level Meter 1.02 & Liquid Optics Metrology Analyzer** เป็นระบบตรวจวัดทางเคมีฟิสิกส์เชิงสเปกตรัมแบบพกพาที่พัฒนาขึ้นสำหรับเกษตรกรแปลงใหญ่ (เช่น ทุเรียนจันทบุรี) นักวิจัย และห้องปฏิบัติการวิทยาศาสตร์ โดยมีจุดเด่นคือ:
+1. **ประมวลผลบนชิปสมบูรณ์ 100% (Edge-Only Processing):** ใช้ไมโครคอนโทรลเลอร์ Microchip ATSAMD51P19A (ARM Cortex-M4F 120 MHz พร้อม FPU) ไม่พึ่งพาคลาวด์หรือสมาร์ตโฟน
+2. **ระบบการวิเคราะห์ 3 โหมด (Triple Analytical Engine):** สลับโหมดวิเคราะห์ธาตุอาหารดินระหว่าง TinyML Neural Network, Classical Polynomial และ In-Situ Standard Curve ได้ทันที
+3. **ระบบกวาดสเปกตรัมหลายช่วงคลื่น (Multi-Wavelength Spectral Scanning):** กวาดแสง 5 ย่านสเปกตรัม (465, 500, 525, 590, 625 nm) พร้อมการตัดกระแสมืด (Dark Current Subtraction)
+4. **ระบบสร้างเส้นโค้งมาตรฐานในตัวเครื่อง (In-Situ Calibration Wizard):** คำนวณความชัน $m$, จุดตัด $c$, ค่า $R^2$, LOD, LOQ ตามมาตรฐาน IUPAC/ISO 17025
+5. **ระบบวิเคราะห์สมบัติของเหลว (Liquid Optics Metrology):** ตรวจวัดค่าดัชนีหักเห ($n$), ความหนาแน่น ($ho$ ใน $\text{g/cm}^3$), ความเข้มข้นสารละลาย ($^\circ\text{Bx}$), และระดับความขุ่น (Clarity) ของตัวอย่างของเหลว
+6. **ระบบการแสดงผลสองระดับ (Two-Tier Typography):** รองรับฟอนต์ไทยสารบรรณอย่างเป็นทางการผ่าน microSD Card (`.vlw`) และมีระบบฟอนต์ภาษาอังกฤษขนาดใหญ่พิเศษ (`TextSize 2`) คมชัด ปราศจากปัญหากล่องสี่เหลี่ยม (`[]`)
 
 ---
 
-## โครงสร้างโปรเจกต์ (Repository Structure)
+## สถาปัตยกรรม 5 หน้าจอ (5-Screen Carousel UI)
+
+ผู้ใช้สามารถสลับหน้าจอได้อย่างราบรื่นผ่านจอยสติ๊ก 5 ทิศทาง (`WIO_5S_LEFT / RIGHT`):
+
+```
+ ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+ │   [1/5]      │ ──> │   [2/5]      │ ──> │   [3/5]      │ ──> │   [4/5]      │ ──> │   [5/5]      │
+ │ Dashboard    │ <── │ NPK Meter    │ <── │ Spectrum A(λ)│ <── │ Calib Wizard │ <── │ Liquid Optics│
+ └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+```
+
+### รายละเอียดหน้าจอทั้ง 5:
+1. **Page 1: System Dashboard (`[1/5]`):**
+   - ตราสัญลักษณ์เวกเตอร์ออปติคัลปริซึมและสเปกตรัมแสง 5 สี
+   - ตรวจสอบความพร้อมของระบบ: ชิป SAMD51, ความถี่ 120 MHz, หน่วยความจำ Flash/SRAM, เซนเซอร์ TCS34725, ค่า Blank Reference, และ microSD Card
+2. **Page 2: NPK Soil Nutrient Meter (`[2/5]`):**
+   - แสดงค่าความเข้มข้น ไนโตรเจน (N), ฟอสฟอรัส (P), โพแทสเซียม (K) แบบเรียลไทม์ (หน่วย $\text{mg/kg}$)
+   - ป้ายสถานะโหมดการวิเคราะห์: `[AI]` (สีเขียว), `[PL]` (สีเหลือง), หรือ `[SC]` (สีฟ้า)
+   - ป้ายสถานะการเปิด/ปิดหลอดไฟ LED แยกสี (R, G, B) และสถานะบันทึก SD Card
+3. **Page 3: Absorbance Spectrum Plot (`[3/5]`):**
+   - กราฟิก 2D พล็อตเส้นโค้งการดูดกลืนแสง $A(\lambda)$ ช่วง 400 - 700 nm
+   - กดโยกจอยสติ๊กลง (`WIO_5S_DOWN`) เพื่อสั่ง **Auto-Scan** กวาดแสง 5 ย่านคลื่น
+   - ตรวจจับจุดพีคการดูดกลืนแสง $(\lambda_{\max}, A_{\max})$ อัตโนมัติ
+   - ระบบเตือนความเข้มข้นสารละลายสูงเกินย่านเชิงเส้น ($A > 1.50$) แนะนำให้เจือจางตัวอย่าง 1:5
+4. **Page 4: Calibration & Standard Curve Wizard (`[4/5]`):**
+   - ฝั่งซ้าย: กราฟิกแสดงเส้นตรงการถดถอยและจุดข้อมูลจริง 5 จุดความเข้มข้น ($0, 20, 40, 80, 160\text{ mg/kg}$)
+   - ฝั่งขวา: แผงสถิติมาตรวิทยาเคมีวิเคราะห์ ($R^2$, ความชัน $m$, จุดตัด $c$, LOD, LOQ)
+   - ปุ่มเลือกธาตุ: ปุ่ม C (ไนโตรเจน 465 nm), ปุ่ม B (ฟอสฟอรัส 525 nm), ปุ่ม A (โพแทสเซียม 625 nm)
+5. **Page 5: Liquid Optics & Metrology Analyzer (`[5/5]`):**
+   - ฝั่งซ้าย (Metrology): ดัชนีหักเหของเหลว ($n$), ความหนาแน่น ($ho$ ใน $\text{g/cm}^3$), ปริมาณของแข็ง/น้ำตาล ($^\circ\text{Bx}$), และระดับความขุ่น (`CLEAR`, `SLIGHT TURBID`, `TURBID`)
+   - ฝั่งขวา (Spectrum A): ค่าการดูดกลืนแสงของของเหลวรายความยาวคลื่น $465, 500, 525, 590, 625\text{ nm}$
+
+---
+
+## ทฤษฎีทางฟิสิกส์และเคมีวิเคราะห์ (Physics & Metrology Theory)
+
+### 1. การตรวจวัดธาตุอาหารดินและการชดเชยความขุ่น (Beer-Lambert & Turbidity)
+ตามกฎของเบียร์และแลมเบิร์ต (Beer-Lambert Law):
+$$A = -\log_{10}\left(\frac{I_{\text{sample}} - I_{\text{dark}}}{I_{\text{blank}} - I_{\text{dark}}}\right) = \varepsilon b C$$
+
+ระบบแก้ปัญหาความขุ่นแขวนลอยของอนุภาคดินในสารละลายสกัดด้วย **Turbidity Matrix Compensation**:
+$$A_{\text{corrected}}(\lambda) = A_{\text{measured}}(\lambda) - \alpha(\lambda) \cdot A_{\text{turbidity}}(700\text{ nm})$$
+
+### 2. สถาปัตยกรรม TinyML Deep Neural Network
+โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลด้วย C++ Zero-Allocation Inference Engine:
+- **เวกเตอร์นำเข้า (6 Features):** $b_p, g_p, r_p, c_{\text{ratio}}, \text{lux}_{\text{norm}}, A_{\text{est}}$
+- **Hidden Layers:** 12 โหนด และ 8 โหนด พร้อมฟังก์ชันกระตุ้น ReLU: $\text{ReLU}(z) = \max(0, z)$
+- **เวกเตอร์ผลลัพธ์ (3 Outputs):** ความเข้มข้น $N, P, K$ ในหน่วย $\text{mg/kg}$
+- **ความเร็วในการประมวลผล:** $12.4\ \mu\text{s}$ ต่อการอนุมาน (Hardware Single-Precision FPU)
+
+### 3. ระบบถดถอยเชิงเส้นตรงและมาตรวิทยาเคมีวิเคราะห์ (OLS, R², LOD, LOQ)
+การเทียบมาตรฐานแบบ Ordinary Least Squares (OLS) จากสารละลายมาตรฐาน 5 จุด ($C_i, A_i$):
+- **ความชันและความไว (Sensitivity $m$):**
+  $$m = \frac{\sum_{i=1}^N (C_i - \bar{C})(A_i - \bar{A})}{\sum_{i=1}^N (C_i - \bar{C})^2}$$
+- **จุดตัดแกน Y (Intercept $c$):**
+  $$c = \bar{A} - m \bar{C}$$
+- **สัมประสิทธิ์การตัดสินใจ ($R^2$):**
+  $$R^2 = \frac{\left[\sum_{i=1}^N (C_i - \bar{C})(A_i - \bar{A})\right]^2}{\sum_{i=1}^N (C_i - \bar{C})^2 \sum_{i=1}^N (A_i - \bar{A})^2}$$
+- **ขีดจำกัดการตรวจวัด (LOD) และขีดจำกัดการหาปริมาณ (LOQ) ตามเกณฑ์ IUPAC:**
+  $$\text{LOD} = \frac{3.3 \cdot s_{y/x}}{m}, \quad \text{LOQ} = \frac{10.0 \cdot s_{y/x}}{m}$$
+  โดยที่ $s_{y/x} = \sqrt{\frac{\sum_{i=1}^N (A_i - (m C_i + c))^2}{N - 2}}$
+
+### 4. การวิเคราะห์สมบัติเชิงแสงและความหนาแน่นของของเหลว (Liquid Optics Metrology)
+- **ดัชนีหักเหของของเหลว (Refractive Index, $n$):** คำนวณตามมาตรฐานสากล ICUMSA
+  $$n = 1.3330 + 0.00143 \cdot (\text{Brix}) + 0.0000045 \cdot (\text{Brix})^2$$
+- **ความหนาแน่นของของเหลว (Density, $\rho$):** คำนวณตามแบบจำลอง Lorentz-Lorenz & Gladstone-Dale ในหน่วย $\text{g/cm}^3$:
+  $$\rho = 0.9982 + 0.00385 \cdot (\text{Brix}) + 0.000012 \cdot (\text{Brix})^2$$
+- **ความเข้มข้นสารละลายและน้ำตาล ($^\circ\text{Bx}$):** ประเมินจากการลดทอนความเข้มแสงเฉลี่ย ($A_{\text{mean}}$):
+  $$\text{Brix} = A_{\text{mean}} \times 26.5$$
+
+---
+
+## การเชื่อมต่อวงจรฮาร์ดแวร์ (Hardware Wiring & Pinout)
+
+| อุปกรณ์ / เซนเซอร์ | ขาสัญญาณบนโมดูล | ขาสัญญาณ Wio Terminal | ฟังก์ชันการทำงาน |
+| :--- | :--- | :--- | :--- |
+| **TCS34725** | SDA | **PA17 (Grove Right I2C)** | สัญญาณข้อมูล I2C (100 kHz) |
+| **TCS34725** | SCL | **PA16 (Grove Right I2C)** | สัญญาณนาฬิกา I2C (100 kHz) |
+| **TCS34725** | VCC / GND | **3V3 / GND** | แรงดันไฟฟ้ากระแสตรง 3.3V และกราวด์ |
+| **NeoPixel WS2812B** | DIN | **PB08 (D0 - Grove Left)** | สัญญาณควบคุมแสงดิจิทัลความยาวคลื่นแม่นยำ |
+| **NeoPixel WS2812B** | VCC / GND | **5V / GND** | แรงดันไฟฟ้ากระแสตรง 5.0V และกราวด์ |
+| **ปุ่มกด C (ซ้ายบน)** | Built-in | **WIO_KEY_C (30)** | NPK: เปิด/ปิดไฟ Blue \| Calib: เลือกไนโตรเจน (N) |
+| **ปุ่มกด B (กลางบน)** | Built-in | **WIO_KEY_B (29)** | NPK: เปิด/ปิดไฟ Green \| Calib: เลือกฟอสฟอรัส (P) |
+| **ปุ่มกด A (ขวาบน)** | Built-in | **WIO_KEY_A (28)** | NPK: เปิด/ปิดไฟ Red \| Calib: เลือกโพแทสเซียม (K) |
+| **จอยสติ๊กกลาง** | Built-in | **WIO_5S_PRESS (35)** | NPK: สลับไฟ White \| Calib/Liquid: เทียบน้ำกลั่น Blank |
+| **จอยสติ๊กโยกลง** | Built-in | **WIO_5S_DOWN (36)** | Spectrum: Auto-Scan \| Calib: Step Calib \| Liquid: วิเคราะห์ |
+| **จอยสติ๊กโยกขึ้น** | Built-in | **WIO_5S_UP (37)** | NPK: สลับโหมดคำนวณ `[AI]` $\to$ `[PL]` $\to$ `[SC]` |
+| **จอยสติ๊กโยกซ้าย** | Built-in | **WIO_5S_LEFT (38)** | สลับไปยังหน้าจอก่อนหน้า |
+| **จอยสติ๊กโยกขวา** | Built-in | **WIO_5S_RIGHT (39)** | สลับไปยังหน้าจอถัดไป |
+
+---
+
+## โครงสร้างการบันทึกข้อมูล microSD Card (Quadruple Logging)
+
+ทุกครั้งที่มีการวัดหรือคาลิเบรต ระบบจะบันทึกข้อมูลลง microSD Card อัตโนมัติ 4 รูปแบบ:
+
+### 1. `NPK.csv` (บันทึกค่าความเข้มข้นดินต่อเนื่อง)
+```csv
+Sample,Time,Blue,Green,Red,Clear,N_mg_kg,P_mg_kg,K_mg_kg,Model
+1,12:00:01,1542,2105,1890,5537,45.20,28.50,112.40,TinyML
+2,12:00:02,1540,2108,1892,5540,45.15,28.60,112.30,TinyML
+```
+
+### 2. `SPECTRUM.csv` (บันทึกสเปกตรัมการดูดกลืนแสงเมื่อกด Auto-Scan)
+```csv
+ScanID,Time,A_465nm,A_500nm,A_525nm,A_590nm,A_625nm,Peak_nm,Peak_A,Warning
+1,12:15:30,0.485,0.320,0.185,0.092,0.065,465,0.485,NORMAL
+2,12:16:05,1.620,1.210,0.850,0.420,0.310,465,1.620,HIGH_ABS_WARN
+```
+
+### 3. `CALIB_LOG.csv` (บันทึกประวัติสมการเส้นตรงมาตรฐาน R², LOD, LOQ)
+```csv
+Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg
+12:46:25,N,465,0.00624,0.0350,0.9985,0.0082,4.33,13.14
+12:47:10,P,525,0.00765,0.0280,0.9991,0.0065,2.80,8.49
+12:48:05,K,625,0.00548,0.0400,0.9980,0.0091,5.48,16.60
+```
+
+### 4. `LIQUID_LOG.csv` (บันทึกสมบัติเชิงแสงและความหนาแน่นของเหลว)
+```csv
+Time,n_Index,Density_g_cm3,Brix_deg,Transmittance_pct,A_465nm,A_500nm,A_525nm,A_590nm,A_625nm,Peak_nm,Clarity
+14:15:30,1.3425,1.0238,6.60,86.2,0.112,0.089,0.075,0.062,0.054,465,CLEAR
+14:16:05,1.3650,1.0845,21.80,48.5,0.485,0.412,0.368,0.315,0.280,465,TURBID
+```
+
+---
+
+## การติดตั้ง คอมไพล์ และแฟลชโปรแกรม (Build & Flash Guide)
+
+### 1. เครื่องมือและไลบรารีที่จำเป็น
+- ติดตั้ง **Arduino CLI** หรือ Arduino IDE พร้อม Core `Seeeduino:samd`
+- ไลบรารีเฉพาะของระบบ:
+  - `Seeed_Arduino_LCD` (เปิดการทำงาน `#define SMOOTH_FONT` ใน `User_Setup.h`)
+  - `Adafruit_TCS34725`
+  - `Adafruit_NeoPixel`
+  - `Seeed_Arduino_FS` และ `Seeed_SD`
+
+### 2. คำสั่งคอมไพล์และแฟลชผ่าน Arduino CLI
+```bash
+# คอมไพล์สเก็ตช์สำหรับบอร์ด Wio Terminal
+arduino-cli compile --fqbn Seeeduino:samd:seeed_wio_terminal firmware/spectrometer_npk2026
+
+# อัปโหลดเข้าสู่บอร์ด Wio Terminal ผ่านพอร์ต USB
+arduino-cli upload -p /dev/cu.usbmodem2101 --fqbn Seeeduino:samd:seeed_wio_terminal firmware/spectrometer_npk2026
+```
+
+---
+
+## โครงสร้างโปรเจกต์ (Repository Tree)
+
 ```
 spectrometer_npk2026/
-├── README.md                           # คู่มือฉบับสมบูรณ์
+├── README.md                           # คู่มือฉบับสมบูรณ์ (สถาปัตยกรรม 5 หน้าจอ & มาตรวิทยา)
 ├── firmware/
 │   ├── spectrometer_npk2026/
-│   │   ├── spectrometer_npk2026.ino    # สเก็ตช์หลักระบบ Triple-Engine, Logo & 4-Screen UI
+│   │   ├── spectrometer_npk2026.ino    # เฟิร์มแวร์หลัก 5-Screen UI & Engine Integration
 │   │   ├── Calibration_Engine.h        # เอนจิน Standard Curve Regression (R2, LOD, LOQ) & Chart
 │   │   ├── Liquid_Engine.h             # เอนจิน Liquid Optics Metrology (n, rho, Brix, Clarity)
 │   │   ├── Spectrum_Engine.h           # เอนจิน Auto-Scan Wavelength Sweep & Absorbance Chart
 │   │   └── TinyML_Model.h              # โมเดล TinyML C++ Zero-Allocation
-│   └── train_tinyml_model.py           # สคริปต์ฝึกสอนและส่งออกโมเดล AI
+│   └── train_tinyml_model.py           # สคริปต์ฝึกสอนโครงข่ายประสาทเทียม TinyML
 ├── docs/
 │   ├── images/
-│   │   └── npk_spec_logo.jpg           # ตราสัญลักษณ์ทางการของโครงการ (Logo)
+│   │   ├── npk_spec_logo.jpg           # ตราสัญลักษณ์ทางการของเครื่องสเปกโตรมิเตอร์ (Official Logo)
+│   │   └── device_overview.jpg         # ภาพรวมการต่อวงจรและโครงสร้างอุปกรณ์
 │   ├── NPK_Spectrometer_Manual.pdf     # เอกสารคู่มือวิชาการฉบับสมบูรณ์ (มาตรฐาน มรภ.รำไพพรรณี)
-│   ├── manual_assembly_operation.md    # คู่มือปฏิบัติการแบบ Markdown
-│   └── latex/                          # ซอร์สโค้ด XeLaTeX
+│   ├── manual_assembly_operation.md    # คู่มือการประกอบและการปฏิบัติการภาคสนาม
+│   └── latex/                          # ต้นฉบับเอกสารวิชาการ XeLaTeX (18 หน้า)
 └── data/
-    ├── NPK.csv                         # ตัวอย่างไฟล์บันทึกค่าความเข้มข้น NPK
-    ├── SPECTRUM.csv                    # ตัวอย่างไฟล์บันทึกสเปกตรัมการดูดกลืนแสง
-    └── CALIB_LOG.csv                   # ประวัติสมการคาลิเบรต R2, LOD, LOQ
+    ├── NPK.csv                         # ตัวอย่างประวัติการวัดความเข้มข้นดิน
+    ├── SPECTRUM.csv                    # ตัวอย่างสเปกตรัมการดูดกลืนแสง
+    ├── CALIB_LOG.csv                   # ตัวอย่างประวัติการเทียบมาตรฐาน OLS
+    └── LIQUID_LOG.csv                  # ตัวอย่างประวัติการวิเคราะห์สมบัติของเหลว
 ```
 
 ---
 
-## ใบอนุญาตและการอ้างอิง (License and Citation)
-ผลงานนี้เผยแพร่ภายใต้สัญญาอนุญาต **MIT License**  
-หากนำผลงานหรือแบบจำลองไปใช้ในงานวิจัยทางวิชาการ กรุณาอ้างอิง:
-> ชีวะ ทัศนา และคณะ. (2569). *คู่มือการประกอบ ติดตั้ง และใช้งานเครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน (NPK Level Meter 1.02)*. หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics) สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี.
+## การอ้างอิงทางวิชาการ (Academic Citation)
+
+หากท่านนำผลงาน ฮาร์ดแวร์ ซอฟต์แวร์ หรือแบบจำลองในโครงการนี้ไปใช้ประโยชน์ทางวิชาการและการวิจัย กรุณาอ้างอิงเอกสารดังนี้:
+
+```bibtex
+@manual{thassana2026spectrometer,
+  title        = {คู่มือการประกอบ ติดตั้ง และใช้งานเครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดินและสมบัติเชิงแสงของของเหลว (NPK Level Meter 1.02 & Liquid Optics Analyzer)},
+  author       = {ทัศนา, ชีวะ and คณะวิจัย AI4D AgriPhysics},
+  organization = {สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี},
+  year         = {2569},
+  note         = {GitHub: https://github.com/TsanaPhysics/spectrometer_npk2026}
+}
+```
+
+---
+<p align="center">
+  <b>พัฒนาโดย หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics)</b><br>
+  มหาวิทยาลัยราชภัฏรำไพพรรณี จังหวัดจันทบุรี
+</p>
