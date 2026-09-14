@@ -277,124 +277,154 @@ void drawSpectrometerLogo(int x, int y) {
 }
 
 // ============================================================
-// Page 0: System Dashboard (Thai Layout & Spectrometer Logo)
+// Page 0: System Dashboard (Large Text & Zero-Tofu Guaranteed)
 // ============================================================
 void drawDashboardPage() {
   tft.fillScreen(TFT_BLACK);
 
   // 1. Top Header Banner Box
-  tft.fillRect(0, 0, 320, 58, 0x0842);
+  tft.fillRect(0, 0, 320, 56, 0x0842);
 
-  // Draw Vector Logo
+  // Draw Embedded Optical Prism & Spectrum Logo
   drawSpectrometerLogo(10, 8);
 
-  // Banner Titles
+  // Header Titles
   if (fontLoaded) {
     tft.loadFont("THSarabunPSK30", SD);
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("สเปกโทรโฟโตมิเตอร์ดิน NPK", 82, 6);
+    tft.drawString("สเปกโทรโฟโตมิเตอร์ NPK", 80, 8);
 
     tft.loadFont("THSarabunPSK20", SD);
     tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("หน่วยวิจัยฟิสิกส์เกษตรดิจิทัล AI4D มรภ.รำไพพรรณี", 82, 34);
+    tft.drawString("หน่วยวิจัย AI4D มรภ.รำไพพรรณี", 80, 34);
     tft.unloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("NPK SPECTROMETER", 82, 10);
+    tft.drawString("NPK SPECTROMETER", 80, 10);
 
     tft.setTextSize(1);
     tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("AI4D AgriPhysics - RBRU Research", 82, 36);
+    tft.drawString("AI4D AgriPhysics - RBRU Research", 80, 34);
   }
 
   // Page Indicator Badge
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("[Page 1/4]", 255, 10);
+  tft.drawString("[1/4]", 285, 10);
 
   // Double Divider Lines
-  tft.drawFastHLine(0, 58, 320, TFT_MAGENTA);
-  tft.drawFastHLine(0, 60, 320, 0x07FF);
+  tft.drawFastHLine(0, 56, 320, TFT_MAGENTA);
+  tft.drawFastHLine(0, 58, 320, 0x07FF);
 
   // 2. Card 1: Hardware & Processing Core (Left Box)
-  tft.fillRoundRect(6, 68, 150, 128, 4, 0x0842);
-  tft.drawRoundRect(6, 68, 150, 128, 4, 0x07FF);
-  tft.fillRoundRect(7, 69, 148, 18, 3, 0x10E4);
+  tft.fillRoundRect(6, 64, 150, 134, 4, 0x0842);
+  tft.drawRoundRect(6, 64, 150, 134, 4, 0x07FF);
+  tft.fillRoundRect(7, 65, 148, 22, 3, 0x10E4);
+
+  // Card 1 Header (Large TextSize 2 or Sarabun font)
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK20", SD);
+    tft.setTextColor(TFT_WHITE, 0x10E4);
+    tft.drawString("ระบบประมวลผล", 32, 68);
+    tft.unloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE, 0x10E4);
+    tft.drawString("PROCESSOR", 18, 68);
+  }
 
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE, 0x10E4);
-  tft.drawString("[ ระบบประมวลผล ]", 28, 74);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("SAMD51 120MHz", 14, 94);
+  tft.drawString("Cortex-M4F FPU", 14, 108);
 
   tft.setTextColor(TFT_LIGHTGREY, 0x0842);
-  tft.drawString("Core: Cortex-M4F", 12, 92);
-  tft.drawString("Clock: 120 MHz", 12, 106);
-  tft.drawString("FPU: Hardware 32b", 12, 120);
-  tft.drawString("Flash: 512KB (19%)", 12, 134);
-  tft.drawString("SRAM: 192KB (OK)", 12, 148);
+  tft.drawString("Flash: 512K (19%)", 14, 122);
+  tft.drawString("SRAM: 192KB OK", 14, 136);
 
-  tft.setTextColor(TFT_YELLOW, 0x0842);
+  tft.drawFastHLine(14, 152, 134, 0x2104);
+
+  // Model Selection in Large Font (TextSize 2)
+  tft.setTextSize(2);
   if (currentModel == MODEL_TINYML) {
-    tft.drawString("Model: [AI TinyML]", 12, 166);
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("[AI TinyML]", 12, 164);
   } else if (currentModel == MODEL_POLY) {
-    tft.drawString("Model: [PL Poly]", 12, 166);
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("[PL Poly]", 18, 164);
   } else {
-    tft.drawString("Model: [SC StdCurv]", 12, 166);
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("[SC StdCurv]", 10, 164);
   }
 
   // 3. Card 2: Sensors & Peripherals (Right Box)
-  tft.fillRoundRect(164, 68, 150, 128, 4, 0x0842);
-  tft.drawRoundRect(164, 68, 150, 128, 4, TFT_MAGENTA);
-  tft.fillRoundRect(165, 69, 148, 18, 3, 0x2084);
+  tft.fillRoundRect(164, 64, 150, 134, 4, 0x0842);
+  tft.drawRoundRect(164, 64, 150, 134, 4, TFT_MAGENTA);
+  tft.fillRoundRect(165, 65, 148, 22, 3, 0x2084);
 
-  tft.setTextColor(TFT_WHITE, 0x2084);
-  tft.drawString("[ อุปกรณ์และเซนเซอร์ ]", 180, 74);
+  // Card 2 Header
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK20", SD);
+    tft.setTextColor(TFT_WHITE, 0x2084);
+    tft.drawString("อุปกรณ์/เซนเซอร์", 185, 68);
+    tft.unloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE, 0x2084);
+    tft.drawString("SENSORS/SD", 175, 68);
+  }
 
-  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
-  tft.drawString("Sensor: TCS34725", 170, 92);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("TCS34725: ", 172, 94);
   if (hasTCS) {
     tft.setTextColor(TFT_GREEN, 0x0842);
-    tft.drawString("Status: [ONLINE OK]", 170, 106);
+    tft.drawString("[ONLINE]", 238, 94);
   } else {
     tft.setTextColor(TFT_RED, 0x0842);
-    tft.drawString("Status: [OFFLINE]", 170, 106);
+    tft.drawString("[OFFLINE]", 238, 94);
   }
 
-  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
-  tft.drawString("Optics: 5-Band LED", 170, 120);
-
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("SD Card: ", 172, 110);
   if (hasSD) {
     tft.setTextColor(TFT_GREEN, 0x0842);
-    tft.drawString("SD Card: [REC OK]", 170, 134);
+    tft.drawString("[REC OK]", 232, 110);
   } else {
     tft.setTextColor(TFT_DARKGREY, 0x0842);
-    tft.drawString("SD Card: [NO CARD]", 170, 134);
+    tft.drawString("[NO CARD]", 232, 110);
   }
 
   tft.setTextColor(TFT_LIGHTGREY, 0x0842);
-  tft.drawString("Log: NPK, SPEC.csv", 170, 148);
+  tft.drawString("LED: 5-Band Optics", 172, 126);
+  tft.drawString("File: NPK,SPEC.csv", 172, 140);
 
-  // Clock
+  tft.drawFastHLine(172, 152, 134, 0x2104);
+
+  // Large Clock (TextSize 2)
   char timeBuf[16];
-  sprintf(timeBuf, "Time: %02d:%02d:%02d", clockHour, clockMin, clockSec);
-  tft.setTextColor(0x07FF, 0x0842);
-  tft.drawString(timeBuf, 170, 166);
+  sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
+  tft.setTextSize(2);
+  tft.setTextColor(0x07FF, 0x0842); // Bright cyan
+  tft.drawString(timeBuf, 195, 164);
 
   // 4. Footer Bar
-  tft.drawFastHLine(0, 202, 320, TFT_DARKGREY);
-  tft.drawFastHLine(0, 204, 320, 0x2104);
+  tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
+  tft.drawFastHLine(0, 206, 320, 0x2104);
 
   if (fontLoaded) {
     tft.loadFont("THSarabunPSK20", SD);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("จอยสติ๊ก [< / >] สลับหน้า  |  [UP] สลับโหมด AI  |  A/B/C เปิด/ปิดไฟ", 15, 212);
+    tft.drawString("จอยสติ๊ก [< / >] สลับหน้า  |  [UP] สลับโหมด AI  |  A/B/C เปิด/ปิดไฟ", 15, 214);
     tft.unloadFont();
   } else {
     tft.setTextSize(1);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("[< / >] Switch Page | [UP] AI Mode | A,B,C: LEDs", 14, 216);
+    tft.drawString("[< / >] Pages  |  [UP] Model Mode  |  A/B/C: LEDs", 14, 216);
   }
 }
+
 
 
 // ============================================================
