@@ -1,24 +1,25 @@
 # spectrometer_npk2026
-**เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน (NPK Level Meter 1.02) พร้อมระบบประมวลผล TinyML / Edge AI, ระบบสแกนความยาวคลื่นอัตโนมัติ และการพล็อตกราฟสเปกตรัมการดูดกลืนแสงบนจอ LCD**
+**เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน (NPK Level Meter 1.02) พร้อมระบบประมวลผล TinyML / Edge AI, สแกนความยาวคลื่นอัตโนมัติ และระบบเทียบมาตรฐานเชิงวิเคราะห์ (In-Situ Standard Curve Wizard: R², LOD, LOQ)**
 
-โครงการพัฒนาระบบตรวจวัดธาตุอาหารหลักในดิน (Nitrogen - N, Phosphorus - P, Potassium - K) ระดับห้องปฏิบัติการภาคสนามโดยอาศัยหลักการสเปกโทรโฟโตเมตรี (Spectrophotometry) ร่วมกับเซนเซอร์วัดค่าสีแบบดิจิทัลความละเอียดสูง TCS34725 และโมดูลกำเนิดแสงหลายความยาวคลื่น ประมวลผลบนไมโครคอนโทรลเลอร์ Seeed Studio Wio Terminal ขับเคลื่อนด้วยโครงสร้างหลายหน้าจอ (Multi-Screen Carousel UI), ระบบสแกนความยาวคลื่นอัตโนมัติ (Automated Wavelength Sweep), การหักลบกระแสมืด (Dark Current Compensation) และโครงข่ายประสาทเทียม TinyML Edge AI
+โครงการพัฒนาระบบตรวจวัดธาตุอาหารหลักในดิน (Nitrogen - N, Phosphorus - P, Potassium - K) ระดับห้องปฏิบัติการภาคสนามโดยอาศัยหลักการสเปกโทรโฟโตเมตรี (Spectrophotometry) ประมวลผลบนไมโครคอนโทรลเลอร์ Seeed Studio Wio Terminal พร้อมระบบเมนูหลายหน้าจอ (Multi-Screen Carousel UI), ระบบสแกนกวาดแสงอัตโนมัติ (Automated Wavelength Sweep), ระบบคาลิเบรตมาตรฐานหลายจุดคำนวณสถิติมาตรวิทยาเคมีวิเคราะห์ ($R^2$, LOD, LOQ) บนชิปโดยตรง และโมเดลการเรียนรู้เชิงลึกแบบ TinyML Edge AI
 
 ---
 
 ## จุดเด่นของระบบ (Key Features)
-1. **ระบบควบคุม 4 หน้าจอ (4-Screen Carousel State Machine):**
-   - **Page 0: System Dashboard:** ตรวจสอบความสมบูรณ์ของระบบ ชิป ATSAMD51 120 MHz, หน่วยความจำ Flash/RAM, การเชื่อมต่อเซนเซอร์แสง และ microSD Card
-   - **Page 1: NPK Level Meter 1.02:** หน้าจอหลักแสดงความเข้มข้น N, P, K แบบเรียลไทม์ พร้อมป้ายสถานะโหมด `[AI]` หรือ `[PL]`
-   - **Page 2: Absorption Spectrum Plot:** กราฟิก 2D แสดงเส้นโค้งการดูดกลืนแสง $A(\lambda)$ ช่วง 400 - 700 nm แบบเรียลไทม์ พร้อมตรวจจับจุดยอดการดูดกลืนแสง ($\lambda_{\max}, A_{\max}$) และระบบเตือนความเข้มข้นสูงเกินย่านเชิงเส้น ($A > 1.5$)
-   - **Page 3: Calibration & Blank Wizard:** ระบบเทียบมาตรฐานสารละลายอ้างอิง ($I_0$) และตรวจวัดกระแสมืด ($I_{\text{dark}}$) บันทึกลงหน่วยความจำและ microSD Card
-2. **ระบบสแกนความยาวคลื่นอัตโนมัติ (Automated Wavelength Sweep):**
-   - ดับไฟ 50 ms เพื่อเก็บค่ากระแสมืดและแสงรบกวนแวดล้อม ($I_{\text{dark}}$)
-   - กวาดแสงกระตุ้น 5 ช่วงคลื่น: Blue (465 nm), Cyan (500 nm), Green (525 nm), Yellow (590 nm), Red (625 nm)
-   - คำนวณค่า Transmittance และ Absorbance ตามกฎของเบียร์-แลมเบิร์ต (Beer-Lambert Law)
-3. **TinyML / Edge AI Deep Neural Network:** โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลบนฮาร์ดแวร์ FPU ความเร็ว $12.4\ \mu\text{s}$ ต่อตัวอย่าง
-4. **Dual Data Logging on microSD:**
+1. **ระบบควบคุม 4 หน้าจอ (4-Screen Carousel UI):**
+   - **Page 1: System Dashboard:** ตรวจสอบความพร้อมของระบบ สเปกชิป ATSAMD51 120 MHz, FPU, แฟลช, แรม, เซนเซอร์ TCS34725 และสถานะ microSD Card
+   - **Page 2: NPK Level Meter 1.02:** หน้าจอหลักแสดงความเข้มข้น N, P, K แบบเรียลไทม์ พร้อมป้ายสถานะโหมด `[AI]`, `[PL]`, หรือ `[SC]`
+   - **Page 3: Absorbance Spectrum Plot:** กราฟิก 2D แสดงเส้นโค้งการดูดกลืนแสง $A(\lambda)$ ช่วง 400 - 700 nm พร้อมตรวจจับพีคการดูดกลืนแสง ($\lambda_{\max}, A_{\max}$) และระบบเตือนความเข้มข้นสูงเกินย่านเชิงเส้น ($A > 1.50$)
+   - **Page 4: Calibration & Standard Curve Wizard:** ระบบเทียบมาตรฐานสารละลายมาตรฐาน 5 จุด ($0, 20, 40, 80, 160\text{ mg/kg}$) พร้อมพล็อตกราฟเส้นตรงการถดถอยและคำนวณค่า $R^2$, Slope $m$, Intercept $c$, LOD, LOQ บนหน้าจอ LCD
+2. **ระบบการคำนวณ 3 โหมด (Triple Analytical Engine):**
+   - **`[AI]` (ป้ายเขียว):** พยากรณ์ด้วยโครงข่ายประสาทเทียม TinyML Deep Learning ($6 \to 12 \to 8 \to 3$) พร้อมระบบชดเชยความขุ่น
+   - **`[PL]` (ป้ายเหลือง):** คำนวณด้วยสมการพหุนามสากล (Classical Polynomial)
+   - **`[SC]` (ป้ายฟ้า):** คำนวณด้วยสมการเส้นตรงมาตรฐานที่ผู้ใช้วัดเทียบสดจากห้องปฏิบัติการ (In-Situ Standard Curve: $C = \frac{A - c}{m}$)
+3. **ระบบสแกนความยาวคลื่นอัตโนมัติและการหักลบกระแสมืด:** ดับไฟ 50 ms วัด Dark Current ($I_{\text{dark}}$) แล้วกวาดแสง 5 ช่วงคลื่น (465, 500, 525, 590, 625 nm)
+4. **Triple Data Logging on microSD:**
    - `NPK.csv`: บันทึกค่าความเข้มข้นธาตุอาหาร NPK ต่อเนื่อง
-   - `SPECTRUM.csv`: บันทึกค่า Absorbance ของสเปกตรัมทุกช่วงความยาวคลื่นสำหรับการวิเคราะห์เชิงลึก
+   - `SPECTRUM.csv`: บันทึกค่า Absorbance ของสเปกตรัมทุกช่วงความยาวคลื่นเมื่อกด Auto-Scan
+   - `CALIB_LOG.csv`: บันทึกประวัติสมการคาลิเบรต $R^2$, LOD, LOQ และพารามิเตอร์การวัด
 
 ---
 
@@ -28,28 +29,25 @@
 | :--- | :--- | :--- |
 | **จอยสติ๊กโยกซ้าย (`WIO_5S_LEFT`)** | ด้านหน้า | สลับไปยัง **หน้าจอก่อนหน้า** (วนลูป 4 หน้าจอ) |
 | **จอยสติ๊กโยกขวา (`WIO_5S_RIGHT`)** | ด้านหน้า | สลับไปยัง **หน้าจอถัดไป** (Dashboard -> NPK -> Spectrum -> Calib) |
-| **จอยสติ๊กโยกลง (`WIO_5S_DOWN`)** | ด้านหน้า | สั่ง **Auto-Scan** กวาดแสงในหน้า Spectrum หรือสั่ง **Zero Blank** ในหน้า Calibrate |
-| **จอยสติ๊กโยกขึ้น (`WIO_5S_UP`)** | ด้านหน้า | สลับโหมดวิเคราะห์ **`[AI]` TinyML $\leftrightarrow$ `[PL]` Polynomial** (ในหน้า NPK) |
-| **จอยสติ๊กกดตรงกลาง (`WIO_5S_PRESS`)** | ด้านหน้า | เปิด/ปิด **ไฟสีขาว (White LED)** สำหรับการเทียบศูนย์ |
-| **ปุ่ม A (ขวาสุดด้านบน)** | ด้านบน | เปิด/ปิด **ไฟสีแดง (Red LED)** |
-| **ปุ่ม B (กลางด้านบน)** | ด้านบน | เปิด/ปิด **ไฟสีเขียว (Green LED)** |
-| **ปุ่ม C (ซ้ายสุดด้านบน)** | ด้านบน | เปิด/ปิด **ไฟสีน้ำเงิน (Blue LED)** |
+| **จอยสติ๊กโยกลง (`WIO_5S_DOWN`)** | ด้านหน้า | ในหน้า Spectrum: สั่ง **Auto-Scan**<br>ในหน้า Calibrate: สั่ง **บันทึกจุดสารมาตรฐาน (Step Calib)** |
+| **จอยสติ๊กโยกขึ้น (`WIO_5S_UP`)** | ด้านหน้า | ในหน้า NPK: สลับโหมดคำนวณ **`[AI]` $\to$ `[PL]` $\to$ `[SC]`** |
+| **จอยสติ๊กกดตรงกลาง (`WIO_5S_PRESS`)** | ด้านหน้า | ในหน้า Calibrate: สั่ง **Zero Blank ($I_0$)** บนทุกช่องสัญญาณ<br>ในหน้าอื่น: เปิด/ปิด **ไฟสีขาว (White LED)** |
+| **ปุ่ม C (ซ้ายสุดด้านบน)** | ด้านบน | ในหน้า Calibrate: เลือกคาลิเบรต **ไนโตรเจน (N - 465 nm)**<br>ในหน้า NPK: เปิด/ปิด **ไฟสีน้ำเงิน (Blue LED)** |
+| **ปุ่ม B (กลางด้านบน)** | ด้านบน | ในหน้า Calibrate: เลือกคาลิเบรต **ฟอสฟอรัส (P - 525 nm)**<br>ในหน้า NPK: เปิด/ปิด **ไฟสีเขียว (Green LED)** |
+| **ปุ่ม A (ขวาสุดด้านบน)** | ด้านบน | ในหน้า Calibrate: เลือกคาลิเบรต **โพแทสเซียม (K - 625 nm)**<br>ในหน้า NPK: เปิด/ปิด **ไฟสีแดง (Red LED)** |
 
 ---
 
-## การคำนวณทางฟิสิกส์สเปกโทรสโกปี (Spectroscopic Equations)
+## ทฤษฎีมาตรวิทยาเคมีวิเคราะห์ (Analytical Metrology & Calibration)
 
-1. **การหักลบกระแสมืด (Dark Current Correction):**
-   $$I_{\text{sample, corr}}(\lambda) = \max(1.0, \, I_{\text{sample}}(\lambda) - I_{\text{dark}}(\lambda))$$
-   $$I_{\text{blank, corr}}(\lambda) = \max(1.0, \, I_{\text{blank}}(\lambda) - I_{\text{dark}}(\lambda))$$
+### 1. การถดถอยเชิงเส้นตรง (OLS Linear Regression):
+$$A = m \cdot C + c \implies C = \frac{A - c}{m}$$
 
-2. **การดูดกลืนแสงตามกฎของเบียร์-แลมเบิร์ต (Beer-Lambert Law):**
-   $$T(\lambda) = \frac{I_{\text{sample, corr}}(\lambda)}{I_{\text{blank, corr}}(\lambda)}$$
-   $$A(\lambda) = -\log_{10}(T(\lambda))$$
+### 2. สัมประสิทธิ์การตัดสินใจ (Coefficient of Determination $R^2$):
+$$R^2 = \frac{\left[\sum (C_i - \bar{C})(A_i - \bar{A})\right]^2}{\sum (C_i - \bar{C})^2 \sum (A_i - \bar{A})^2}$$
 
-3. **ขีดจำกัดย่านความเป็นเส้นตรง (Linear Dynamic Range Alert):**
-   หากค่า $A_{\max} > 1.50$ หน้าจอจะแสดงป้ายเตือน:
-   `! WARN: HIGH ABS - DILUTE 1:5 !` เพื่อแนะนำให้ทำการเจือจางสารละลายตัวอย่างก่อนวัดซ้ำ
+### 3. ขีดจำกัดการตรวจวัดและการหาปริมาณ (LOD / LOQ ตามเกณฑ์ IUPAC):
+$$\text{LOD} = \frac{3.3 \cdot s_{y/x}}{m}, \quad \text{LOQ} = \frac{10 \cdot s_{y/x}}{m}$$
 
 ---
 
@@ -59,9 +57,9 @@ spectrometer_npk2026/
 ├── README.md                           # คู่มือฉบับสมบูรณ์
 ├── firmware/
 │   ├── spectrometer_npk2026/
-│   │   ├── spectrometer_npk2026.ino    # สเก็ตช์หลักระบบ Multi-Screen & State Machine
-│   │   ├── Spectrum_Engine.h           # เอนจิน Auto-Scan & วาดกราฟสเปกตรัม A(lambda)
-│   │   ├── Calibration_Engine.h        # ระบบเทียบมาตรฐาน Blank Reference & Dark Current
+│   │   ├── spectrometer_npk2026.ino    # สเก็ตช์หลักระบบ Triple-Engine & 4-Screen UI
+│   │   ├── Calibration_Engine.h        # เอนจิน Standard Curve Regression (R2, LOD, LOQ) & Chart
+│   │   ├── Spectrum_Engine.h           # เอนจิน Auto-Scan Wavelength Sweep & Absorbance Chart
 │   │   └── TinyML_Model.h              # โมเดล TinyML C++ Zero-Allocation
 │   └── train_tinyml_model.py           # สคริปต์ฝึกสอนและส่งออกโมเดล AI
 ├── docs/
@@ -70,7 +68,8 @@ spectrometer_npk2026/
 │   └── latex/                          # ซอร์สโค้ด XeLaTeX
 └── data/
     ├── NPK.csv                         # ตัวอย่างไฟล์บันทึกค่าความเข้มข้น NPK
-    └── SPECTRUM.csv                    # ตัวอย่างไฟล์บันทึกสเปกตรัมการดูดกลืนแสง
+    ├── SPECTRUM.csv                    # ตัวอย่างไฟล์บันทึกสเปกตรัมการดูดกลืนแสง
+    └── CALIB_LOG.csv                   # ประวัติสมการคาลิเบรต R2, LOD, LOQ
 ```
 
 ---

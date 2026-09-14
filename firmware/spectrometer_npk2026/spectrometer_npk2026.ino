@@ -22,12 +22,12 @@ Adafruit_NeoPixel strip(NUM_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 #define PIN_LED_BLUE   D0
 
 // Wio Terminal Buttons & 5-Way Joystick
-#define BTN_A          WIO_KEY_A     // ขวาสุด -> LED แดง (Red)
-#define BTN_B          WIO_KEY_B     // กลาง   -> LED เขียว (Green)
-#define BTN_C          WIO_KEY_C     // ซ้ายสุด -> LED น้ำเงิน (Blue)
+#define BTN_A          WIO_KEY_A     // ขวาสุด
+#define BTN_B          WIO_KEY_B     // กลาง
+#define BTN_C          WIO_KEY_C     // ซ้ายสุด
 #define BTN_JOY_PRESS  WIO_5S_PRESS  // กดลงตรงกลาง
-#define BTN_JOY_UP     WIO_5S_UP     // โยกขึ้น -> สลับโหมด AI (TinyML / Poly)
-#define BTN_JOY_DOWN   WIO_5S_DOWN   // โยกลง -> สั่ง Auto-Scan / Set Blank
+#define BTN_JOY_UP     WIO_5S_UP     // โยกขึ้น -> สลับโหมดวิเคราะห์ (AI / Poly / StdCurve)
+#define BTN_JOY_DOWN   WIO_5S_DOWN   // โยกลง -> สั่ง Auto-Scan / Step Calib
 #define BTN_JOY_LEFT   WIO_5S_LEFT   // โยกซ้าย -> หน้าจอก่อนหน้า
 #define BTN_JOY_RIGHT  WIO_5S_RIGHT  // โยกขวา  -> หน้าจอถัดไป
 
@@ -42,11 +42,28 @@ enum AppScreen {
   NUM_PAGES      = 4
 };
 
+enum ModelMode {
+  MODEL_TINYML  = 0, // [AI] Deep Neural Network (Green)
+  MODEL_POLY    = 1, // [PL] Classical Polynomial (Yellow)
+  MODEL_STDCURV = 2  // [SC] In-Situ Standard Curve (Cyan)
+};
+
+enum CalibNutrient {
+  CALIB_N = 0, // Nitrogen (465 nm Blue)
+  CALIB_P = 1, // Phosphorus (525 nm Green)
+  CALIB_K = 2  // Potassium (625 nm Red)
+};
+
 AppScreen currentScreen = PAGE_NPK_METER; // Default to NPK Meter view
+ModelMode currentModel  = MODEL_TINYML;
+CalibNutrient activeCalibNutrient = CALIB_N;
 bool screenChanged = true;
 
 // Calibration & Spectrum Data Objects
 CalibrationState calibState;
+StandardCurve curveN;
+StandardCurve curveP;
+StandardCurve curveK;
 SpectrumScanResult currentSpectrum;
 
 File myFile;
@@ -55,7 +72,6 @@ TFT_eSPI tft;
 bool hasSD = false;
 bool hasTCS = false;
 bool fontLoaded = false;
-bool useTinyML = true; // True: TinyML Deep Neural Network, False: Classical Polynomial
 
 bool ledRedState   = false;
 bool ledGreenState = false;
@@ -119,8 +135,9 @@ void drawSdStatusTag();
 void drawModelModeBadge();
 void drawNpkStaticLayout();
 void drawDashboardPage();
-void drawCalibrationPage();
+void drawActiveCalibrationScreen();
 void logSpectrumToSD();
+void logCalibToSD(const char* nutName, const StandardCurve &sc);
 
 // ============================================================
 // Setup Routine
@@ -157,7 +174,7 @@ void setup() {
   tft.setRotation(3);
   tft.fillScreen(TFT_BLACK);
 
-  // 4. Initialize Baseline Calibration Engine
+  // 4. Initialize Baseline & Standard Curves
   initCalibration();
 
   // 5. Initialize SD Card (non-blocking)
@@ -183,9 +200,18 @@ void setup() {
       myFile.close();
     }
 
-    // Load saved blank reference if available
+    // Initialize CALIB_LOG.csv
+    myFile = SD.open("CALIB_LOG.csv", FILE_APPEND);
+    if (myFile) {
+      if (myFile.size() == 0) {
+        myFile.println("Time,Nutrient,Wavelength_nm,Slope_m,Intercept_c,R2,s_yx,LOD_mg_kg,LOQ_mg_kg");
+      }
+      myFile.close();
+    }
+
+    // Load saved blank & standard curves if available
     if (loadCalibrationFromSD()) {
-      Serial.println("Loaded saved blank calibration from SD card!");
+      Serial.println("Loaded saved full calibration profile from SD card!");
     }
   } else {
     Serial.println("SD card initialization failed or not inserted!");
@@ -207,7 +233,7 @@ void setup() {
     Serial.println("Thai font THSarabunPSK30 found!");
   }
 
-  // Initial initial spectrum scan dummy
+  // Initial spectrum scan baseline
   currentSpectrum.scanComplete = true;
   currentSpectrum.highAbsWarning = false;
   currentSpectrum.peakWavelength = 525;
@@ -274,22 +300,25 @@ void drawDashboardPage() {
     tft.drawString("[NO CARD]", 180, 146);
   }
 
-  // Active AI Engine status
+  // Active analytical model status
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("NPK Analytical Model:", 16, 162);
-  if (useTinyML) {
+  tft.drawString("Active Analytical Model:", 16, 162);
+  if (currentModel == MODEL_TINYML) {
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.drawString("[TinyML Edge AI (6-12-8-3)]", 155, 162);
-  } else {
+    tft.drawString("[TinyML Edge AI (6-12-8-3)]", 160, 162);
+  } else if (currentModel == MODEL_POLY) {
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("[Classical Polynomial]", 155, 162);
+    tft.drawString("[Classical Polynomial]", 160, 162);
+  } else {
+    tft.setTextColor(0x07FF, TFT_BLACK);
+    tft.drawString("[In-Situ Standard Curve]", 160, 162);
   }
 
   // Footer Navigation
   tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
   tft.setTextSize(1);
   tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-  tft.drawString("Use Joystick [< / >] to Switch Pages | [UP]: Toggle AI", 10, 218);
+  tft.drawString("Use Joystick [< / >] to Switch Pages | [UP]: Model Toggle", 10, 218);
 }
 
 // ============================================================
@@ -397,12 +426,15 @@ void drawNpkStaticLayout() {
 
 void drawModelModeBadge() {
   tft.setTextSize(2);
-  if (useTinyML) {
+  if (currentModel == MODEL_TINYML) {
     tft.setTextColor(TFT_GREEN, TFT_BLACK);
     tft.drawString("[AI]", 262, 36);
-  } else {
+  } else if (currentModel == MODEL_POLY) {
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.drawString("[PL]", 262, 36);
+  } else {
+    tft.setTextColor(0x07FF, TFT_BLACK); // Cyan for Standard Curve
+    tft.drawString("[SC]", 262, 36);
   }
 }
 
@@ -444,61 +476,16 @@ void drawSdStatusTag() {
 }
 
 // ============================================================
-// Page 3: Calibration & Blank Reference Wizard
+// Page 3: Calibration & Standard Curve Wizard
 // ============================================================
-void drawCalibrationPage() {
-  tft.fillScreen(TFT_BLACK);
-
-  // Header Bar
-  tft.fillRect(0, 0, 320, 28, 0x18E3);
-  tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE, 0x18E3);
-  tft.drawString("CALIBRATION & BLANK WIZARD", 10, 8);
-  tft.setTextColor(TFT_YELLOW, 0x18E3);
-  tft.drawString("[Page 4/4]", 250, 8);
-
-  tft.drawRect(8, 36, 304, 160, TFT_DARKGREY);
-
-  tft.setTextSize(1);
-  tft.setTextColor(0x07FF, TFT_BLACK);
-  tft.drawString("STORED BASELINE REFERENCE (I_0 & I_dark)", 16, 44);
-
-  // Table header
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("Band (nm)", 16, 62);
-  tft.drawString("Name", 90, 62);
-  tft.drawString("I_0 (Blank)", 160, 62);
-  tft.drawString("I_dark", 245, 62);
-
-  tft.drawFastHLine(16, 74, 288, 0x2104);
-
-  // Table rows
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  for (int i = 0; i < NUM_SPECTRAL_BANDS; i++) {
-    int y = 82 + (i * 18);
-    char buf[12];
-    sprintf(buf, "%d nm", SPECTRAL_WAVELENGTHS[i]);
-    tft.drawString(buf, 16, y);
-    tft.drawString(BAND_NAMES[i], 90, y);
-
-    sprintf(buf, "%0.0f", calibState.blankIntensity[i]);
-    tft.drawString(buf, 160, y);
-
-    sprintf(buf, "%0.0f", calibState.darkCurrent[i]);
-    tft.drawString(buf, 245, y);
+void drawActiveCalibrationScreen() {
+  if (activeCalibNutrient == CALIB_N) {
+    drawStandardCurvePlot(tft, curveN, "NITROGEN (N) [465nm]", 0x07FF); // Cyan/Blue
+  } else if (activeCalibNutrient == CALIB_P) {
+    drawStandardCurvePlot(tft, curveP, "PHOSPHORUS (P) [525nm]", TFT_GREEN);
+  } else {
+    drawStandardCurvePlot(tft, curveK, "POTASSIUM (K) [625nm]", TFT_RED);
   }
-
-  tft.drawFastHLine(16, 174, 288, 0x2104);
-  tft.setTextColor(TFT_GREEN, TFT_BLACK);
-  tft.drawString("Status: BASELINE VALID (SD: BLANK.DAT)", 16, 180);
-
-  // Footer Navigation
-  tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
-  tft.setTextSize(1);
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("Insert DI Water Cuvette -> Press [DOWN] to Zero Blank", 10, 212);
-  tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-  tft.drawString("Use Joystick [< / >] to Switch Pages", 10, 226);
 }
 
 // ============================================================
@@ -548,6 +535,31 @@ void logSpectrumToSD() {
 }
 
 // ============================================================
+// Log Calibration Curve to SD Card
+// ============================================================
+void logCalibToSD(const char* nutName, const StandardCurve &sc) {
+  if (!hasSD) return;
+  myFile = SD.open("CALIB_LOG.csv", FILE_APPEND);
+  if (myFile) {
+    char timeStr[12];
+    sprintf(timeStr, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
+
+    uint16_t wl = (strcmp(nutName, "N") == 0) ? 465 : (strcmp(nutName, "P") == 0 ? 525 : 625);
+
+    myFile.print(timeStr); myFile.print(",");
+    myFile.print(nutName); myFile.print(",");
+    myFile.print(wl); myFile.print(",");
+    myFile.print(sc.slope_m, 5); myFile.print(",");
+    myFile.print(sc.intercept_c, 4); myFile.print(",");
+    myFile.print(sc.r_squared, 4); myFile.print(",");
+    myFile.print(sc.s_yx, 4); myFile.print(",");
+    myFile.print(sc.lod, 2); myFile.print(",");
+    myFile.println(sc.loq, 2);
+    myFile.close();
+  }
+}
+
+// ============================================================
 // Main Execution Loop
 // ============================================================
 void loop() {
@@ -583,53 +595,97 @@ void loop() {
       executeAutoWavelengthScan(strip, tcs, calibState, currentSpectrum, hasTCS);
       drawSpectrumChart(tft, currentSpectrum, false);
       logSpectrumToSD();
-      // Restore user LED state
       updateLedOutput();
     } else if (currentScreen == PAGE_CALIBRATE) {
-      // Execute Zero Blank Reference Sweep
-      tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-      tft.drawString("MEASURING REFERENCE BLANK (I_0)...", 16, 180);
-      captureBlankReference(strip, tcs, calibState, hasTCS);
+      // Step-by-Step Multi-Point Calibration Wizard
+      StandardCurve* targetCurve = (activeCalibNutrient == CALIB_N) ? &curveN :
+                                   ((activeCalibNutrient == CALIB_P) ? &curveP : &curveK);
+
+      // Measure current sample absorbance
+      SpectrumScanResult sweepRes;
+      executeAutoWavelengthScan(strip, tcs, calibState, sweepRes, hasTCS);
       updateLedOutput();
-      drawCalibrationPage();
+
+      int bandIdx = (activeCalibNutrient == CALIB_N) ? 0 :
+                    ((activeCalibNutrient == CALIB_P) ? 2 : 4);
+
+      // Record absorbance for current step
+      targetCurve->absorbances[targetCurve->currentStep] = sweepRes.absorbance[bandIdx];
+      targetCurve->currentStep = (targetCurve->currentStep + 1) % NUM_STD_POINTS;
+
+      // Fit OLS line once all points are populated
+      fitStandardCurve(*targetCurve);
+      saveCalibrationToSD();
+
+      const char* nName = (activeCalibNutrient == CALIB_N) ? "N" :
+                          ((activeCalibNutrient == CALIB_P) ? "P" : "K");
+      logCalibToSD(nName, *targetCurve);
+
+      drawActiveCalibrationScreen();
     }
     delay(150);
   }
 
-  // 1.3 Model Toggle (Joystick Up in NPK Screen)
+  // 1.3 Analytical Model Toggle (Joystick Up in NPK Screen)
   if (btnJoyUp == LOW && lastBtnJoyUp == HIGH) {
     if (currentScreen == PAGE_NPK_METER) {
-      useTinyML = !useTinyML;
+      currentModel = (ModelMode)((currentModel + 1) % 3);
       drawModelModeBadge();
     }
     delay(150);
   }
 
-  // 1.4 Light Source Controls
+  // 1.4 Top Buttons A, B, C Handling (Context Sensitive)
   if (btnA == LOW && lastBtnA == HIGH) {
-    ledRedState = !ledRedState;
-    updateLedOutput();
+    if (currentScreen == PAGE_CALIBRATE) {
+      activeCalibNutrient = CALIB_K; // Select Potassium
+      drawActiveCalibrationScreen();
+    } else {
+      ledRedState = !ledRedState;
+      updateLedOutput();
+    }
     delay(150);
   }
   if (btnB == LOW && lastBtnB == HIGH) {
-    ledGreenState = !ledGreenState;
-    updateLedOutput();
+    if (currentScreen == PAGE_CALIBRATE) {
+      activeCalibNutrient = CALIB_P; // Select Phosphorus
+      drawActiveCalibrationScreen();
+    } else {
+      ledGreenState = !ledGreenState;
+      updateLedOutput();
+    }
     delay(150);
   }
   if (btnC == LOW && lastBtnC == HIGH) {
-    ledBlueState = !ledBlueState;
-    updateLedOutput();
+    if (currentScreen == PAGE_CALIBRATE) {
+      activeCalibNutrient = CALIB_N; // Select Nitrogen
+      drawActiveCalibrationScreen();
+    } else {
+      ledBlueState = !ledBlueState;
+      updateLedOutput();
+    }
     delay(150);
   }
+
+  // 1.5 Joystick Press (Context Sensitive)
   if (btnJoyPress == LOW && lastBtnJoyPress == HIGH) {
-    // Toggle White LED
-    bool allOn = (ledRedState && ledGreenState && ledBlueState);
-    if (allOn) {
-      ledRedState = false; ledGreenState = false; ledBlueState = false;
+    if (currentScreen == PAGE_CALIBRATE) {
+      // Capture & Save Zero Blanking on all 5 channels
+      tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+      tft.drawString("MEASURING REFERENCE BLANK...", 16, 180);
+      captureBlankReference(strip, tcs, calibState, hasTCS);
+      updateLedOutput();
+      drawActiveCalibrationScreen();
     } else {
-      ledRedState = true;  ledGreenState = true;  ledBlueState = true;
+      // Toggle White LED in other screens
+      bool allOn = (ledRedState && ledGreenState && ledBlueState);
+      if (allOn) {
+        ledRedState = false; ledGreenState = false; ledBlueState = false;
+      } else {
+        ledRedState = true;  ledGreenState = true;  ledBlueState = true;
+      }
+      updateLedOutput();
     }
-    updateLedOutput();
     delay(150);
   }
 
@@ -656,7 +712,7 @@ void loop() {
         drawSpectrumChart(tft, currentSpectrum, false);
         break;
       case PAGE_CALIBRATE:
-        drawCalibrationPage();
+        drawActiveCalibrationScreen();
         break;
     }
   }
@@ -702,7 +758,8 @@ void loop() {
 
     float valN = 0.0f, valP = 0.0f, valK = 0.0f;
 
-    if (useTinyML) {
+    if (currentModel == MODEL_TINYML) {
+      // 1. TinyML Edge AI Deep Neural Network
       float c_ratio = (rgb > 0.0f) ? ((float)c / rgb) : 1.0f;
       float lux_norm = (float)lux / 1000.0f;
       float abs_est = (c > 0) ? -log10f(constrain((rgb / (float)c), 0.01f, 0.99f)) : 0.0f;
@@ -715,10 +772,28 @@ void loop() {
       valN = ml_outputs[0];
       valP = ml_outputs[1];
       valK = ml_outputs[2];
-    } else {
+    } else if (currentModel == MODEL_POLY) {
+      // 2. Classical Polynomial Equations
       valN = calcN_Poly(bb);
       valP = calcP_Poly(gg);
       valK = calcK_Poly(rr);
+    } else {
+      // 3. In-Situ Standard Curve Calibration (C = (A - c) / m)
+      float I_b_corr = max(1.0f, (float)b - calibState.darkCurrent[0]);
+      float I_g_corr = max(1.0f, (float)g - calibState.darkCurrent[2]);
+      float I_r_corr = max(1.0f, (float)r - calibState.darkCurrent[4]);
+
+      float I_b_blank = max(1.0f, calibState.blankIntensity[0] - calibState.darkCurrent[0]);
+      float I_g_blank = max(1.0f, calibState.blankIntensity[2] - calibState.darkCurrent[2]);
+      float I_r_blank = max(1.0f, calibState.blankIntensity[4] - calibState.darkCurrent[4]);
+
+      float A_blue  = -log10f(constrain(I_b_corr / I_b_blank, 0.001f, 1.50f));
+      float A_green = -log10f(constrain(I_g_corr / I_g_blank, 0.001f, 1.50f));
+      float A_red   = -log10f(constrain(I_r_corr / I_r_blank, 0.001f, 1.50f));
+
+      valN = calculateConcentration_SC(A_blue, curveN);
+      valP = calculateConcentration_SC(A_green, curveP);
+      valK = calculateConcentration_SC(A_red, curveK);
     }
 
     // Update NPK Screen Display
@@ -765,7 +840,9 @@ void loop() {
         myFile.print(valN, 2); myFile.print(",");
         myFile.print(valP, 2); myFile.print(",");
         myFile.print(valK, 2); myFile.print(",");
-        myFile.println(useTinyML ? "TinyML" : "Poly");
+        const char* mStr = (currentModel == MODEL_TINYML) ? "TinyML" :
+                           ((currentModel == MODEL_POLY) ? "Poly" : "StdCurve");
+        myFile.println(mStr);
         myFile.close();
       }
     }
