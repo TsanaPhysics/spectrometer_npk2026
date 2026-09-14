@@ -1,0 +1,142 @@
+\ProvidesPackage{rbru_manual}[2026/09/14 RBRU Academic Textbook and Manual Style]
+
+% 1. Page Geometry (RBRU Standard: Left 1.5", Top 1.5", Bottom 1.0", Right 1.0")
+\RequirePackage{geometry}
+\geometry{
+    a4paper,
+    left=38.1mm,   % 1.5 inch
+    top=38.1mm,    % 1.5 inch
+    bottom=25.4mm, % 1.0 inch
+    right=25.4mm,  % 1.0 inch
+    footskip=12mm,
+    headheight=15pt
+}
+
+% 2. Thai Language and Typography (XeLaTeX)
+\RequirePackage{fontspec}
+\RequirePackage{xunicode}
+\RequirePackage{xltxtra}
+\defaultfontfeatures{Mapping=tex-text}
+
+\setmainfont{TH Sarabun New}
+\newfontfamily\thaifont{TH Sarabun New}
+
+\XeTeXlinebreaklocale "th_TH"
+\XeTeXlinebreakskip = 0pt plus 1.5pt minus 0.5pt
+
+\RequirePackage{indentfirst}
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{4pt plus 1pt minus 1pt}
+
+% 3. Colors (RBRU Identity)
+\RequirePackage{xcolor}
+\definecolor{rbruNavy}{HTML}{0D233A}
+\definecolor{rbruGold}{HTML}{D4AF37}
+\definecolor{rbruSlate}{HTML}{2C3E50}
+\definecolor{rbruTeal}{HTML}{008080}
+\definecolor{rbruBgLight}{HTML}{F8F9FA}
+\definecolor{rbruBorder}{HTML}{CCCCCC}
+\definecolor{agriGreen}{HTML}{2E7D32}
+
+% 4. Packages
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{multirow}
+\RequirePackage{float}
+\RequirePackage{needspace}
+\RequirePackage[section]{placeins}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\RequirePackage{titlesec}
+\RequirePackage{fancyhdr}
+\RequirePackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=rbruNavy,
+    citecolor=agriGreen,
+    urlcolor=rbruTeal
+}
+
+% 5. Running Headers
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\leftmark}
+\fancyhead[LO]{\rightmark}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% 6. Captions
+\RequirePackage{caption}
+\DeclareCaptionLabelSeparator{thaisep}{\quad}
+\captionsetup{labelsep=thaisep}
+\captionsetup[table]{
+    position=top,
+    skip=6pt,
+    labelfont={bf,color=rbruNavy},
+    textfont={normalfont},
+    labelsep=thaisep,
+    justification=raggedleft,
+    singlelinecheck=false
+}
+\captionsetup[figure]{
+    position=bottom,
+    skip=8pt,
+    labelfont={bf,color=rbruNavy},
+    textfont={normalfont},
+    labelsep=thaisep,
+    justification=centering
+}
+
+\renewcommand{\figurename}{\mbox{ภาพที่}}
+\renewcommand{\tablename}{\mbox{ตารางที่}}
+
+% 7. Custom Academic Boxes
+\newtcolorbox{academicbox}[2][]{
+    enhanced,
+    breakable,
+    colback=rbruBgLight,
+    colframe=rbruNavy,
+    fonttitle=\bfseries\fontsize{13}{16}\selectfont\color{white},
+    coltitle=white,
+    colbacktitle=rbruNavy,
+    title={#2},
+    arc=1.5mm,
+    boxrule=0.8pt,
+    leftrule=3.5mm,
+    top=4pt, bottom=4pt, left=8pt, right=8pt,
+    drop shadow=black!8,
+    before skip=6pt, after skip=6pt,
+    #1
+}
+
+\newtcolorbox{tipbox}[1][คำแนะนำเชิงปฏิบัติ]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=agriGreen,
+    fonttitle=\bfseries\fontsize{13}{16}\selectfont\color{white},
+    coltitle=white,
+    colbacktitle=agriGreen,
+    title={#1},
+    arc=1.5mm,
+    boxrule=0.8pt,
+    leftrule=3.5mm,
+    top=4pt, bottom=4pt, left=8pt, right=8pt,
+    before skip=6pt, after skip=6pt
+}
+
+% 8. Section Formatting without colon
+\titleformat{\section}
+    {\Needspace*{6\baselineskip}\normalfont\fontsize{18}{22}\bfseries\color{rbruNavy}}
+    {\makebox[1.25cm][l]{\thesection}}{0pt}{}
+
+\titleformat{\subsection}
+    {\Needspace*{4\baselineskip}\normalfont\fontsize{16}{20}\bfseries\color{rbruSlate}}
+    {\makebox[1.25cm][l]{\thesubsection}}{0pt}{}
+
+\titlespacing*{\section}{0pt}{14pt plus 2pt minus 2pt}{6pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{1.25cm}{10pt plus 2pt minus 2pt}{4pt plus 1pt minus 1pt}

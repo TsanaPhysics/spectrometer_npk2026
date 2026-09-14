@@ -1,0 +1,88 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{styles/rbru_manual}
+
+\begin{document}
+
+% -------------------------------------------------------------
+% หน้าปกคู่มือวิชาการ (Academic Manual Cover)
+% -------------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    
+    {\fontsize{26}{32}\selectfont\bfseries\color{rbruNavy} มหาวิทยาลัยราชภัฏรำไพพรรณี\par}
+    \vspace{0.4cm}
+    {\fontsize{18}{22}\selectfont\color{rbruSlate} คณะวิทยาศาสตร์และเทคโนโลยี  สาขาวิชาฟิสิกส์\par}
+    {\fontsize{16}{20}\selectfont\color{agriGreen} หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics)\par}
+    
+    \vspace{1.5cm}
+    {\color{rbruGold}\rule{\textwidth}{2.5pt}\par}
+    \vspace{0.6cm}
+    
+    {\fontsize{24}{30}\selectfont\bfseries\color{rbruNavy} คู่มือการประกอบ ติดตั้ง และใช้งาน\par}
+    \vspace{0.4cm}
+    {\fontsize{20}{26}\selectfont\bfseries\color{rbruTeal} เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดิน\par}
+    \vspace{0.2cm}
+    {\fontsize{18}{22}\selectfont\bfseries\color{rbruSlate} NPK Level Meter 1.02\par}
+    
+    \vspace{0.6cm}
+    {\color{rbruGold}\rule{\textwidth}{2.5pt}\par}
+    
+    \vspace{1.5cm}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.68\textwidth]{images/device_overview.jpg}
+    \end{figure}
+    
+    \vfill
+    
+    {\fontsize{16}{20}\selectfont\bfseries\color{rbruNavy} ผู้ช่วยศาสตราจารย์ ดร.ชีวะ ทัศนา และคณะ\par}
+    \vspace{0.2cm}
+    {\fontsize{14}{18}\selectfont\color{rbruSlate} เอกสารทางวิชาการและคู่มือการวิจัยและพัฒนาสิ่งประดิษฐ์\par}
+    {\fontsize{14}{18}\selectfont\color{rbruSlate} กันยายน 2569\par}
+    \vspace*{0.5cm}
+\end{titlepage}
+
+\newpage
+\pagenumbering{roman}
+
+% -------------------------------------------------------------
+% สารบัญ
+% -------------------------------------------------------------
+\tableofcontents
+\newpage
+\listoffigures
+\vspace{1cm}
+\listoftables
+\newpage
+
+\pagenumbering{arabic}
+
+% -------------------------------------------------------------
+% เนื้อหาคู่มือบทที่ 1 ถึง 5
+% -------------------------------------------------------------
+\input{chapters/ch01_overview}
+\newpage
+\input{chapters/ch02_assembly_hardware}
+\newpage
+\input{chapters/ch03_firmware_installation}
+\newpage
+\input{chapters/ch04_operation_calibration}
+\newpage
+\input{chapters/ch05_troubleshooting}
+
+\newpage
+% -------------------------------------------------------------
+% เอกสารอ้างอิงและบรรณานุกรม
+% -------------------------------------------------------------
+\section*{เอกสารอ้างอิง}
+\addcontentsline{toc}{section}{เอกสารอ้างอิง}
+
+\noindent ชีวะ ทัศนา. (2567). \textit{ระบบฟิสิกส์เกษตรดิจิทัลและปัญญาประดิษฐ์จัดการสวนทุเรียนแปลงใหญ่ (AI4D AgriPhysics)}. หน่วยวิจัยฟิสิกส์เพื่อการเกษตร คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี.
+
+\noindent ชีวะ ทัศนา และ จิรภัทร จันทมาลี. (2568). \textit{การประยุกต์ใช้ปัญญาประดิษฐ์ฝังตัวและเซนเซอร์เชิงแสงในการตรวจวัดธาตุอาหารในดินแบบทันที}. วารสารวิทยาศาสตร์และเทคโนโลยี, 33(2), 145--158.
+
+\noindent Seeed Technology Co., Ltd. (2024). \textit{Wio Terminal User Manual and Hardware Architecture}. Shenzhen: Seeed Studio.
+
+\end{document}
