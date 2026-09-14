@@ -1,10 +1,10 @@
-\ProvidesPackage{rbru_manual}[2026/09/14 RBRU Academic Textbook and Manual Style]
+\ProvidesPackage{rbru_manual}[2026/09/14 RBRU Masterclass Academic Textbook and Manual Style]
 
 % 1. Page Geometry (RBRU Standard: Left 1.5", Top 1.5", Bottom 1.0", Right 1.0")
 \RequirePackage{geometry}
 \geometry{
     a4paper,
-    left=38.1mm,   % 1.5 inch
+    left=38.1mm,   % 1.5 inch (เพื่อการเข้าเล่ม)
     top=38.1mm,    % 1.5 inch
     bottom=25.4mm, % 1.0 inch
     right=25.4mm,  % 1.0 inch
@@ -131,7 +131,70 @@
     before skip=6pt, after skip=6pt
 }
 
-% 8. Section Formatting without colon
+% Modular Lesson Plan Box (5-Box Standard)
+\newtcolorbox{planbox}[2][]{
+    enhanced,
+    breakable,
+    colback=white,
+    colframe=rbruNavy,
+    fonttitle=\bfseries\fontsize{12}{15}\selectfont\color{white},
+    coltitle=white,
+    colbacktitle=rbruNavy,
+    title={#2},
+    arc=1.5mm,
+    boxrule=0.8pt,
+    leftrule=3.5mm,
+    top=3pt, bottom=3pt, left=8pt, right=8pt,
+    titlerule=0pt,
+    toptitle=2.5pt, bottomtitle=2.5pt,
+    drop shadow=black!5,
+    before skip=4pt,
+    after skip=4pt,
+    #1
+}
+
+% 8. Chapter Banner Formatting (RBRU Academic Standard)
+\newcommand{\rbruchapterbanner}[1]{%
+  \begin{tcolorbox}[
+    enhanced,
+    width=\textwidth,
+    interior style={left color=rbruNavy!98!black, right color=rbruNavy!85!rbruSlate},
+    borderline east={4pt}{0pt}{rbruGold},
+    arc=2mm,
+    boxrule=0pt,
+    top=10pt, bottom=10pt, left=14pt, right=14pt,
+    drop shadow=black!15
+  ]
+    \raggedleft
+    {\fontsize{34}{40}\selectfont\bfseries\color{white}\chaptertitlename\ \thechapter\par}
+    \vspace{3pt}
+    {\color{rbruGold}\rule{0.50\textwidth}{2pt}\par}
+    \vspace{5pt}
+    {\fontsize{22}{28}\selectfont\bfseries\color{white}#1\par}
+  \end{tcolorbox}
+}
+
+\newcommand{\rbruunnumberedchapterbanner}[1]{%
+  \begin{tcolorbox}[
+    enhanced,
+    width=\textwidth,
+    interior style={left color=rbruNavy!98!black, right color=rbruNavy!85!rbruSlate},
+    borderline east={4pt}{0pt}{rbruGold},
+    arc=2mm,
+    boxrule=0pt,
+    top=10pt, bottom=10pt, left=14pt, right=14pt,
+    drop shadow=black!15
+  ]
+    \raggedleft
+    {\fontsize{24}{30}\selectfont\bfseries\color{white}#1\par}
+  \end{tcolorbox}
+}
+
+\titleformat{\chapter}[block]{\normalfont}{}{0pt}{\rbruchapterbanner}
+\titleformat{name=\chapter,numberless}[block]{\normalfont}{}{0pt}{\rbruunnumberedchapterbanner}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+
+% Section Formatting without colon
 \titleformat{\section}
     {\Needspace*{6\baselineskip}\normalfont\fontsize{18}{22}\bfseries\color{rbruNavy}}
     {\makebox[1.25cm][l]{\thesection}}{0pt}{}
@@ -142,3 +205,29 @@
 
 \titlespacing*{\section}{0pt}{14pt plus 2pt minus 2pt}{6pt plus 1pt minus 1pt}
 \titlespacing*{\subsection}{1.25cm}{10pt plus 2pt minus 2pt}{4pt plus 1pt minus 1pt}
+
+% 9. Localized Thai Naming Enforcement
+\AtBeginDocument{
+    \renewcommand{\contentsname}{สารบัญ}
+    \renewcommand{\listfigurename}{สารบัญภาพ}
+    \renewcommand{\listtablename}{สารบัญตาราง}
+    \renewcommand{\chaptertitlename}{บทที่}
+    \renewcommand{\figurename}{\mbox{ภาพที่}}
+    \renewcommand{\tablename}{\mbox{ตารางที่}}
+    \renewcommand{\bibname}{เอกสารอ้างอิง}
+}
+
+% 10. Appendix Configuration with Thai Alphabetic Lettering
+\newcommand{\thaialph}[1]{%
+  \ifcase#1\or ก\or ข\or ค\or ง\or จ\or ฉ\or ช\or ซ\or ฌ\or ญ\fi
+}
+
+\let\rbruorigappendix\appendix
+\renewcommand{\appendix}{%
+  \rbruorigappendix
+  \gdef\chaptertitlename{ภาคผนวก}
+  \gdef\appendixname{ภาคผนวก}
+  \renewcommand{\thechapter}{\thaialph{\value{chapter}}}
+  \renewcommand{\thetable}{\thechapter.\arabic{table}}
+  \renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+}

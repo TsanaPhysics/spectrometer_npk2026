@@ -1,12 +1,15 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt,a4paper,oneside]{book}
 
 \usepackage{styles/rbru_manual}
 
 \begin{document}
 
 % -------------------------------------------------------------
-% หน้าปกคู่มือวิชาการ (Academic Manual Cover)
+% ส่วนนำ (Front Matter)
 % -------------------------------------------------------------
+\frontmatter
+
+% 1. หน้าปกคู่มือวิชาการ (Academic Manual Cover)
 \begin{titlepage}
     \centering
     \vspace*{0.3cm}
@@ -44,57 +47,66 @@
     \vspace*{0.3cm}
 \end{titlepage}
 
-\newpage
-\pagenumbering{roman}
+% 2. คำนำ (Preface)
+\input{chapters/preface}
+\clearpage
 
-% -------------------------------------------------------------
-% สารบัญหลัก สารบัญภาพ สารบัญตาราง
-% -------------------------------------------------------------
+% 3. สารบัญหลัก สารบัญภาพ สารบัญตาราง
+\phantomsection
+\addcontentsline{toc}{chapter}{\contentsname}
 \tableofcontents
-\newpage
+\clearpage
+
+\phantomsection
+\addcontentsline{toc}{chapter}{\listfigurename}
 \listoffigures
-\vspace{0.8cm}
+\clearpage
+
+\phantomsection
+\addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
-\newpage
-
-\pagenumbering{arabic}
+\clearpage
 
 % -------------------------------------------------------------
-% เนื้อหาคู่มือบทที่ 1 ถึง 5
+% ส่วนเนื้อหาหลัก (Main Matter - Chapters 1 to 5)
 % -------------------------------------------------------------
+\mainmatter
+
 \input{chapters/ch01_overview}
-\newpage
 \input{chapters/ch02_assembly_hardware}
-\newpage
 \input{chapters/ch03_firmware_installation}
-\newpage
 \input{chapters/ch04_operation_calibration}
-\newpage
 \input{chapters/ch05_troubleshooting}
-\newpage
 
 % -------------------------------------------------------------
-% ภาคผนวก
+% ภาคผนวก (Appendix)
 % -------------------------------------------------------------
+\appendix
 \input{chapters/appendix}
-\newpage
+\clearpage
 
 % -------------------------------------------------------------
-% เอกสารอ้างอิงและบรรณานุกรม
+% ส่วนท้าย (Back Matter)
 % -------------------------------------------------------------
-\section*{เอกสารอ้างอิง}
-\addcontentsline{toc}{section}{เอกสารอ้างอิง}
+\backmatter
+
+% เอกสารอ้างอิง
+\chapter*{เอกสารอ้างอิง}
+\addcontentsline{toc}{chapter}{เอกสารอ้างอิง}
 
 \noindent ชีวะ ทัศนา. (2567). \textit{ระบบฟิสิกส์เกษตรดิจิทัลและปัญญาประดิษฐ์จัดการสวนทุเรียนแปลงใหญ่ (AI4D AgriPhysics)}. หน่วยวิจัยฟิสิกส์เพื่อการเกษตร คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี.
 
+\vspace{0.3cm}
 \noindent ชีวะ ทัศนา และ จิรภัทร จันทมาลี. (2568). \textit{การประยุกต์ใช้ปัญญาประดิษฐ์ฝังตัวและเซนเซอร์เชิงแสงในการตรวจวัดธาตุอาหารในดินแบบทันที}. วารสารวิทยาศาสตร์และเทคโนโลยี, 33(2), 145--158.
 
-\noindent Seeed Technology Co., Ltd. (2024). \textit{Wio Terminal User Manual and Hardware Architecture}. Shenzhen: Seeed Studio.
+\vspace{0.3cm}
+\noindent International Commission for Uniform Methods of Sugar Analysis [ICUMSA]. (2022). \textit{Specification and Standard for Refractometry and Brix Determination}. ICUMSA Publications.
 
-\newpage
-% -------------------------------------------------------------
+\vspace{0.3cm}
+\noindent Seeed Technology Co., Ltd. (2024). \textit{Wio Terminal User Manual and Hardware Architecture}. Shenzhen: Seeed Studio.
+\clearpage
+
 % ประวัติผู้เขียน
-% -------------------------------------------------------------
 \input{chapters/author_bio}
 
 \end{document}
