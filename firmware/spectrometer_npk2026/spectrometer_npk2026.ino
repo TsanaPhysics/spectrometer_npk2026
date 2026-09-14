@@ -10,6 +10,7 @@
 #include "Calibration_Engine.h"
 #include "Spectrum_Engine.h"
 #include "Liquid_Engine.h"
+#include "WiFi_Server_Engine.h"
 
 // ============================================================
 // Pin Definitions
@@ -135,6 +136,9 @@ float calcK_Poly(float rp) {
   return (val < 0.0f) ? 0.0f : val;
 }
 
+WiFiServerEngine wifiEngine;
+float currentN = 45.2f, currentP = 22.8f, currentK = 128.5f;
+
 // Function Prototypes
 void updateLedOutput();
 void drawLedStatusTag();
@@ -258,6 +262,9 @@ void setup() {
   for (int i = 0; i < NUM_SPECTRAL_BANDS; i++) {
     currentSpectrum.absorbance[i] = 0.20f + (0.08f * i);
   }
+
+  // 8. Initialize Wi-Fi & Embedded JSON REST API Server
+  wifiEngine.init();
 
   screenChanged = true;
   lastMeasureTime = millis();
@@ -1013,5 +1020,47 @@ void loop() {
         myFile.close();
       }
     }
+
+    currentN = valN;
+    currentP = valP;
+    currentK = valK;
+  }
+
+  // 5. Handle Wi-Fi REST API Clients & Remote Commands
+  SpectrometerTelemetry telem;
+  telem.n = currentN;
+  telem.p = currentP;
+  telem.k = currentK;
+  telem.ref_n = currentLiquidResult.refractiveIndex_n;
+  telem.density = currentLiquidResult.density_g_cm3;
+  telem.brix = currentLiquidResult.brix_deg;
+  telem.transmittance = currentLiquidResult.transmittance_pct;
+  strncpy(telem.clarity, currentLiquidResult.clarity, sizeof(telem.clarity));
+  for (int i = 0; i < 5; i++) telem.absorbance[i] = currentSpectrum.absorbance[i];
+  telem.currentPage = (int)currentScreen + 1;
+  telem.isSoil = (currentScreen != PAGE_LIQUID);
+
+  bool triggerScanSoil = false;
+  bool triggerScanLiquid = false;
+  bool triggerCalib = false;
+  wifiEngine.handleClient(telem, triggerScanSoil, triggerScanLiquid, triggerCalib);
+
+  if (triggerScanSoil) {
+    executeAutoWavelengthScan(strip, tcs, calibState, currentSpectrum, hasTCS);
+    for (int i = 0; i < 5; i++) telem.absorbance[i] = currentSpectrum.absorbance[i];
+    wifiEngine.logMeasurement(telem);
+  } else if (triggerScanLiquid) {
+    analyzeLiquidOptics(strip, tcs, calibState, currentLiquidResult, hasTCS);
+    telem.ref_n = currentLiquidResult.refractiveIndex_n;
+    telem.density = currentLiquidResult.density_g_cm3;
+    telem.brix = currentLiquidResult.brix_deg;
+    telem.transmittance = currentLiquidResult.transmittance_pct;
+    strncpy(telem.clarity, currentLiquidResult.clarity, sizeof(telem.clarity));
+    telem.isSoil = false;
+    wifiEngine.logMeasurement(telem);
+    logLiquidToSD();
+  } else if (triggerCalib) {
+    captureBlankReference(strip, tcs, calibState, hasTCS);
+    saveCalibrationToSD();
   }
 }

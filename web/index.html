@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPK Spectrometer 2026 & Liquid Optics Dashboard | RBRU AI4D AgriPhysics</title>
+  <meta name="description" content="Web Dashboard และระบบฐานข้อมูล JSON เชื่อมต่อ Wi-Fi สำหรับเครื่องสเปกโทรโฟโตมิเตอร์ Wio Terminal ตรวจวัด NPK ในดินและสมบัติของเหลว">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="brand-container">
+      <div class="brand-logo">🌈</div>
+      <div>
+        <h1 class="brand-title">NPK Spectrometer 2026</h1>
+        <div class="brand-subtitle">
+          <span>Wio Terminal IoT Dashboard</span>
+          <span class="rbru-tag">RBRU AI4D AgriPhysics</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Wi-Fi IP & Connect Bar -->
+      <div class="wifi-bar">
+        <span id="connection-status-dot" class="status-dot mock" title="สถานะการเชื่อมต่อ"></span>
+        <span id="connection-status-text" style="font-size: 0.82rem; color: var(--text-secondary);">Mock Mode</span>
+        <input type="text" id="device-ip-input" class="ip-input" value="192.168.1.100" placeholder="192.168.1.x" title="Wio Terminal IP Address">
+        <button id="btn-connect" class="btn btn-primary" style="padding: 4px 12px; font-size: 0.8rem;">เชื่อมต่อ</button>
+      </div>
+
+      <!-- Quick Mock / Live toggle -->
+      <button id="btn-mock-toggle" class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;">สลับเป็น Live Wi-Fi</button>
+
+      <!-- Theme Switcher -->
+      <button id="theme-toggle" class="btn-icon" aria-label="Toggle Theme" title="สลับธีม สว่าง/มืด">🌙</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- Top Grid: Soil NPK, Liquid Optics & Remote Controls -->
+    <div class="grid-top">
+
+      <!-- Card 1: Soil NPK Telemetry -->
+      <section class="card" id="card-soil-npk">
+        <div class="card-header">
+          <h2 class="card-title">🌱 ผลการตรวจวัดธาตุอาหารดิน (NPK)</h2>
+          <span class="card-badge" id="val-soil-quality">Optimal</span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">ไนโตรเจน (N - 465nm Blue)</span>
+          <span class="metric-val" style="color: var(--accent-blue);"><span id="val-n">45.2</span><span class="metric-unit">mg/kg</span></span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-n" class="bar-fill bar-n" style="width: 75%;"></div>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">ฟอสฟอรัส (P - 525nm Green)</span>
+          <span class="metric-val" style="color: var(--accent-green);"><span id="val-p">22.8</span><span class="metric-unit">mg/kg</span></span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-p" class="bar-fill bar-p" style="width: 57%;"></div>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">โพแทสเซียม (K - 625nm Red)</span>
+          <span class="metric-val" style="color: var(--accent-red);"><span id="val-k">128.5</span><span class="metric-unit">mg/kg</span></span>
+        </div>
+        <div class="bar-track">
+          <div id="bar-k" class="bar-fill bar-k" style="width: 64%;"></div>
+        </div>
+
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px;">
+          * ประมวลผลด้วย TinyML Neural Network & โมเดลการถดถอยพหุนาม
+        </div>
+      </section>
+
+      <!-- Card 2: Liquid Optics & Metrology -->
+      <section class="card" id="card-liquid-optics">
+        <div class="card-header">
+          <h2 class="card-title">🧪 สมบัติเชิงแสงและความหนาแน่นของเหลว</h2>
+          <span class="card-badge" id="val-clarity" style="background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan);">CLEAR</span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">ดัชนีหักเหของแสง (Refractive Index, n)</span>
+          <span class="metric-val" style="color: var(--accent-cyan);" id="val-refractive">1.3425</span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">ความหนาแน่นของเหลว (Density, &rho;)</span>
+          <span class="metric-val" style="color: var(--accent-gold);"><span id="val-density">1.025</span><span class="metric-unit">g/cm³</span></span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">ปริมาณของแข็ง / ความหวาน (Brix)</span>
+          <span class="metric-val" style="color: var(--accent-yellow);"><span id="val-brix">6.6</span><span class="metric-unit">°Bx</span></span>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">ร้อยละการส่องผ่านแสง (% Transmittance)</span>
+          <span class="metric-val" style="color: var(--accent-purple);" id="val-transmittance">71.2%</span>
+        </div>
+
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 14px;">
+          * อิงมาตรฐานสากล ICUMSA และสมการ Fresnel Interface Reflection
+        </div>
+      </section>
+
+      <!-- Card 3: Remote Control Panel -->
+      <section class="card" id="card-remote-control">
+        <div class="card-header">
+          <h2 class="card-title">📡 ควบคุมระยะไกลผ่าน Wi-Fi</h2>
+          <span class="card-badge">REST API</span>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          สั่งการทำงานของเครื่องสเปกโทรโฟโตมิเตอร์ Wio Terminal ผ่านเครือข่ายไร้สาย
+        </p>
+
+        <div class="control-grid">
+          <button id="btn-scan-soil" class="btn btn-primary" title="สั่งสแกนธาตุอาหารดิน">
+            🌾 สแกนดิน (NPK)
+          </button>
+          <button id="btn-scan-liquid" class="btn btn-secondary" title="สั่งสแกนสมบัติของเหลว">
+            💧 สแกนของเหลว
+          </button>
+          <button id="btn-set-blank" class="btn btn-secondary" title="ตั้งค่า Blank Reference">
+            🎯 เทียบศูนย์ (Blank)
+          </button>
+          <button id="btn-cycle-page" class="btn btn-secondary" title="เปลี่ยนหน้าจอบน Wio Terminal">
+            🔄 สลับหน้าจอ Wio
+          </button>
+        </div>
+
+        <div style="margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--border-color); font-size: 0.82rem; color: var(--text-muted);">
+          ⚡ Wi-Fi Protocol: HTTP REST over Port 80 (JSON Encoding)
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Middle: 5-Wavelength Absorbance Spectrum Chart -->
+    <section class="card" style="margin-bottom: 24px;" id="card-spectrum-chart">
+      <div class="card-header">
+        <h2 class="card-title">📈 สเปกตรัมการดูดกลืนแสง 5 ช่วงคลื่น (Absorbance Spectrum)</h2>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+          465nm (Blue) | 500nm (Cyan) | 525nm (Green) | 590nm (Yellow) | 625nm (Red)
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="spectrum-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Bottom: Interactive JSON Database Section -->
+    <section class="card db-section" id="card-json-database">
+      <div class="card-header">
+        <h2 class="card-title">🗄️ ฐานข้อมูล JSON (Measurement Records Database)</h2>
+        <span class="card-badge" id="record-count">5 รายการ</span>
+      </div>
+
+      <!-- Toolbar: Search, Filters, Export/Import -->
+      <div class="db-toolbar">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="ค้นหาตามชื่อแปลง, รหัส, หรือประเภท...">
+        </div>
+
+        <div class="tab-group">
+          <button class="tab-btn active" data-tab="all">ทั้งหมด</button>
+          <button class="tab-btn" data-tab="soil">เฉพาะดิน (NPK)</button>
+          <button class="tab-btn" data-tab="liquid">เฉพาะของเหลว</button>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <input type="file" id="json-file-input" accept=".json" style="display: none;">
+          <button id="btn-import-json" class="btn btn-secondary" title="นำเข้าไฟล์ JSON">
+            📥 นำเข้า JSON
+          </button>
+          <button id="btn-export-json" class="btn btn-primary" title="ดาวน์โหลดฐานข้อมูล JSON ทั้งหมด">
+            💾 ส่งออก JSON
+          </button>
+          <button id="btn-export-csv" class="btn btn-secondary" title="ดาวน์โหลดไฟล์ CSV สำหรับ Excel">
+            📊 ส่งออก CSV
+          </button>
+          <button id="btn-clear-db" class="btn btn-secondary" style="color: var(--accent-red);" title="ล้าง/รีเซ็ตฐานข้อมูล">
+            🗑️ รีเซ็ต
+          </button>
+        </div>
+      </div>
+
+      <!-- Database Table -->
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>รหัสบันทึก (ID)</th>
+              <th>วัน-เวลา</th>
+              <th>ประเภท</th>
+              <th>ชื่อตัวอย่าง</th>
+              <th>ค่าสรุปทางมาตรวิทยา</th>
+              <th>ผู้ตรวจวัด</th>
+              <th style="text-align: right;">การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="db-table-body">
+            <!-- Dynamically populated by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JSON Viewer Modal -->
+  <div class="modal-overlay" id="json-modal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 1.1rem;">📄 โครงสร้างข้อมูล JSON ดิบ (Raw JSON Record)</h3>
+        <button id="btn-close-modal" class="btn-icon" style="font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <pre class="json-viewer" id="json-viewer"></pre>
+      <div style="margin-top: 14px; text-align: right;">
+        <button class="btn btn-secondary" onclick="document.getElementById('json-modal').classList.remove('active')">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>เครื่องสเปกโทรโฟโตมิเตอร์ NPK Level Meter 1.02 & Liquid Optics Metrology Analyzer</p>
+    <p style="margin-top: 4px;">หน่วยวิจัยฟิสิกส์เพื่อการเกษตรดิจิทัลและปัญญาประดิษฐ์ (AI4D AgriPhysics) สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี</p>
+    <p style="margin-top: 4px; font-size: 0.75rem; color: var(--text-muted);">พัฒนาโดย ผศ.ดร.ชีวะ ทัศนา และคณะ &copy; 2026</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+</body>
+</html>

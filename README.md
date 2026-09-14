@@ -13,6 +13,7 @@
   <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/TinyML-Deep_Neural_Net-00E676.svg?style=for-the-badge&logo=tensorflow" alt="TinyML"></a>
   <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/Metrology-OLS_R²_LOD_LOQ-2979FF.svg?style=for-the-badge" alt="Metrology"></a>
   <a href="https://github.com/TsanaPhysics/spectrometer_npk2026"><img src="https://img.shields.io/badge/Liquid_Optics-n_rho_Brix-D500F9.svg?style=for-the-badge" alt="Liquid Optics"></a>
+  <a href="web/"><img src="https://img.shields.io/badge/Web_Dashboard-JSON_Database-00B0FF.svg?style=for-the-badge&logo=javascript" alt="Web Dashboard"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"></a>
 </p>
 
@@ -35,6 +36,7 @@
 - [การควบคุมและการนำทาง (Controls & Navigation)](#การควบคุมและการนำทาง-controls--navigation)
 - [โครงสร้างการบันทึกข้อมูล microSD Card (Quadruple Logging)](#โครงสร้างการบันทึกข้อมูล-microsd-card-quadruple-logging)
 - [การติดตั้ง คอมไพล์ และแฟลชโปรแกรม (Build & Flash Guide)](#การติดตั้ง-คอมไพล์-และแฟลชโปรแกรม-build--flash-guide)
+- [ระบบเว็บแดชบอร์ดและฐานข้อมูล JSON (Web Dashboard & JSON Database)](#ระบบเว็บแดชบอร์ดและฐานข้อมูล-json-web-dashboard--json-database)
 - [โครงสร้างโปรเจกต์ (Repository Tree)](#โครงสร้างโปรเจกต์-repository-tree)
 - [การอ้างอิงทางวิชาการ (Academic Citation)](#การอ้างอิงทางวิชาการ-academic-citation)
 
@@ -47,7 +49,8 @@
 2. **ระบบการวิเคราะห์ 3 โหมด (Triple Analytical Engine):** สลับโหมดวิเคราะห์ธาตุอาหารดินระหว่าง TinyML Neural Network, Classical Polynomial และ In-Situ Standard Curve ได้ทันที
 3. **ระบบกวาดสเปกตรัมหลายช่วงคลื่น (Multi-Wavelength Spectral Scanning):** กวาดแสง 5 ย่านสเปกตรัม (465, 500, 525, 590, 625 nm) พร้อมการตัดกระแสมืด (Dark Current Subtraction)
 4. **ระบบสร้างเส้นโค้งมาตรฐานในตัวเครื่อง (In-Situ Calibration Wizard):** คำนวณความชัน $m$, จุดตัด $c$, ค่า $R^2$, LOD, LOQ ตามมาตรฐาน IUPAC/ISO 17025
-5. **ระบบวิเคราะห์สมบัติของเหลว (Liquid Optics Metrology):** ตรวจวัดค่าดัชนีหักเห ($n$), ความหนาแน่น ($ho$ ใน $\text{g/cm}^3$), ความเข้มข้นสารละลาย ($^\circ\text{Bx}$), และระดับความขุ่น (Clarity) ของตัวอย่างของเหลว
+5. **ระบบวิเคราะห์สมบัติของเหลว (Liquid Optics Metrology):** ตรวจวัดค่าดัชนีหักเห ($n$), ความหนาแน่น ($
+ho$ ใน $\text{g/cm}^3$), ความเข้มข้นสารละลาย ($^\circ\text{Bx}$), และระดับความขุ่น (Clarity) ของตัวอย่างของเหลว
 6. **ระบบการแสดงผลสองระดับ (Two-Tier Typography):** รองรับฟอนต์ไทยสารบรรณอย่างเป็นทางการผ่าน microSD Card (`.vlw`) และมีระบบฟอนต์ภาษาอังกฤษขนาดใหญ่พิเศษ (`TextSize 2`) คมชัด ปราศจากปัญหากล่องสี่เหลี่ยม (`[]`)
 
 ---
@@ -81,7 +84,8 @@
    - ฝั่งขวา: แผงสถิติมาตรวิทยาเคมีวิเคราะห์ ($R^2$, ความชัน $m$, จุดตัด $c$, LOD, LOQ)
    - ปุ่มเลือกธาตุ: ปุ่ม C (ไนโตรเจน 465 nm), ปุ่ม B (ฟอสฟอรัส 525 nm), ปุ่ม A (โพแทสเซียม 625 nm)
 5. **Page 5: Liquid Optics & Metrology Analyzer (`[5/5]`):**
-   - ฝั่งซ้าย (Metrology): ดัชนีหักเหของเหลว ($n$), ความหนาแน่น ($ho$ ใน $\text{g/cm}^3$), ปริมาณของแข็ง/น้ำตาล ($^\circ\text{Bx}$), และระดับความขุ่น (`CLEAR`, `SLIGHT TURBID`, `TURBID`)
+   - ฝั่งซ้าย (Metrology): ดัชนีหักเหของเหลว ($n$), ความหนาแน่น ($
+ho$ ใน $\text{g/cm}^3$), ปริมาณของแข็ง/น้ำตาล ($^\circ\text{Bx}$), และระดับความขุ่น (`CLEAR`, `SLIGHT TURBID`, `TURBID`)
    - ฝั่งขวา (Spectrum A): ค่าการดูดกลืนแสงของของเหลวรายความยาวคลื่น $465, 500, 525, 590, 625\text{ nm}$
 
 ---
@@ -197,6 +201,36 @@ arduino-cli compile --fqbn Seeeduino:samd:seeed_wio_terminal firmware/spectromet
 # อัปโหลดเข้าสู่บอร์ด Wio Terminal ผ่านพอร์ต USB
 arduino-cli upload -p /dev/cu.usbmodem2101 --fqbn Seeeduino:samd:seeed_wio_terminal firmware/spectrometer_npk2026
 ```
+
+---
+
+
+---
+
+## ระบบเว็บแดชบอร์ดและฐานข้อมูล JSON (Web Dashboard & JSON Database)
+
+<p align="center">
+  <b>เว็บแอปพลิเคชันสำหรับมอนิเตอร์ ควบคุมระยะไกล และจัดการฐานข้อมูล JSON ผ่านเครือข่ายไร้สาย Wi-Fi (RTL8720DN)</b>
+</p>
+
+ตัวระบบประกอบด้วย Web Dashboard แบบ Glassmorphic Responsive ในโฟลเดอร์ `web/` ที่เชื่อมต่อกับ Wio Terminal ผ่าน REST API บนพอร์ต 80:
+
+1. **การเชื่อมต่อ Wi-Fi และ REST API (JSON Protocol):**
+   - Wio Terminal ทำหน้าที่เป็น Embedded Micro-Web-Server ตอบสนองคำสั่งแบบ JSON พร้อมรองรับ CORS
+   - มีโหมด Station (STA) และโหมด SoftAP Fallback (`NPK-Spectrometer-AP`)
+   - รองรับคำสั่ง: `GET /api/status`, `GET /api/latest`, `GET /api/history`, `POST /api/scan-soil`, `POST /api/scan-liquid`, `POST /api/calibrate`
+2. **ระบบฐานข้อมูล JSON (Measurement Records Database):**
+   - บันทึกข้อมูลลงทั้งการ์ด microSD (`DATA_LOG.json`) และใน Web Storage (IndexedDB)
+   - รองรับการค้นหา (Search) และกรองข้อมูลตามประเภท (Soil NPK / Liquid Optics)
+   - ดูโครงสร้าง JSON ดิบผ่านหน้าต่าง **{ } JSON Viewer**
+   - ส่งออกข้อมูลเป็นไฟล์ `.json` (Export JSON) หรือไฟล์ `.csv` (Export CSV) สำหรับ Excel
+   - นำเข้าไฟล์ฐานข้อมูล `.json` (Import JSON) เพื่อเปิดวิเคราะห์ข้อมูลย้อนหลัง
+3. **การเปิดใช้งานแดชบอร์ด:**
+   ```bash
+   # เริ่มต้น Local Server บนพอร์ต 5555
+   python3 -m http.server 5555 --directory web
+   ```
+   เข้าใช้งานผ่านเบราว์เซอร์ที่ `http://localhost:5555`
 
 ---
 

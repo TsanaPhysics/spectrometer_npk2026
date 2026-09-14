@@ -5,43 +5,49 @@
 \addcontentsline{toc}{section}{แผนบริหารการสอนประจำบทที่ 3}
 
 \begin{planbox}{หัวข้อเนื้อหาประจำบท}
-\begin{enumerate}[leftmargin=1.5em, itemsep=1pt]
-    \item สถาปัตยกรรมเฟิร์มแวร์บนระบบนิเวศ Seeeduino SAMD Core
-    \item รายการไลบรารีเฉพาะของ Wio Terminal และการตั้งค่า Smooth Font
-    \item ขั้นตอนการคอมไพล์และแฟลชโปรแกรมด้วย Arduino CLI
-    \item การกู้คืนระบบผ่านโหมด Bootloader และการติดตั้งไฟล์ไบนารี UF2
+\begin{enumerate}[topsep=2pt, itemsep=1pt, partopsep=0pt, parsep=0pt, leftmargin=1.5em]
+    \item สถาปัตยกรรมเฟิร์มแวร์แบบโมดูลาร์บนชิป ATSAMD51 ARM Cortex-M4F
+    \item การติดตั้งและการกำหนดค่าไลบรารีระบบควบคุมจอภาพและเซนเซอร์
+    \item สถาปัตยกรรมการเชื่อมต่อเครือข่ายไร้สาย Wi-Fi และ Embedded JSON REST Server
+    \item การคอมไพล์โปรแกรมผ่าน Arduino CLI และเทคนิคการอัปโหลดเฟิร์มแวร์
+    \item การกู้คืนระบบผ่านโหมด Bootloader และการจัดการหน่วยความจำ Flash
 \end{enumerate}
 \end{planbox}
 
 \begin{planbox}{วัตถุประสงค์เชิงพฤติกรรม}
-\begin{enumerate}[leftmargin=1.5em, itemsep=1pt]
-    \item ติดตั้งและกำหนดค่าไลบรารีซอฟต์แวร์สำหรับบอร์ด Wio Terminal ได้อย่างถูกต้อง
-    \item คอมไพล์และอัปโหลดโปรแกรมผ่านบรรทัดคำสั่ง Arduino CLI ได้อย่างสมบูรณ์
-    \item อธิบายขั้นตอนการกู้คืนบอร์ดไมโครคอนโทรลเลอร์กรณีพอร์ตเชื่อมต่อค้างได้อย่างถูกต้อง
+\begin{enumerate}[topsep=2pt, itemsep=1pt, partopsep=0pt, parsep=0pt, leftmargin=1.5em]
+    \item อธิบายโครงสร้างสถาปัตยกรรมซอฟต์แวร์และการทำงานร่วมกันของแต่ละเอนจินได้อย่างถูกต้อง
+    \item ติดตั้งไลบรารีที่จำเป็นและแก้ไขคอนฟิกูเรชันของบอร์ด Wio Terminal ได้อย่างสมบูรณ์
+    \item กำหนดค่าการเชื่อมต่อเครือข่าย Wi-Fi ทั้งโหมด Station และ SoftAP ได้อย่างถูกต้อง
+    \item คอมไพล์โปรแกรมและกู้คืนบอร์ดผ่านโหมด Bootloader เมื่อเกิดข้อขัดข้องได้อย่างชำนาญ
 \end{enumerate}
 \end{planbox}
 
-\begin{planbox}{กิจกรรมการเรียนการสอน}
-\begin{enumerate}[leftmargin=1.5em, itemsep=1pt]
-    \item การสาธิตการตั้งค่าสภาพแวดล้อมการพัฒนา Arduino CLI และ Board Core
-    \item ปฏิบัติการติดตั้งไลบรารีและการปรับแต่งไฟล์ User\_Setup.h
-    \item การทดลองคอมไพล์ อัปโหลด และตรวจสอบการใช้หน่วยความจำแฟลชและแรม
+\newpage
+
+\begin{planbox}{วิธีสอนและกิจกรรมการเรียนการสอน}
+\begin{enumerate}[topsep=2pt, itemsep=1pt, partopsep=0pt, parsep=0pt, leftmargin=1.5em]
+    \item การบรรยายเชิงวิชาการประกอบสไลด์และไดอะแกรมการไหลของข้อมูล (Data Flow Diagram)
+    \item การฝึกปฏิบัติการเขียนคำสั่งคอมไพล์ผ่านระบบ Command Line Interface (Arduino CLI)
+    \item กิจกรรมการทดลองเชื่อมต่อบอร์ด Wio Terminal กับเครือข่าย Wi-Fi และทดสอบคำสั่ง REST API
+    \item การจำลองสถานการณ์พอร์ตสื่อสารขัดข้องและฝึกปฏิบัติการกู้คืนด้วยระบบ Double Touch Reset
 \end{enumerate}
 \end{planbox}
 
 \begin{planbox}{สื่อการเรียนการสอน}
-\begin{enumerate}[leftmargin=1.5em, itemsep=1pt]
-    \item เครื่องคอมพิวเตอร์พร้อมระบบปฏิบัติการ macOS หรือ Linux และ Arduino CLI
-    \item ซอร์สโค้ดเฟิร์มแวร์ spectrometer\_npk2026.ino และไฟล์เฮดเดอร์โมดูล
-    \item สายเคเบิล USB-C คุณภาพสูงสำหรับการส่งผ่านข้อมูลและการจ่ายไฟ
+\begin{enumerate}[topsep=2pt, itemsep=1pt, partopsep=0pt, parsep=0pt, leftmargin=1.5em]
+    \item เครื่องคอมพิวเตอร์พร้อมติดตั้งโปรแกรม Arduino CLI และไดรเวอร์ USB-to-Serial
+    \item บอร์ด Seeed Studio Wio Terminal พร้อมสายเชื่อมต่อ USB Type-C High-Speed
+    \item ไฟล์ซอร์สโค้ดเฟิร์มแวร์ spectrometer\_npk2026 และชุดไลบรารีภาษา C/C++
+    \item เอกสารคู่มือปฏิบัติการและเว็บแอปพลิเคชันแดชบอร์ดจำลองบนเครือข่ายท้องถิ่น
 \end{enumerate}
 \end{planbox}
 
 \begin{planbox}{การวัดและประเมินผล}
-\begin{enumerate}[leftmargin=1.5em, itemsep=1pt]
-    \item การประเมินผลสำเร็จของการคอมไพล์โปรแกรมโดยปราศจากข้อผิดพลาด
-    \item การทดสอบการบูตเครื่องและการแสดงผลหน้าจอ Dashboard บน Wio Terminal
-    \item การตรวจความถูกต้องของการตอบคำถามทบทวนท้ายบทที่ 3
+\begin{enumerate}[topsep=2pt, itemsep=1pt, partopsep=0pt, parsep=0pt, leftmargin=1.5em]
+    \item การประเมินผลสัมฤทธิ์จากการคอมไพล์และอัปโหลดโปรแกรมลงบอร์ดจริง
+    \item การตรวจสอบความสามารถในการตอบสนองของเซิร์ฟเวอร์ JSON REST API ผ่านเครือข่าย Wi-Fi
+    \item การตรวจรายงานผลการกู้คืนระบบ Bootloader และการทดสอบความรู้ท้ายบทเรียน
 \end{enumerate}
 \end{planbox}
 
@@ -54,6 +60,7 @@
     \item \texttt{Calibration\_Engine.h} การวิเคราะห์การถดถอยเชิงเส้นตรง OLS, $R^2$, LOD, LOQ
     \item \texttt{Spectrum\_Engine.h} การสแกนสเปกตรัมแสงหลายช่วงคลื่นและพล็อตกราฟิก 2D
     \item \texttt{Liquid\_Engine.h} การคำนวณดัชนีหักเห ($n$), ความหนาแน่น ($\rho$), Brix ($^\circ\text{Bx}$) และระดับความขุ่น
+    \item \texttt{WiFi\_Server\_Engine.h} สถาปัตยกรรมเซิร์ฟเวอร์ HTTP REST API และการบันทึกฐานข้อมูล JSON
 \end{itemize}
 
 \section{ไลบรารีที่จำเป็นสำหรับระบบ}
@@ -64,16 +71,21 @@
     \item \textbf{Adafruit\_TCS34725} ไลบรารีสื่อสารกับเซนเซอร์วัดค่าสีแบบ I2C ควบคุมเวลาการประมวลผล (Integration Time) และเกนขยายสัญญาณ
     \item \textbf{Adafruit\_NeoPixel} ไลบรารีขับสัญญาณดิจิทัลควบคุมโมดูลหลอดไฟ RGB WS2812B
     \item \textbf{Seeed\_Arduino\_FS และ Seeed\_SD} ไลบรารีจัดการระบบไฟล์และบันทึกข้อมูลลงในการ์ดหน่วยความจำ microSD Card
+    \item \textbf{rpcWiFi} ไลบรารีควบคุมระบบเครือข่ายไร้สายผ่านชิป Realtek RTL8720DN Dual-Band 2.4/5.0 GHz
 \end{enumerate}
 
-\begin{academicbox}{การป้องกันปัญหาจอขาวและการตั้งค่าไลบรารี}
-    ในการคอมไพล์โปรแกรมสำหรับบอร์ด Wio Terminal จะต้องใช้ไลบรารี \textbf{Seeed\_Arduino\_LCD} ที่ติดตั้งมาพร้อมกับ Core Seeeduino SAMD เท่านั้น โดยห้ามใช้ไลบรารี TFT\_eSPI ทั่วไปของ Bodmer เนื่องจากมีการกำหนดขาสัญญาณ SPI ผิดพลาดและส่งผลให้จอแสดงผลเป็นสีขาวสว่างค้าง
-    
-    นอกจากนี้ เพื่อให้ระบบสามารถแสดงผลฟอนต์ภาษาไทย THSarabunPSK ได้อย่างคมชัด จะต้องเปิดการทำงานของคุณสมบัติ Smooth Font ในไฟล์ \texttt{User\_Setup.h} ของ Seeed\_Arduino\_LCD โดยเปิดใช้งานบรรทัด
-    \begin{center}
-        \texttt{\#define SMOOTH\_FONT}
-    \end{center}
-\end{academicbox}
+\section{ระบบเครือข่าย Wi-Fi และสถาปัตยกรรม Embedded JSON REST Server}
+Wio Terminal มาพร้อมโมดูลเครือข่ายไร้สาย Realtek RTL8720DN ที่รองรับการทำงานทั้งโหมดไคลเอนต์ (Station Mode: STA) และโหมดปล่อยสัญญาณ (SoftAP Mode) โดยเฟิร์มแวร์ได้ติดตั้ง Embedded Micro-Web-Server บนพอร์ต 80 ซึ่งสื่อสารด้วยข้อมูลมาตรฐาน JSON พร้อมเปิดใช้งานระบบ Cross-Origin Resource Sharing (CORS) ทำให้ Web Dashboard สามารถเชื่อมต่อเข้ามาดึงข้อมูลหรือสั่งการได้จากระยะไกล
+
+ชุดคำสั่ง REST API ที่รองรับในตัวเครื่อง
+\begin{itemize}[leftmargin=1.5em, itemsep=2pt]
+    \item \texttt{GET /api/status} รายงานสถานะเครื่อง กำลังไฟ เซนเซอร์ ค่า RSSI และหมายเลข IP Address
+    \item \texttt{GET /api/latest} ส่งข้อมูลผลการวัดล่าสุด (N, P, K, $n$, $\rho$, Brix, Absorbance 5 ช่องคลื่น)
+    \item \texttt{GET /api/history} สตรีมข้อมูลประวัติการวัดทั้งหมดจากไฟล์ \texttt{DATA\_LOG.json} บน microSD Card
+    \item \texttt{POST /api/scan-soil} ส่งคำสั่งสั่งให้เครื่องสแกนธาตุอาหารดินแบบไร้สาย
+    \item \texttt{POST /api/scan-liquid} ส่งคำสั่งสั่งให้เครื่องสแกนสมบัติของเหลวแบบไร้สาย
+    \item \texttt{POST /api/calibrate} ส่งคำสั่งสั่งตั้งค่าศูนย์ (Blank Calibration)
+\end{itemize}
 
 \section{คำสั่งคอมไพล์และอัปโหลดโปรแกรม}
 ผู้ใช้งานสามารถคอมไพล์และอัปโหลดโปรแกรมผ่านโปรแกรม Arduino CLI บนระบบปฏิบัติการ macOS หรือ Linux โดยใช้ชุดคำสั่งดังต่อไปนี้
@@ -98,13 +110,13 @@ arduino-cli upload -p /dev/cu.usbmodem2101 \
 
 \section*{บทสรุปประจำบทที่ 3}
 \addcontentsline{toc}{section}{บทสรุปประจำบทที่ 3}
-การติดตั้งเฟิร์มแวร์บนบอร์ด Wio Terminal ต้องการไลบรารีเฉพาะทางด้านการจัดการจอแสดงผลและระบบไฟล์ การแยกโครงสร้างโค้ดออกเป็นเอนจินอิสระช่วยให้การบำรุงรักษาและการขยายขีดความสามารถทำได้ง่าย การคอมไพล์ผ่าน Arduino CLI ให้ความรวดเร็วและใช้หน่วยความจำแฟลชเพียงร้อยละ 20 ของความจุชิป ทำให้มีพื้นที่เหลือเฟือสำหรับการพัฒนาต่อยอด
+การติดตั้งเฟิร์มแวร์บนบอร์ด Wio Terminal ต้องการไลบรารีเฉพาะทางด้านการจัดการจอแสดงผลและระบบไฟล์ การขยายขีดความสามารถด้วยโมดูล Wi-Fi และระบบบริการ JSON REST API ช่วยยกระดับเครื่องมือวัดสู่ระบบ IoT เกษตรอัจฉริยะ การคอมไพล์ผ่าน Arduino CLI ใช้พื้นที่ Flash Memory เพียงร้อยละ 28 ของความจุชิป ทำให้ระบบมีเสถียรภาพและรองรับการประมวลผลได้อย่างมีประสิทธิภาพ
 
 \section*{คำถามทบทวนท้ายบทที่ 3}
 \addcontentsline{toc}{section}{คำถามทบทวนท้ายบทที่ 3}
 \begin{enumerate}[leftmargin=1.5em, itemsep=3pt]
-    \item เหตุใดการใช้ไลบรารี TFT\_eSPI ทั่วไปจึงทำให้บอร์ด Wio Terminal เกิดอาการจอขาวค้าง และมีความแตกต่างจาก Seeed\_Arduino\_LCD อย่างไร
-    \item คุณสมบัติ Smooth Font ในไฟล์ User\_Setup.h มีบทบาทอย่างไรในการเรนเดอร์ฟอนต์ภาษาไทยบนจอ LCD
-    \item การออกแบบโค้ดแบบ Zero-Allocation ในเอนจิน TinyML ส่งผลดีอย่างไรต่อความเสถียรของระบบในระยะยาว
+    \item สถาปัตยกรรม REST API แบบ JSON บนไมโครคอนโทรลเลอร์ช่วยเพิ่มประโยชน์ในการประยุกต์ใช้งานภาคสนามอย่างไร
+    \item หาก Wio Terminal ไม่สามารถเชื่อมต่อกับ Access Point หลักได้ ระบบจะเปลี่ยนไปทำงานในโหมดใด
+    \item เหตุใดจึงต้องเปิดใช้งานส่วนหัว CORS (Cross-Origin Resource Sharing) ในคำสั่งตอบรับ HTTP ของ Wio Terminal
     \item จงอธิบายขั้นตอนการนำบอร์ด Wio Terminal เข้าสู่โหมด Bootloader เมื่อคอมพิวเตอร์ตรวจไม่พบพอร์ต Serial
 \end{enumerate}

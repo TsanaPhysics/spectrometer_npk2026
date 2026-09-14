@@ -1,0 +1,97 @@
+[
+  {
+    "id": "REC-20260914-001",
+    "timestamp": "2026-09-14 14:15:30",
+    "type": "SOIL_NPK",
+    "mode": "TINYML_DL",
+    "soil_sample": "สวนทุเรียนแปลง 1 (Durian Plot A)",
+    "n_mg_kg": 45.2,
+    "p_mg_kg": 22.8,
+    "k_mg_kg": 128.5,
+    "soil_quality": "Optimal (สมบูรณ์สูง)",
+    "absorbance": {
+      "465nm_blue": 0.452,
+      "500nm_cyan": 0.312,
+      "525nm_green": 0.185,
+      "590nm_yellow": 0.110,
+      "625nm_red": 0.055
+    },
+    "operator": "ผศ.ดร.ชีวะ ทัศนา"
+  },
+  {
+    "id": "REC-20260914-002",
+    "timestamp": "2026-09-14 14:35:12",
+    "type": "SOIL_NPK",
+    "mode": "STANDARD_CURVE",
+    "soil_sample": "ดินแปลงทดลองฟิสิกส์เกษตร (AgriPhysics Field B)",
+    "n_mg_kg": 24.1,
+    "p_mg_kg": 11.5,
+    "k_mg_kg": 68.0,
+    "soil_quality": "Medium (ปานกลาง)",
+    "absorbance": {
+      "465nm_blue": 0.241,
+      "500nm_cyan": 0.165,
+      "525nm_green": 0.098,
+      "590nm_yellow": 0.062,
+      "625nm_red": 0.032
+    },
+    "operator": "นักวิจัย AI4D"
+  },
+  {
+    "id": "REC-20260914-003",
+    "timestamp": "2026-09-14 15:10:45",
+    "type": "LIQUID_OPTICS",
+    "liquid_sample": "น้ำหมักชีวภาพบำรุงรากทุเรียน (Bio-Fertilizer)",
+    "n_refractive": 1.3458,
+    "density_g_cm3": 1.032,
+    "brix_deg": 8.9,
+    "transmittance_pct": 65.4,
+    "clarity": "SLIGHTLY_TURBID",
+    "absorbance": {
+      "465nm_blue": 0.520,
+      "500nm_cyan": 0.380,
+      "525nm_green": 0.210,
+      "590nm_yellow": 0.145,
+      "625nm_red": 0.082
+    },
+    "operator": "ผศ.ดร.ชีวะ ทัศนา"
+  },
+  {
+    "id": "REC-20260914-004",
+    "timestamp": "2026-09-14 16:02:20",
+    "type": "LIQUID_OPTICS",
+    "liquid_sample": "น้ำกลั่นมาตรฐานสอบเทียบ (DI Water Reference)",
+    "n_refractive": 1.3330,
+    "density_g_cm3": 0.9982,
+    "brix_deg": 0.0,
+    "transmittance_pct": 99.8,
+    "clarity": "CLEAR",
+    "absorbance": {
+      "465nm_blue": 0.002,
+      "500nm_cyan": 0.001,
+      "525nm_green": 0.001,
+      "590nm_yellow": 0.001,
+      "625nm_red": 0.000
+    },
+    "operator": "ผศ.ดร.ชีวะ ทัศนา"
+  },
+  {
+    "id": "REC-20260914-005",
+    "timestamp": "2026-09-14 16:45:00",
+    "type": "SOIL_NPK",
+    "mode": "POLYNOMIAL",
+    "soil_sample": "ดินโคนต้นทุเรียนหมอนทอง แปลง C",
+    "n_mg_kg": 52.8,
+    "p_mg_kg": 28.4,
+    "k_mg_kg": 154.2,
+    "soil_quality": "High (อุดมสมบูรณ์มาก)",
+    "absorbance": {
+      "465nm_blue": 0.528,
+      "500nm_cyan": 0.365,
+      "525nm_green": 0.230,
+      "590nm_yellow": 0.138,
+      "625nm_red": 0.071
+    },
+    "operator": "หน่วยวิจัย AI4D AgriPhysics"
+  }
+]
