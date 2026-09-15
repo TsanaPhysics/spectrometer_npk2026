@@ -60,14 +60,14 @@
 \toprule
 \textbf{หน้า} & \textbf{รหัส} & \textbf{ชื่อหน้าจอ} & \textbf{ฟังก์ชันการทำงานและความยาวคลื่นแสง} \\
 \midrule
-1 & \texttt{[1/8]} & System Dashboard & ภาพรวมระบบ, แบรนด์ JC\_AI\_SciRBRU สี่สี, นาฬิกา RTC, สถานะเซนเซอร์ \\
-2 & \texttt{[2/8]} & Dedicated Nitrogen & วิเคราะห์ไนโตรเจน (N), สลับไฟ \textbf{Blue 465 nm} อัตโนมัติ, ตัวอักษร N สี Magenta \\
-3 & \texttt{[3/8]} & Dedicated Phosphorus & วิเคราะห์ฟอสฟอรัส (P), สลับไฟ \textbf{Red 625 nm} อัตโนมัติ, ตัวอักษร P สี Cyan \\
-4 & \texttt{[4/8]} & Dedicated Potassium & วิเคราะห์โพแทสเซียม (K), สลับไฟ \textbf{Red 625 nm} อัตโนมัติ, ตัวอักษร K สี Red \\
-5 & \texttt{[5/8]} & Soil pH Assay & ตรวจวัดกรด-ด่างดิน, สลับไฟคู่ \textbf{Green/Red 525/625 nm}, แถบสเกล 3.5--8.5 \\
+1 & \texttt{[1/8]} & System Dashboard & ภาพรวมระบบ "สเปกโทรโฟโตมิเตอร์" (กึ่งกลางจอ), แบรนด์ \textbf{SpecJC +AI Analyzer} สี่สี (กึ่งกลางจอ), โหมด \textbf{AI TinyML}, นาฬิกา RTC, สถานะเซนเซอร์ \\
+2 & \texttt{[2/8]} & Dedicated Nitrogen & วิเคราะห์ปริมาณไนโตรเจน (กึ่งกลางจอ สี Cyan), สลับไฟ \textbf{Blue 465 nm} อัตโนมัติ, ตัวอักษร N สี Magenta, หน่วย $\text{mg/kg}$ \\
+3 & \texttt{[3/8]} & Dedicated Phosphorus & วิเคราะห์ปริมาณฟอสฟอรัส (กึ่งกลางจอ สี Green), สลับไฟ \textbf{Red 625 nm} อัตโนมัติ, ตัวอักษร P สี Cyan, หน่วย $\text{mg/kg}$ ($x=172$), แท็ก $A_{625}$ ($x=172$) \\
+4 & \texttt{[4/8]} & Dedicated Potassium & วิเคราะห์ปริมาณโพแทสเซียม (กึ่งกลางจอ สี Red), สลับไฟ \textbf{Red 625 nm} อัตโนมัติ, ตัวอักษร K สี Red, หน่วย $\text{mg/kg}$ \\
+5 & \texttt{[5/8]} & Soil pH Assay & วิเคราะห์ความเป็นกรด ด่าง (กึ่งกลางจอ สี Yellow), สลับไฟคู่ \textbf{Green/Red 525/625 nm}, แถบสเกล 3.5--8.5 \\
 6 & \texttt{[6/8]} & Full NPK Matrix & ตารางสรุปภาพรวมธาตุอาหาร N-P-K พร้อมแถบวัดระดับความอุดมสมบูรณ์ \\
 7 & \texttt{[7/8]} & Real-Time Spectrum & กวาดสเปกตรัมแสง 5 ช่องคลื่น (465, 500, 525, 590, 625 nm) และวัดสมบัติของเหลว \\
-8 & \texttt{[8/8]} & In-Situ Calib Wizard & วิเคราะห์การถดถอย OLS ($R^2, m, c,$ LOD, LOQ) บันทึกพารามิเตอร์ลง SD Card \\
+8 & \texttt{[8/8]} & In-Situ Calib Wizard & วิเคราะห์การถดถอย OLS ($R^2, m, c,$ LOD, LOQ) และหน้าวินิจฉัย/เครดิตผู้วิจัย ผศ.ดร.ชีวะ ทัศนา และ ผศ.ดร.จิรภัทร จันทมาลี \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -85,7 +85,7 @@
 จอยสติ๊กโยกลง (\texttt{WIO\_5S\_DOWN}) & ด้านหน้า & หน้าสเปกตรัม \texttt{[7/8]}: สั่ง \textbf{Auto-Scan} กวาดแสง 5 ช่วงคลื่น \\
  & & หน้าคาลิเบรต \texttt{[8/8]}: สั่ง \textbf{บันทึกจุดสารมาตรฐาน (Step Calib)} \\
  & & หน้า NPK / pH: สั่งอ่านค่าและบันทึกข้อมูลด่วน \\
-จอยสติ๊กโยกขึ้น (\texttt{WIO\_5S\_UP}) & ด้านหน้า & หน้า Dashboard / NPK: สลับโหมดคำนวณ \textbf{[AI] $\to$ [PL] $\to$ [SC]} \\
+จอยสติ๊กโยกขึ้น (\texttt{WIO\_5S\_UP}) & ด้านหน้า & หน้า Dashboard / NPK: สลับโหมดคำนวณ \textbf{AI TinyML $\to$ PL Poly $\to$ SC StdCurv} \\
 จอยสติ๊กกดตรงกลาง (\texttt{WIO\_5S\_PRESS}) & ด้านหน้า & หน้าคาลิเบรต \texttt{[8/8]}: สั่ง \textbf{Zero Blank ($I_0$)} เทียบน้ำกลั่น \\
  & & หน้าอื่น: เปิดหรือปิดสลับกันของ \textbf{แสงสีขาว (White LED)} \\
 ปุ่ม C (ซ้ายสุดด้านบน) & ด้านบน & หน้าคาลิเบรต: เลือกคาลิเบรต \textbf{ไนโตรเจน (N - 465 nm)} \\
@@ -101,9 +101,9 @@
 \section{ระบบประมวลผลการคำนวณ 3 รูปแบบ}
 ในหน้าจอตรวจวัด NPK Level Meter ผู้ใช้งานสามารถกดโยกจอยสติ๊กขึ้นเพื่อสลับโหมดการคำนวณได้ 3 รูปแบบอย่างอิสระ
 \begin{enumerate}[leftmargin=1.5em, itemsep=3pt]
-    \item \textbf{โหมดปัญญาประดิษฐ์ [AI] (TinyML Deep Neural Network)} ใช้โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลบนฮาร์ดแวร์ FPU พร้อมระบบชดเชยความขุ่นของสารละลายดิน (Turbidity Matrix Compensation)
-    \item \textbf{โหมดพหุนามสากล [PL] (Classical Literature Polynomial)} คำนวณความเข้มข้นจากสัดส่วนแสงสัมพัทธ์ $r_p, g_p, b_p$ ตามแบบจำลองพหุนามดั้งเดิม
-    \item \textbf{โหมดเส้นโค้งมาตรฐานสด [SC] (In-Situ Calibrated Standard Curve)} คำนวณความเข้มข้นจากสมการเส้นตรงที่ผู้ใช้วัดเทียบสดในแปลงเกษตรด้วยสารละลายมาตรฐาน
+    \item \textbf{โหมดปัญญาประดิษฐ์ AI TinyML (TinyML Deep Neural Network)} ใช้โครงข่ายประสาทเทียม Multi-Layer Perceptron ($6 \to 12 \to 8 \to 3$) ประมวลผลบนฮาร์ดแวร์ FPU พร้อมระบบชดเชยความขุ่นของสารละลายดิน (Turbidity Matrix Compensation)
+    \item \textbf{โหมดพหุนามสากล PL Poly (Classical Literature Polynomial)} คำนวณความเข้มข้นจากสัดส่วนแสงสัมพัทธ์ $r_p, g_p, b_p$ ตามแบบจำลองพหุนามดั้งเดิม
+    \item \textbf{โหมดเส้นโค้งมาตรฐานสด SC StdCurv (In-Situ Calibrated Standard Curve)} คำนวณความเข้มข้นจากสมการเส้นตรงที่ผู้ใช้วัดเทียบสดในแปลงเกษตรด้วยสารละลายมาตรฐาน
     \begin{equation}
         C_{\text{sample}} = \max\left(0.0, \, \frac{A_{\text{sample}} - c}{m}\right)
     \end{equation}
