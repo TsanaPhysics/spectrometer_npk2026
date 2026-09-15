@@ -463,10 +463,6 @@ void drawDashboardPage() {
     tft.drawString("สเปกโทรโฟโตมิเตอร์", 78, 8);
     safeUnloadFont();
 
-    tft.setTextSize(2);
-    tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("NPK", 232, 11);
-
     safeLoadFont20();
     tft.setTextColor(0x07FF, 0x0842);
     tft.drawString("หน่วยวิจัยเกษตรดิจิทัล", 78, 34);
@@ -477,7 +473,7 @@ void drawDashboardPage() {
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("NPK SPECTROMETER", 80, 10);
+    tft.drawString("SPECTROMETER", 80, 10);
 
     tft.setTextSize(1);
     tft.setTextColor(0x07FF, 0x0842);
