@@ -374,8 +374,8 @@ void setup() {
 }
 
 // ============================================================
-// Render Bold Multicolor "JC_AI_SciRBRU" Badge
-// Color Scheme: JC (Red), AI (Orange), Sci (Yellow), RBRU (Green)
+// Render Bold Multicolor "SpecJC +AI Analyzer" Brand Badge
+// Color Scheme: Spec (Cyan), JC (Red), +AI (Yellow), Analyzer (Green)
 // ============================================================
 void drawMulticolorBadge(int x, int y, uint16_t bg, uint8_t size) {
   tft.setTextSize(size);
@@ -384,17 +384,15 @@ void drawMulticolorBadge(int x, int y, uint16_t bg, uint8_t size) {
     uint16_t col;
   };
   const Seg segs[] = {
-    {"JC",   TFT_RED},       // Red (JC แดง)
-    {"_",    TFT_LIGHTGREY},
-    {"AI",   TFT_ORANGE},    // Orange (AI ส้ม)
-    {"_",    TFT_LIGHTGREY},
-    {"Sci",  TFT_YELLOW},    // Yellow (Sci เหลือง)
-    {"RBRU", TFT_GREEN}      // Green (RBRU เขียวสดใส)
+    {"Spec",     0x07FF},       // Vibrant Cyan
+    {"JC",       TFT_RED},      // Vivid Red
+    {" +AI ",    TFT_YELLOW},   // Warm Yellow
+    {"Analyzer", TFT_GREEN}     // Bright Green
   };
 
   int curX = x;
   int charW = 6 * size;
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 4; i++) {
     tft.setTextColor(segs[i].col, bg);
     tft.drawString(segs[i].str, curX, y);
     tft.drawString(segs[i].str, curX + 1, y); // 1px horizontal offset for bold
@@ -469,23 +467,14 @@ void drawDashboardPage() {
     tft.drawString("เครื่องสเปกโทรโฟโตมิเตอร์", 64, 6);
     safeUnloadFont();
 
-    // Large Size-2 Multicolor Badge (JC: Red, AI: Orange, Sci: Yellow, RBRU: Green)
-    drawMulticolorBadge(64, 32, 0x0842, 2);
-
-    safeLoadFont20();
-    tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("หน่วยวิจัยเกษตรดิจิทัล", 196, 33);
-    safeUnloadFont();
+    // SpecJC +AI Analyzer (Size 2 Bold Multicolor Brand)
+    drawMulticolorBadge(54, 32, 0x0842, 2);
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("SPECTROMETER", 70, 8);
+    tft.drawString("SPECTROMETER", 68, 8);
 
-    drawMulticolorBadge(64, 32, 0x0842, 2);
-
-    tft.setTextSize(1);
-    tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("AgriDigital RBRU", 196, 36);
+    drawMulticolorBadge(54, 32, 0x0842, 2);
   }
 
   // Page Indicator Badge
@@ -1043,10 +1032,10 @@ void drawNpkStaticLayout() {
     tft.drawString("Soil NPK & pH Meter", 35, 10);
   }
 
-  // Title 2: NPK Level Meter 2026 (White)
+  // Title 2: SpecJC +AI Analyzer 2026 (White)
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("JC_AI_SciRBRU Digital Agriculture 2026", 15, 36);
+  tft.drawString("SpecJC +AI Analyzer 2026", 15, 36);
 
   // Page Indicator Badge
   tft.setTextSize(1);
