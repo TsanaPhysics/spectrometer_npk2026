@@ -210,6 +210,7 @@ void safeLoadFont20() {
 
 // Function Prototypes
 void updateLedOutput();
+void setAutoOpticsForScreen(AppScreen screen);
 void drawLedStatusTag();
 void drawSdStatusTag();
 void drawModelModeBadge();
@@ -362,8 +363,9 @@ void setup() {
   // 8. Initialize Wi-Fi & Embedded REST API Server (Standalone/Non-blocking)
   wifiEngine.init();
 
-  // 9. Immediately Render First Screen
+  // 9. Immediately Render First Screen & Set Auto-Optics
   drawDashboardPage();
+  setAutoOpticsForScreen(PAGE_DASHBOARD);
   screenChanged = false;
 
   lastMeasureTime = millis();
@@ -1099,6 +1101,77 @@ void drawActiveCalibrationScreen() {
 }
 
 // ============================================================
+// Automatic Wavelength & Optics Controller (Auto-Optics)
+// Automatically selects optimal narrowband LED for each assay
+// ============================================================
+void setAutoOpticsForScreen(AppScreen screen) {
+  switch (screen) {
+    case PAGE_DASHBOARD:
+      // Standby / Off to preserve battery and reduce thermal drift
+      ledRedState   = false;
+      ledGreenState = false;
+      ledBlueState  = false;
+      break;
+
+    case PAGE_NITROGEN:
+      // Nitrogen Assay: 465 nm Blue LED (Indophenol Blue Complex)
+      ledRedState   = false;
+      ledGreenState = false;
+      ledBlueState  = true;
+      break;
+
+    case PAGE_PHOSPHORUS:
+      // Phosphorus Assay: 625 nm Red LED (Molybdenum Blue Complex max absorption)
+      ledRedState   = true;
+      ledGreenState = false;
+      ledBlueState  = false;
+      break;
+
+    case PAGE_POTASSIUM:
+      // Potassium Assay: 625 nm Red LED (Sodium Tetraphenylborate turbidimetry)
+      ledRedState   = true;
+      ledGreenState = false;
+      ledBlueState  = false;
+      break;
+
+    case PAGE_SOIL_PH:
+      // Soil pH: Ratiometric Dual-Band (Green 525nm + Red 625nm)
+      ledRedState   = true;
+      ledGreenState = true;
+      ledBlueState  = false;
+      break;
+
+    case PAGE_NPK_METER:
+      // Full Soil NPK Meter Overview: Balanced RGB illumination
+      ledRedState   = true;
+      ledGreenState = true;
+      ledBlueState  = true;
+      break;
+
+    case PAGE_SPECTRUM:
+      // Spectrum Sweep: Off until user presses [DOWN] for automated 5-band sweep
+      ledRedState   = false;
+      ledGreenState = false;
+      ledBlueState  = false;
+      break;
+
+    case PAGE_CALIBRATE:
+      // Calibration Wizard: Auto-select active calibration nutrient channel
+      if (activeCalibNutrient == CALIB_N) {
+        ledRedState   = false;
+        ledGreenState = false;
+        ledBlueState  = true;
+      } else {
+        ledRedState   = true;
+        ledGreenState = false;
+        ledBlueState  = false;
+      }
+      break;
+  }
+  updateLedOutput();
+}
+
+// ============================================================
 // Update LED Hardware Output
 // ============================================================
 void updateLedOutput() {
@@ -1275,7 +1348,8 @@ void loop() {
   // 1.4 Top Buttons A, B, C Handling (Context Sensitive)
   if (btnA == LOW && lastBtnA == HIGH) {
     if (currentScreen == PAGE_CALIBRATE) {
-      activeCalibNutrient = CALIB_K; // Select Potassium
+      activeCalibNutrient = CALIB_K; // Select Potassium (625nm)
+      setAutoOpticsForScreen(PAGE_CALIBRATE);
       drawActiveCalibrationScreen();
     } else {
       ledRedState = !ledRedState;
@@ -1285,7 +1359,8 @@ void loop() {
   }
   if (btnB == LOW && lastBtnB == HIGH) {
     if (currentScreen == PAGE_CALIBRATE) {
-      activeCalibNutrient = CALIB_P; // Select Phosphorus
+      activeCalibNutrient = CALIB_P; // Select Phosphorus (625nm)
+      setAutoOpticsForScreen(PAGE_CALIBRATE);
       drawActiveCalibrationScreen();
     } else {
       ledGreenState = !ledGreenState;
@@ -1295,7 +1370,8 @@ void loop() {
   }
   if (btnC == LOW && lastBtnC == HIGH) {
     if (currentScreen == PAGE_CALIBRATE) {
-      activeCalibNutrient = CALIB_N; // Select Nitrogen
+      activeCalibNutrient = CALIB_N; // Select Nitrogen (465nm)
+      setAutoOpticsForScreen(PAGE_CALIBRATE);
       drawActiveCalibrationScreen();
     } else {
       ledBlueState = !ledBlueState;
@@ -1335,9 +1411,10 @@ void loop() {
   lastBtnJoyLeft  = btnJoyLeft;
   lastBtnJoyRight = btnJoyRight;
 
-  // 2. Handle Screen Redraw on Page Transition
+  // 2. Handle Screen Redraw & Optical Wavelength Switching on Page Transition
   if (screenChanged) {
     screenChanged = false;
+    setAutoOpticsForScreen(currentScreen);
     switch (currentScreen) {
       case PAGE_DASHBOARD:
         drawDashboardPage();
