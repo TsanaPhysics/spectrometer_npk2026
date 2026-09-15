@@ -849,7 +849,7 @@ void drawPotassiumPage() {
   tft.setTextSize(1);
   tft.setTextColor(TFT_LIGHTGREY, 0x0842);
   tft.drawString("METHOD: Sodium Tetraphenylborate Turbidimetry", 18, 64);
-  tft.drawString("OPTICS: 625nm Red Scattering / Baseline Compensated", 18, 76);
+  tft.drawString("OPTICS: 625nm Red Scattering / Baseline Comp.", 18, 76);
 
   // Large Number Display
   char valStr[16];
@@ -878,15 +878,15 @@ void drawPotassiumPage() {
     if (currentK < 80.0f) {
       tft.setTextColor(TFT_YELLOW, 0x0842);
       tft.drawString("สถานะ โพแทสเซียมต่ำกว่าเกณฑ์", 18, 158);
-      tft.drawString("คำแนะนำ เสริมปุ๋ยโพแทสเซียมเพื่อเพิ่มความแข็งแรงของพืช", 18, 174);
+      tft.drawString("คำแนะนำ เสริมปุ๋ยโพแทสเซียมเพื่อเพิ่มความแข็งแรง", 18, 174);
     } else if (currentK <= 160.0f) {
       tft.setTextColor(TFT_GREEN, 0x0842);
       tft.drawString("สถานะ โพแทสเซียมระดับเหมาะสม", 18, 158);
-      tft.drawString("คำแนะนำ ช่วยพัฒนาคุณภาพผลผลิตและเพิ่มความหวานของเนื้อ", 18, 174);
+      tft.drawString("คำแนะนำ ช่วยพัฒนาคุณภาพผลผลิตและเพิ่มความหวาน", 18, 174);
     } else {
       tft.setTextColor(0x07FF, 0x0842);
       tft.drawString("สถานะ โพแทสเซียมสะสมปริมาณสูง", 18, 158);
-      tft.drawString("คำแนะนำ ชะลอการใส่ปุ๋ยเพื่อไม่ให้รบกวนการดูดซึมแคลเซียม", 18, 174);
+      tft.drawString("คำแนะนำ ชะลอใส่ปุ๋ยโพแทสเซียม ป้องกันยับยั้งแคลเซียม", 18, 174);
     }
     safeUnloadFont();
   } else {
@@ -926,7 +926,7 @@ void drawSoilPhPage() {
   if (fontLoaded) {
     safeLoadFont30();
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("วิเคราะห์ความเป็นกรดด่างดิน", 70, 8);
+    tft.drawString("วิเคราะห์ค่ากรด-ด่างดิน", 72, 8);
     safeUnloadFont();
   } else {
     tft.setTextSize(2);
@@ -984,20 +984,20 @@ void drawSoilPhPage() {
     safeLoadFont20();
     if (phClass == PH_STRONGLY_ACIDIC) {
       tft.setTextColor(TFT_RED, 0x0842);
-      tft.drawString("การวินิจฉัย ดินมีสภาพเป็นกรดรุนแรงมาก", 18, 158);
-      tft.drawString("คำแนะนำ ปรับสภาพดินด้วยปูนโดโลไมต์หรือปูนขาวการเกษตร", 18, 174);
+      tft.drawString("การวินิจฉัย ดินเป็นกรดรุนแรง (pH < 5.0)", 18, 158);
+      tft.drawString("คำแนะนำ ปรับสภาพดินด้วยปูนโดโลไมต์หรือปูนขาว", 18, 174);
     } else if (phClass == PH_MODERATELY_ACIDIC) {
       tft.setTextColor(TFT_YELLOW, 0x0842);
-      tft.drawString("การวินิจฉัย ดินมีสภาพเป็นกรดปานกลาง", 18, 158);
-      tft.drawString("คำแนะนำ ใส่สารปรับสภาพดินเพื่อยกค่ากรดด่างให้เหมาะสม", 18, 174);
+      tft.drawString("การวินิจฉัย ดินเป็นกรดปานกลาง (pH 5.0 - 5.5)", 18, 158);
+      tft.drawString("คำแนะนำ เสริมสารปรับสภาพดินเพื่อยกระดับ pH", 18, 174);
     } else if (phClass == PH_OPTIMAL_DURIAN) {
       tft.setTextColor(TFT_GREEN, 0x0842);
-      tft.drawString("การวินิจฉัย ค่าความเป็นกรดด่างสมบูรณ์แบบสำหรับทุเรียน", 18, 158);
-      tft.drawString("คำแนะนำ รักษาระดับสภาพดิน พืชดูดซึมธาตุอาหารได้สูงสุด", 18, 174);
+      tft.drawString("การวินิจฉัย ดินเหมาะสมสมบูรณ์แบบสำหรับทุเรียน", 18, 158);
+      tft.drawString("คำแนะนำ รักษาระดับดิน พืชดูดซึมธาตุอาหารได้สูงสุด", 18, 174);
     } else {
       tft.setTextColor(0x07FF, 0x0842);
-      tft.drawString("การวินิจฉัย ดินมีสภาพเป็นด่าง", 18, 158);
-      tft.drawString("คำแนะนำ เติมยิปซัมการเกษตรหรืออินทรียวัตถุเพื่อปรับสมดุล", 18, 174);
+      tft.drawString("การวินิจฉัย ดินมีสภาพเป็นด่าง (pH > 6.5)", 18, 158);
+      tft.drawString("คำแนะนำ เติมยิปซัมเกษตรหรืออินทรียวัตถุเพื่อปรับลด pH", 18, 174);
     }
     safeUnloadFont();
   } else {
