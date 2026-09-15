@@ -179,6 +179,7 @@ float currentA_red = 0.0f, currentA_green = 0.0f, currentA_blue = 0.0f;
 bool fontLoaded30 = false;
 // ============================================================
 // High-Precision Thai Typography Engine (dw_font / TH Sarabun PSK)
+// Software scaling via pixel-callback intercept (no extra font file)
 // ============================================================
 #include "dw_font.h"
 
@@ -188,17 +189,25 @@ static dw_font_t thaiFont;
 static uint16_t thai_fg_col = TFT_YELLOW;
 static uint16_t thai_bg_col = TFT_BLACK;
 
+// Scale state — set by drawThaiTextSm(), reset to 1.0 by drawThaiTextSm()
+static float   thaiScale = 1.0f;  // 0.60 = 60% of font_40 ≈ 24pt
+static int16_t thaiBaseX = 0;     // cursor pivot for scaling
+static int16_t thaiBaseY = 0;
+
 extern "C" void thai_draw_pixel_cb(int16_t x, int16_t y) {
-  if (x >= 0 && x < 320 && y >= 0 && y < 240) {
-    tft.drawPixel(x, y, thai_fg_col);
+  int16_t sx = (thaiScale < 0.99f) ? (int16_t)(thaiBaseX + (x - thaiBaseX) * thaiScale + 0.5f) : x;
+  int16_t sy = (thaiScale < 0.99f) ? (int16_t)(thaiBaseY + (y - thaiBaseY) * thaiScale + 0.5f) : y;
+  if (sx >= 0 && sx < 320 && sy >= 0 && sy < 240) {
+    tft.drawPixel(sx, sy, thai_fg_col);
   }
 }
 
 extern "C" void thai_clear_pixel_cb(int16_t x, int16_t y) {
-  if (thai_bg_col != 0x0001) { // 0x0001 = transparent
-    if (x >= 0 && x < 320 && y >= 0 && y < 240) {
-      tft.drawPixel(x, y, thai_bg_col);
-    }
+  if (thai_bg_col == 0x0001) return; // transparent
+  int16_t sx = (thaiScale < 0.99f) ? (int16_t)(thaiBaseX + (x - thaiBaseX) * thaiScale + 0.5f) : x;
+  int16_t sy = (thaiScale < 0.99f) ? (int16_t)(thaiBaseY + (y - thaiBaseY) * thaiScale + 0.5f) : y;
+  if (sx >= 0 && sx < 320 && sy >= 0 && sy < 240) {
+    tft.drawPixel(sx, sy, thai_bg_col);
   }
 }
 
@@ -207,12 +216,27 @@ void initThaiFont() {
   dw_font_setfont(&thaiFont, (dw_font_info_t*)&font_th_sarabunpsk_regular40);
 }
 
+// Full-size 40pt — use for large display values (if needed)
 void drawThaiText(const char* text, int16_t x, int16_t y, uint16_t fg, uint16_t bg = TFT_BLACK) {
   thai_fg_col = fg;
   thai_bg_col = bg;
+  thaiScale   = 1.0f;
   dw_font_goto(&thaiFont, x, y);
   dw_font_print(&thaiFont, (char*)text);
 }
+
+// Small 60% (approx 24pt) — use for ALL screen headers and labels
+void drawThaiTextSm(const char* text, int16_t x, int16_t y, uint16_t fg, uint16_t bg = TFT_BLACK) {
+  thai_fg_col = fg;
+  thai_bg_col = bg;
+  thaiScale   = 0.60f;
+  thaiBaseX   = x;
+  thaiBaseY   = y;
+  dw_font_goto(&thaiFont, x, y);
+  dw_font_print(&thaiFont, (char*)text);
+  thaiScale   = 1.0f; // restore to default
+}
+
 
 // Function Prototypes
 void updateLedOutput();
@@ -293,12 +317,12 @@ void drawSplashScreen() {
   tft.drawFastHLine(25, 96, 270, 0x07FF);
 
   // 4. Developers & Affiliation Information in True Thai Typography
-  drawThaiText("ผศ.ดร.ชีวะ ทัศนา", 20, 118, TFT_YELLOW, TFT_BLACK);
-  drawThaiText("ผศ.ดร.จิรภัทร จันทมาลี", 172, 118, TFT_YELLOW, TFT_BLACK);
+  drawThaiTextSm("ผศ.ดร.ชีวะ ทัศนา", 20, 118, TFT_YELLOW, TFT_BLACK);
+  drawThaiTextSm("ผศ.ดร.จิรภัทร จันทมาลี", 172, 118, TFT_YELLOW, TFT_BLACK);
 
-  drawThaiText("ผู้พัฒนาระบบ SpecJC +AI", 80, 140, TFT_WHITE, TFT_BLACK);
+  drawThaiTextSm("ผู้พัฒนาระบบ SpecJC +AI", 80, 140, TFT_WHITE, TFT_BLACK);
 
-  drawThaiText("หน่วยวิจัย LEQs SciRBRU", 78, 160, 0x07FF, TFT_BLACK);
+  drawThaiTextSm("หน่วยวิจัย LEQs SciRBRU", 78, 160, 0x07FF, TFT_BLACK);
 
   // 5. High-Tech Animated Loading Progress Bar
   tft.drawRoundRect(28, 180, 264, 14, 3, 0x2104);
@@ -556,7 +580,7 @@ void drawDashboardPage() {
   drawSpectrometerLogo(10, 8);
 
   // Header Titles (True Thai Typography & Multicolor Brand)
-  drawThaiText("สเปกโรฟโตมิเตอร์ SpecJC", 68, 24, TFT_YELLOW, 0x0842);
+  drawThaiTextSm("สเปกโรฟโตมิเตอร์ SpecJC", 68, 24, TFT_YELLOW, 0x0842);
   drawMulticolorBadge(54, 36, 0x0842, 1);
 
   // Page Indicator Badge
@@ -574,7 +598,7 @@ void drawDashboardPage() {
   tft.fillRoundRect(7, 65, 148, 22, 3, 0x10E4);
 
   // Card 1 Header in Thai — fit within 148px card width from x=32
-  drawThaiText("ระบบประมวลผล", 18, 80, TFT_WHITE, 0x10E4);
+  drawThaiTextSm("ระบบประมวลผล", 18, 80, TFT_WHITE, 0x10E4);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -596,7 +620,7 @@ void drawDashboardPage() {
   tft.fillRoundRect(165, 65, 148, 22, 3, 0x2084);
 
   // Card 2 Header in Thai — fit within 148px card width from x=165
-  drawThaiText("เซนเซอร์ & SD Card", 168, 80, TFT_WHITE, 0x2084);
+  drawThaiTextSm("เซนเซอร์ & SD Card", 168, 80, TFT_WHITE, 0x2084);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -633,7 +657,7 @@ void drawDashboardPage() {
   tft.drawString(timeBuf, 191, 155);
 
   // Thai Date beneath Time (e.g. "16 ก.ย. 2569")
-  drawThaiText(getThaiDateStr(), 182, 188, TFT_YELLOW, 0x0842);
+  drawThaiTextSm(getThaiDateStr(), 182, 188, TFT_YELLOW, 0x0842);
 
   // 4. Footer Bar
   tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
@@ -657,7 +681,7 @@ void drawNitrogenPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography — centered in banner (logo ends ~76px, badge [2/8] at x=270)
-  drawThaiText("วิเคราะห์ไนโตรเจน (N)", 68, 28, 0x07FF, 0x0842);
+  drawThaiTextSm("วิเคราะห์ไนโตรเจน (N)", 68, 28, 0x07FF, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -699,14 +723,14 @@ void drawNitrogenPage() {
 
   // Thai Status Recommendations
   if (currentN < 20.0f) {
-    drawThaiText("สถานะ : ไนโตรเจนต่ำ ควรเสริมปุ๋ย", 18, 164, TFT_YELLOW, 0x0842);
-    drawThaiText("แนะนำ : เพิ่มปุ๋ยไนโตรเจนส่งเสริมการเติบโต", 18, 184, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("สถานะ : ไนโตรเจนต่ำ ควรเสริมปุ๋ย", 18, 164, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ : เพิ่มปุ๋ยไนโตรเจนส่งเสริมการเติบโต", 18, 184, TFT_YELLOW, 0x0842);
   } else if (currentN <= 60.0f) {
-    drawThaiText("สถานะ : ไนโตรเจนระดับเหมาะสม", 18, 164, TFT_GREEN, 0x0842);
-    drawThaiText("แนะนำ : ธาตุอาหารสมบูรณ์ พืชเติบโตดี", 18, 184, TFT_GREEN, 0x0842);
+    drawThaiTextSm("สถานะ : ไนโตรเจนระดับเหมาะสม", 18, 164, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ : ธาตุอาหารสมบูรณ์ พืชเติบโตดี", 18, 184, TFT_GREEN, 0x0842);
   } else {
-    drawThaiText("สถานะ : ไนโตรเจนสูงเกินเกณฑ์", 18, 164, TFT_RED, 0x0842);
-    drawThaiText("แนะนำ : ชะลอการใส่ปุ๋ยเพื่อป้องกันบ้าใบ", 18, 184, TFT_RED, 0x0842);
+    drawThaiTextSm("สถานะ : ไนโตรเจนสูงเกินเกณฑ์", 18, 164, TFT_RED, 0x0842);
+    drawThaiTextSm("แนะนำ : ชะลอการใส่ปุ๋ยเพื่อป้องกันบ้าใบ", 18, 184, TFT_RED, 0x0842);
   }
 
   // Footer Help
@@ -727,7 +751,7 @@ void drawPhosphorusPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiText("วิเคราะห์ฟอสฟอรัส (P)", 68, 28, TFT_GREEN, 0x0842);
+  drawThaiTextSm("วิเคราะห์ฟอสฟอรัส (P)", 68, 28, TFT_GREEN, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -787,17 +811,17 @@ void drawPhosphorusPage() {
 
   // Thai Status Recommendations
   if (currentA_red > 0.500f) {
-    drawThaiText("สถานะ : แสงอิ่มตัว (A > 0.500) เจือจาง 1:5", 18, 158, TFT_RED, 0x0842);
-    drawThaiText("คำเตือน : กรุณาเจือจางตัวอย่างก่อนวัดซ้ำ", 18, 178, TFT_RED, 0x0842);
+    drawThaiTextSm("สถานะ : แสงอิ่มตัว (A > 0.500) เจือจาง 1:5", 18, 158, TFT_RED, 0x0842);
+    drawThaiTextSm("คำเตือน : กรุณาเจือจางตัวอย่างก่อนวัดซ้ำ", 18, 178, TFT_RED, 0x0842);
   } else if (currentP < 15.0f) {
-    drawThaiText("สถานะ : ฟอสฟอรัสต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
-    drawThaiText("แนะนำ : ใส่ปุ๋ยฟอสเฟตบำรุงรากและตาดอก", 18, 178, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("สถานะ : ฟอสฟอรัสต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ : ใส่ปุ๋ยฟอสเฟตบำรุงรากและตาดอก", 18, 178, TFT_YELLOW, 0x0842);
   } else if (currentP <= 35.0f) {
-    drawThaiText("สถานะ : ฟอสฟอรัสระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
-    drawThaiText("แนะนำ : ธาตุอาหารพร้อมใช้ ระบบรากสมบูรณ์", 18, 178, TFT_GREEN, 0x0842);
+    drawThaiTextSm("สถานะ : ฟอสฟอรัสระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ : ธาตุอาหารพร้อมใช้ ระบบรากสมบูรณ์", 18, 178, TFT_GREEN, 0x0842);
   } else {
-    drawThaiText("สถานะ : ฟอสฟอรัสสะสมสูง", 18, 158, 0x07FF, 0x0842);
-    drawThaiText("แนะนำ : งดปุ๋ยฟอสฟอรัสป้องกันตรึงจุลธาตุ", 18, 178, 0x07FF, 0x0842);
+    drawThaiTextSm("สถานะ : ฟอสฟอรัสสะสมสูง", 18, 158, 0x07FF, 0x0842);
+    drawThaiTextSm("แนะนำ : งดปุ๋ยฟอสฟอรัสป้องกันตรึงจุลธาตุ", 18, 178, 0x07FF, 0x0842);
   }
 
   // Footer Help
@@ -818,7 +842,7 @@ void drawPotassiumPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiText("วิเคราะห์โพแทสเซียม (K)", 68, 28, TFT_RED, 0x0842);
+  drawThaiTextSm("วิเคราะห์โพแทสเซียม (K)", 68, 28, TFT_RED, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -860,14 +884,14 @@ void drawPotassiumPage() {
 
   // Thai Status Recommendations
   if (currentK < 80.0f) {
-    drawThaiText("สถานะ : โพแทสเซียมต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
-    drawThaiText("แนะนำ : เสริมปุ๋ยโพแทสเซียมเพิ่มความแข็งแรง", 18, 178, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("สถานะ : โพแทสเซียมต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ : เสริมปุ๋ยโพแทสเซียมเพิ่มความแข็งแรง", 18, 178, TFT_YELLOW, 0x0842);
   } else if (currentK <= 160.0f) {
-    drawThaiText("สถานะ : โพแทสเซียมระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
-    drawThaiText("แนะนำ : ช่วยพัฒนาคุณภาพผลผลิตเพิ่มความหวาน", 18, 178, TFT_GREEN, 0x0842);
+    drawThaiTextSm("สถานะ : โพแทสเซียมระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ : ช่วยพัฒนาคุณภาพผลผลิตเพิ่มความหวาน", 18, 178, TFT_GREEN, 0x0842);
   } else {
-    drawThaiText("สถานะ : โพแทสเซียมสะสมสูง", 18, 158, 0x07FF, 0x0842);
-    drawThaiText("แนะนำ : ชะลอปุ๋ย K ป้องกันยับยั้งแคลเซียม", 18, 178, 0x07FF, 0x0842);
+    drawThaiTextSm("สถานะ : โพแทสเซียมสะสมสูง", 18, 158, 0x07FF, 0x0842);
+    drawThaiTextSm("แนะนำ : ชะลอปุ๋ย K ป้องกันยับยั้งแคลเซียม", 18, 178, 0x07FF, 0x0842);
   }
 
   // Footer Help
@@ -888,7 +912,7 @@ void drawSoilPhPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiText("วิเคราะห์กรด-ด่างดิน pH", 68, 28, TFT_YELLOW, 0x0842);
+  drawThaiTextSm("วิเคราะห์กรด-ด่างดิน pH", 68, 28, TFT_YELLOW, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -938,17 +962,17 @@ void drawSoilPhPage() {
 
   // Thai Soil pH Recommendations
   if (phClass == PH_STRONGLY_ACIDIC) {
-    drawThaiText("วินิจฉัย : ดินกรดรุนแรง (pH < 4.5)", 18, 158, TFT_RED, 0x0842);
-    drawThaiText("แนะนำ : ใส่ปูนโดโลไมต์ 100-200 กก./ไร่", 18, 178, TFT_RED, 0x0842);
+    drawThaiTextSm("วินิจฉัย : ดินกรดรุนแรง (pH < 4.5)", 18, 158, TFT_RED, 0x0842);
+    drawThaiTextSm("แนะนำ : ใส่ปูนโดโลไมต์ 100-200 กก./ไร่", 18, 178, TFT_RED, 0x0842);
   } else if (phClass == PH_MODERATELY_ACIDIC) {
-    drawThaiText("วินิจฉัย : ดินกรดปานกลาง (pH 4.5-5.5)", 18, 158, TFT_YELLOW, 0x0842);
-    drawThaiText("แนะนำ : เสริมปูนขาวยกระดับ pH ดิน", 18, 178, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("วินิจฉัย : ดินกรดปานกลาง (pH 4.5-5.5)", 18, 158, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ : เสริมปูนขาวยกระดับ pH ดิน", 18, 178, TFT_YELLOW, 0x0842);
   } else if (phClass == PH_OPTIMAL_DURIAN) {
-    drawThaiText("วินิจฉัย : ดินเหมาะสมสำหรับทุเรียน", 18, 158, TFT_GREEN, 0x0842);
-    drawThaiText("แนะนำ : รักษาระดับดิน ดูดซึมธาตุอาหารสูงสุด", 18, 178, TFT_GREEN, 0x0842);
+    drawThaiTextSm("วินิจฉัย : ดินเหมาะสมสำหรับทุเรียน", 18, 158, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ : รักษาระดับดิน ดูดซึมธาตุอาหารสูงสุด", 18, 178, TFT_GREEN, 0x0842);
   } else {
-    drawThaiText("วินิจฉัย : ดินเป็นด่าง (pH > 6.5)", 18, 158, 0x07FF, 0x0842);
-    drawThaiText("แนะนำ : เติมยิปซัมเกษตรปรับลด pH", 18, 178, 0x07FF, 0x0842);
+    drawThaiTextSm("วินิจฉัย : ดินเป็นด่าง (pH > 6.5)", 18, 158, 0x07FF, 0x0842);
+    drawThaiTextSm("แนะนำ : เติมยิปซัมเกษตรปรับลด pH", 18, 178, 0x07FF, 0x0842);
   }
 
   // Footer Help
@@ -965,7 +989,7 @@ void drawNpkStaticLayout() {
   tft.fillScreen(TFT_BLACK);
 
   // Title 1: สรุปธาตุอาหาร NPK และ pH ดิน (Yellow — True Thai Typography)
-  drawThaiText("สรุป NPK & pH ดิน", 55, 26, TFT_YELLOW, TFT_BLACK);
+  drawThaiTextSm("สรุป NPK & pH ดิน", 55, 26, TFT_YELLOW, TFT_BLACK);
 
   // Title 2: SpecJC +AI Analyzer 2026 (White)
   tft.setTextSize(1);
@@ -982,25 +1006,25 @@ void drawNpkStaticLayout() {
   tft.drawFastHLine(5, 54, 310, 0x07FF);
 
   // Row 1: ไนโตรเจน N (True Thai Typography)
-  drawThaiText("ไนโตรเจน  N :", 8, 76, 0x07FF, TFT_BLACK);
+  drawThaiTextSm("ไนโตรเจน  N :", 8, 76, 0x07FF, TFT_BLACK);
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("mg/kg", 245, 62);
 
   // Row 2: ฟอสฟอรัส P (True Thai Typography)
-  drawThaiText("ฟอสฟอรัส  P :", 8, 110, TFT_GREEN, TFT_BLACK);
+  drawThaiTextSm("ฟอสฟอรัส  P :", 8, 110, TFT_GREEN, TFT_BLACK);
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("mg/kg", 245, 96);
 
   // Row 3: โพแทสเซียม K (True Thai Typography)
-  drawThaiText("โพแทสเซียม K :", 8, 144, TFT_RED, TFT_BLACK);
+  drawThaiTextSm("โพแทสเซียม K :", 8, 144, TFT_RED, TFT_BLACK);
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("mg/kg", 245, 130);
 
   // Row 4: กรด-ด่างดิน pH (True Thai Typography)
-  drawThaiText("กรด-ด่างดิน  pH :", 8, 178, TFT_YELLOW, TFT_BLACK);
+  drawThaiTextSm("กรด-ด่างดิน  pH :", 8, 178, TFT_YELLOW, TFT_BLACK);
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("pH", 245, 164);
@@ -1015,10 +1039,10 @@ void drawNpkStaticLayout() {
   tft.setTextSize(1);
   tft.setTextColor(0x07FF, TFT_BLACK);
   tft.drawString(initTimeBuf, 10, 200);
-  drawThaiText(getThaiDateStr(), 10, 214, TFT_YELLOW, TFT_BLACK);
+  drawThaiTextSm(getThaiDateStr(), 10, 214, TFT_YELLOW, TFT_BLACK);
 
   // Footer Middle: ผศ.ดร.ชีวะ ทัศนา (True Thai Typography)
-  drawThaiText("ผศ.ดร.ชีวะ ทัศนา", 95, 200, TFT_YELLOW, TFT_BLACK);
+  drawThaiTextSm("ผศ.ดร.ชีวะ ทัศนา", 95, 200, TFT_YELLOW, TFT_BLACK);
   drawMulticolorBadge(105, 216, TFT_BLACK);
 
   // Model Badge & Indicators
@@ -1476,14 +1500,14 @@ void loop() {
       tft.drawString(timeBuf, 191, 155);
 
       // Thai Date (True Thai Typography — no SD card dependency)
-      drawThaiText(getThaiDateStr(), 182, 188, TFT_YELLOW, 0x0842);
+      drawThaiTextSm(getThaiDateStr(), 182, 188, TFT_YELLOW, 0x0842);
     } else if (currentScreen == PAGE_NPK_METER) {
       char timeBuf[12];
       sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
       tft.setTextSize(1);
       tft.setTextColor(0x07FF, TFT_BLACK);
       tft.drawString(timeBuf, 10, 200);
-      drawThaiText(getThaiDateStr(), 10, 214, TFT_YELLOW, TFT_BLACK);
+      drawThaiTextSm(getThaiDateStr(), 10, 214, TFT_YELLOW, TFT_BLACK);
     }
   }
 
