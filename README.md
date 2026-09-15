@@ -77,8 +77,9 @@
    - แสดงค่าความเข้มข้นไนโตรเจนแบบเรียลไทม์ ตัวเลขขนาดใหญ่ 4 เท่า พร้อมตัวอักษร **`N` ขนาดใหญ่พิเศษ (TextSize 4) ตัวหนา สีชมพูอมม่วง (Magenta)** ต่อท้ายหน่วย $\text{mg/kg}$
    - ป้ายกำกับโหมด `[AI TinyML]`, `[PL Poly]`, หรือ `[SC StdCurv]`
 3. **Page 3: Dedicated Phosphorus Assay (`[3/8]`):**
-   - หลอดไฟ LED ปรับเข้าสู่แสงสีแดงความยาวคลื่น **625 nm Red LED** โดยอัตโนมัติ
-   - แสดงค่าความเข้มข้นฟอสฟอรัสแบบเรียลไทม์ พร้อมตัวอักษร **`P` ขนาดใหญ่พิเศษ (TextSize 4) ตัวหนา สีน้ำเงินสด (Cyan/Blue)**
+   - หลอดไฟ LED ปรับเข้าสู่แสงสีแดงความยาวคลื่น **625 nm Red LED** โดยอัตโนมัติ (Molybdenum Blue Absorption Peak)
+   - แสดงค่าความเข้มข้นฟอสฟอรัสแบบเรียลไทม์ พร้อมตัวอักษร **`P` ขนาดใหญ่พิเศษ (TextSize 4) ตัวหนา สีฟ้าสด (Cyan `0x07FF`)**
+   - ผสานแบบจำลองการอนุมานแสงฉบับปรับปรุง (Revised Optical Inference): แม่นยำสูงพิเศษในช่วง $1.0 - 6.0\text{ mg/L}$ ($R^2 = 0.9944, \text{RMSE} = 0.144\text{ mg/L}$) พร้อมระบบ **Saturation Guard** เตือนการเจือจางตัวอย่าง (Dilution Alert) เมื่อค่าการดูดกลืนแสงเกินช่วงเชิงเส้นตรง $A > 0.500$ ($> 6.0\text{ mg/L}$)
 4. **Page 4: Dedicated Potassium Assay (`[4/8]`):**
    - หลอดไฟ LED ปรับเข้าสู่แสงสีแดงความยาวคลื่น **625 nm Red LED** โดยอัตโนมัติ
    - แสดงค่าความเข้มข้นโพแทสเซียมแบบเรียลไทม์ พร้อมตัวอักษร **`K` ขนาดใหญ่พิเศษ (TextSize 4) ตัวหนา สีแดงสด (Red)**
@@ -260,22 +261,37 @@ arduino-cli upload -p /dev/cu.usbmodem2101 --fqbn Seeeduino:samd:seeed_wio_termi
 
 ```
 spectrometer_npk2026/
-├── README.md                           # คู่มือฉบับสมบูรณ์ (สถาปัตยกรรม 5 หน้าจอ & มาตรวิทยา)
+├── README.md                           # คู่มือฉบับสมบูรณ์ (สถาปัตยกรรม 8 หน้าจอ & มาตรวิทยา)
 ├── firmware/
 │   ├── spectrometer_npk2026/
-│   │   ├── spectrometer_npk2026.ino    # เฟิร์มแวร์หลัก 5-Screen UI & Engine Integration
+│   │   ├── spectrometer_npk2026.ino    # เฟิร์มแวร์หลัก 8-Screen Carousel UI & Auto-Wavelength Switching
 │   │   ├── Calibration_Engine.h        # เอนจิน Standard Curve Regression (R2, LOD, LOQ) & Chart
 │   │   ├── Liquid_Engine.h             # เอนจิน Liquid Optics Metrology (n, rho, Brix, Clarity)
 │   │   ├── Spectrum_Engine.h           # เอนจิน Auto-Scan Wavelength Sweep & Absorbance Chart
-│   │   └── TinyML_Model.h              # โมเดล TinyML C++ Zero-Allocation
+│   │   ├── TinyML_Model.h              # โมเดล TinyML C++ Zero-Allocation
+│   │   └── soil_ph_model.h             # แบบจำลองวัดค่ากรด-ด่างดิน (Dual-Wavelength 525/625 nm)
+│   ├── phosphorus_q1_models.h          # แบบจำลองฟอสฟอรัส Q1 ที่ปรับปรุงรากสมการกำลังสองถูกต้อง
 │   └── train_tinyml_model.py           # สคริปต์ฝึกสอนโครงข่ายประสาทเทียม TinyML
+├── claude_research/                    # รายงานการวิจัยและตรวจสอบต้นฉบับฟอสฟอรัส Q1 (ฉบับปรับปรุง 15 ก.ย. 2569)
+│   ├── README.md                       # สรุปภาพรวมข้อค้นพบ 11 ประเด็นและการทำซ้ำผลลัพธ์
+│   ├── 2026-09-15-รายงานตรวจสอบต้นฉบับ-phosphorus-q1.md
+│   ├── 2026-09-15-manuscript-phosphorus-q1-revised.md
+│   ├── 2026-09-15-เอกสารอ้างอิงที่ตรวจสอบแล้ว.md
+│   ├── scripts/                        # สคริปต์วิเคราะห์ซ้ำและสร้างภาพประกอบความละเอียดสูง
+│   ├── figures/                        # ภาพประกอบงานวิจัย 5 ภาพ (300 DPI)
+│   └── firmware/                       # 2026-09-15-phosphorus_q1_models_fixed.h (โมเดลเฟิร์มแวร์สมบูรณ์)
 ├── docs/
 │   ├── images/
 │   │   ├── npk_spec_logo.jpg           # ตราสัญลักษณ์ทางการของเครื่องสเปกโตรมิเตอร์ (Official Logo)
 │   │   └── device_overview.jpg         # ภาพรวมการต่อวงจรและโครงสร้างอุปกรณ์
 │   ├── NPK_Spectrometer_Manual.pdf     # เอกสารคู่มือวิชาการฉบับสมบูรณ์ (มาตรฐาน มรภ.รำไพพรรณี)
 │   ├── manual_assembly_operation.md    # คู่มือการประกอบและการปฏิบัติการภาคสนาม
-│   └── latex/                          # ต้นฉบับเอกสารวิชาการ XeLaTeX (18 หน้า)
+│   ├── npk_raw_data_ml_handbook.md     # คู่มือข้อมูลดิบและกระบวนการฝึกสอนแบบจำลอง Machine Learning
+│   └── latex/                          # ต้นฉบับเอกสารวิชาการ XeLaTeX พร้อมสไตล์ rbru_manual
+├── scripts/
+│   ├── npk_master_pipeline.py          # ไปป์ไลน์ประมวลผลข้อมูลและฝึกสอนแบบจำลองครบวงจร
+│   ├── build_academic_pdfs.py          # สคริปต์คอมไพล์เอกสารวิจัยเป็น PDF มาตรฐานการพิมพ์
+│   └── update_documentation_8screens.py# สคริปต์อัปเดตสถาปัตยกรรมเอกสารคู่มือ 8 หน้าจอ
 └── data/
     ├── NPK.csv                         # ตัวอย่างประวัติการวัดความเข้มข้นดิน
     ├── SPECTRUM.csv                    # ตัวอย่างสเปกตรัมการดูดกลืนแสง
@@ -292,8 +308,8 @@ spectrometer_npk2026/
 ```bibtex
 @manual{thassana2026spectrometer,
   title        = {คู่มือการประกอบ ติดตั้ง และใช้งานเครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดินและสมบัติเชิงแสงของของเหลว (NPK Level Meter 1.02 & Liquid Optics Analyzer)},
-  author       = {ทัศนา, ชีวะ and คณะวิจัย AI4D AgriPhysics},
-  organization = {สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี},
+  author       = {ทัศนา, ชีวะ and คณะวิจัย JC_AI_SciRBRU},
+  organization = {หน่วยวิจัยเกษตรดิจิทัล JC_AI_SciRBRU สาขาวิชาฟิสิกส์ คณะวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยราชภัฏรำไพพรรณี},
   year         = {2569},
   note         = {GitHub: https://github.com/TsanaPhysics/spectrometer_npk2026}
 }
