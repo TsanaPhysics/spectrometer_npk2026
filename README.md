@@ -1,4 +1,4 @@
-# spectrometer_npk2026
+# เครื่องสเปกโทรโฟโตมิเตอร์ตรวจวัดธาตุอาหารหลักในดินและสมบัติเชิงแสงของของเหลว (spectrometer_npk2026)
 
 <p align="center">
   <img src="docs/images/npk_spec_logo.jpg" alt="NPK Spectrometer Logo" width="280" />

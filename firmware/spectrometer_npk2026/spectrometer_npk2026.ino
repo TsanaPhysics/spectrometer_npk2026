@@ -466,22 +466,26 @@ void drawDashboardPage() {
   if (fontLoaded) {
     safeLoadFont30();
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("สเปกโทรโฟโตมิเตอร์", 78, 6);
+    tft.drawString("เครื่องสเปกโทรโฟโตมิเตอร์", 64, 6);
     safeUnloadFont();
 
     // Large Size-2 Multicolor Badge (JC: Red, AI: Orange, Sci: Yellow, RBRU: Green)
-    drawMulticolorBadge(76, 32, 0x0842, 2);
+    drawMulticolorBadge(64, 32, 0x0842, 2);
 
     safeLoadFont20();
     tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("เกษตรดิจิทัล", 236, 33);
+    tft.drawString("หน่วยวิจัยเกษตรดิจิทัล", 196, 33);
     safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("SPECTROMETER", 80, 8);
+    tft.drawString("SPECTROMETER", 70, 8);
 
-    drawMulticolorBadge(76, 32, 0x0842, 2);
+    drawMulticolorBadge(64, 32, 0x0842, 2);
+
+    tft.setTextSize(1);
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("AgriDigital RBRU", 196, 36);
   }
 
   // Page Indicator Badge
@@ -1054,30 +1058,62 @@ void drawNpkStaticLayout() {
   tft.drawFastHLine(5, 54, 310, 0x07FF);
 
   // Row 1: ไนโตรเจน N
+  if (fontLoaded) {
+    safeLoadFont20();
+    tft.setTextColor(0x07FF, TFT_BLACK);
+    tft.drawString("ไนโตรเจน  N :", 8, 62);
+    safeUnloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(0x07FF, TFT_BLACK);
+    tft.drawString("Nitrogen  N :", 8, 62);
+  }
   tft.setTextSize(2);
-  tft.setTextColor(0x07FF, TFT_BLACK);
-  tft.drawString("Nitrogen  N :", 8, 62);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("mg/kg", 245, 62);
 
   // Row 2: ฟอสฟอรัส P
+  if (fontLoaded) {
+    safeLoadFont20();
+    tft.setTextColor(TFT_GREEN, TFT_BLACK);
+    tft.drawString("ฟอสฟอรัส  P :", 8, 96);
+    safeUnloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_GREEN, TFT_BLACK);
+    tft.drawString("Phosphor  P :", 8, 96);
+  }
   tft.setTextSize(2);
-  tft.setTextColor(TFT_GREEN, TFT_BLACK);
-  tft.drawString("Phosphor  P :", 8, 96);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("mg/kg", 245, 96);
 
   // Row 3: โพแทสเซียม K
+  if (fontLoaded) {
+    safeLoadFont20();
+    tft.setTextColor(TFT_RED, TFT_BLACK);
+    tft.drawString("โพแทสเซียม K :", 8, 130);
+    safeUnloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_RED, TFT_BLACK);
+    tft.drawString("Potassium K :", 8, 130);
+  }
   tft.setTextSize(2);
-  tft.setTextColor(TFT_RED, TFT_BLACK);
-  tft.drawString("Potassium K :", 8, 130);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("mg/kg", 245, 130);
 
   // Row 4: ความเป็นกรด-ด่างดิน Soil pH
+  if (fontLoaded) {
+    safeLoadFont20();
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.drawString("กรด-ด่างดิน   :", 8, 164);
+    safeUnloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.drawString("Soil pH     :", 8, 164);
+  }
   tft.setTextSize(2);
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("Soil pH     :", 8, 164);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("pH", 245, 164);
 
