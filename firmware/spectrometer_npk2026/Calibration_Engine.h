@@ -55,9 +55,9 @@ struct StandardCurve {
 // ============================================================
 struct FullCalibrationProfile {
   CalibrationState blank;
-  StandardCurve curveN; // Nitrogen (465 nm Blue)
-  StandardCurve curveP; // Phosphorus (625 nm Red / Molybdenum Blue)
-  StandardCurve curveK; // Potassium (625 nm Red)
+  StandardCurve curveN; // Nitrogen (465 nm Blue / 525 nm Green Tier 3)
+  StandardCurve curveP; // Phosphorus (625 nm Red / Molybdenum Blue secondary slope)
+  StandardCurve curveK; // Potassium (625 nm Red / Na-TPB Turbidimetry)
 };
 
 extern CalibrationState calibState;
@@ -164,7 +164,7 @@ inline void initCalibration() {
   curveN.currentStep = 0;
   fitStandardCurve(curveN);
 
-  // 2. Phosphorus Default Curve (Green 525 nm)
+  // 2. Phosphorus Default Curve (Red 625 nm)
   for (int i = 0; i < NUM_STD_POINTS; i++) {
     curveP.concentrations[i] = defConc[i];
   }
@@ -351,7 +351,7 @@ inline void drawStandardCurvePlot(
   tft.drawFastHLine(0, 200, 320, TFT_DARKGREY);
   tft.setTextSize(1);
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("[Btn C: N-465] [Btn B: P-525] [Btn A: K-625]", 8, 206);
+  tft.drawString("[Btn C: N-465/525] [Btn B: P-625] [Btn A: K-625]", 8, 206);
 
   tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
   tft.drawString("[DOWN]: Step Calib | [PRESS]: Zero Blank | [< / >]: Page", 8, 222);

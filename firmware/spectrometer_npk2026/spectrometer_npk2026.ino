@@ -173,6 +173,7 @@ float calcK_Poly(float rp) {
 
 WiFiServerEngine wifiEngine;
 float currentN = 45.2f, currentP = 22.8f, currentK = 128.5f, currentPH = 6.25f;
+float currentA_red = 0.0f, currentA_green = 0.0f, currentA_blue = 0.0f;
 
 // Safe Font Loader Management
 bool fontLoaded30 = false;
@@ -718,34 +719,56 @@ void drawPhosphorusPage() {
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_LIGHTGREY, 0x0842);
-  tft.drawString("REAGENT: Molybdenum Blue Complex", 18, 64);
-  tft.drawString("MODEL: Q1 Quadratic Root Inversion (R2 = 0.9925)", 18, 76);
+  tft.drawString("REAGENT: Molybdenum Blue Complex (625nm Red)", 18, 64);
+  tft.drawString("LINEAR RANGE: 1.0 - 6.0 mg/L | Guard: A > 0.500", 18, 76);
 
   // Large Number Display
   char valStr[16];
   sprintf(valStr, "%6.2f", currentP);
   tft.setTextSize(4);
-  tft.setTextColor(TFT_GREEN, 0x0842);
+  if (currentA_red > 0.500f) {
+    tft.setTextColor(TFT_RED, 0x0842); // Red alert if saturated
+  } else {
+    tft.setTextColor(TFT_GREEN, 0x0842);
+  }
   tft.drawString(valStr, 20, 96);
 
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("mg/kg", 170, 110);
+  tft.drawString("mg/kg", 170, 96);
 
-  // Large Bold Blue P
+  // Absorbance Telemetry Tag
+  tft.setTextSize(1);
+  char aRedBuf[18];
+  sprintf(aRedBuf, "A625: %0.3f", currentA_red);
+  if (currentA_red > 0.500f) {
+    tft.setTextColor(TFT_RED, 0x0842);
+    tft.drawString(aRedBuf, 170, 118);
+    tft.drawString("[SATURATED]", 170, 128);
+  } else {
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString(aRedBuf, 170, 118);
+    tft.drawString("[LINEAR OK]", 170, 128);
+  }
+
+  // Large Bold Cyan P (0x07FF)
   tft.setTextSize(4);
-  tft.setTextColor(0x34DF, 0x0842); // น้ำเงิน Vivid Blue
-  tft.drawString("P", 248, 96);
-  tft.drawString("P", 249, 96); // Bold offset
+  tft.setTextColor(0x07FF, 0x0842); // Bright Cyan
+  tft.drawString("P", 252, 96);
+  tft.drawString("P", 253, 96); // Bold offset
 
   // Progress / Range Bar (0 - 50 mg/kg)
   tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
   int barW = (int)constrain((currentP / 50.0f) * 278.0f, 2.0f, 278.0f);
-  tft.fillRect(19, 143, barW, 8, TFT_GREEN);
+  tft.fillRect(19, 143, barW, 8, (currentA_red > 0.500f) ? TFT_RED : TFT_GREEN);
 
   if (fontLoaded) {
     safeLoadFont20();
-    if (currentP < 15.0f) {
+    if (currentA_red > 0.500f) {
+      tft.setTextColor(TFT_RED, 0x0842);
+      tft.drawString("สถานะ สัญญาณแสงอิ่มตัว (A > 0.500)!", 18, 158);
+      tft.drawString("คำเตือน กรุณาเจือจางตัวอย่าง 1:5 ก่อนวัดซ้ำ", 18, 174);
+    } else if (currentP < 15.0f) {
       tft.setTextColor(TFT_YELLOW, 0x0842);
       tft.drawString("สถานะ ฟอสฟอรัสต่ำกว่าเกณฑ์มาตรฐาน", 18, 158);
       tft.drawString("คำแนะนำ ใส่ปุ๋ยฟอสเฟตบำรุงรากและเสริมการสร้างตาดอก", 18, 174);
@@ -761,7 +784,11 @@ void drawPhosphorusPage() {
     safeUnloadFont();
   } else {
     tft.setTextSize(1);
-    if (currentP < 15.0f) {
+    if (currentA_red > 0.500f) {
+      tft.setTextColor(TFT_RED, 0x0842);
+      tft.drawString("STATUS: SATURATION GUARD! (A_red > 0.500)", 18, 160);
+      tft.drawString("ALERT: Dilute sample 1:5 or 1:10 and re-test", 18, 175);
+    } else if (currentP < 15.0f) {
       tft.setTextColor(TFT_YELLOW, 0x0842);
       tft.drawString("STATUS: LOW P (Bray II < 15 mg/kg)", 18, 160);
       tft.drawString("REC: Add phosphate fertilizer 18-46-0 for roots", 18, 175);
@@ -1154,6 +1181,23 @@ void drawActiveCalibrationScreen() {
 // Automatically selects optimal narrowband LED for each assay
 // ============================================================
 void setAutoOpticsForScreen(AppScreen screen) {
+  // If running Broadband ML or Polynomial Models (which rely on normalized chromaticity: rr, gg, bb = r,g,b / (r+g+b)):
+  // All RGB channels must be illuminated simultaneously to provide a full visible white spectrum.
+  if (currentModel == MODEL_POLY || currentModel == MODEL_TINYML) {
+    if (screen == PAGE_DASHBOARD || screen == PAGE_SPECTRUM) {
+      ledRedState   = false;
+      ledGreenState = false;
+      ledBlueState  = false;
+    } else {
+      ledRedState   = true;
+      ledGreenState = true;
+      ledBlueState  = true;
+    }
+    updateLedOutput();
+    return;
+  }
+
+  // Dedicated Narrowband Optic Illumination for Analytical Standard Curve (MODEL_STDCURV):
   switch (screen) {
     case PAGE_DASHBOARD:
       // Standby / Off to preserve battery and reduce thermal drift
@@ -1163,28 +1207,32 @@ void setAutoOpticsForScreen(AppScreen screen) {
       break;
 
     case PAGE_NITROGEN:
-      // Nitrogen Assay: 465 nm Blue LED (Indophenol Blue Complex)
+      // Nitrogen Multi-Tier Assay:
+      // - Tier 1 & 2 (0-10 mg/L): 465 nm Blue LED (High Sensitivity)
+      // - Tier 3 (10-100 mg/L): 525 nm Green LED (Dynamic Range Extension, prevents optical saturation)
+      // Both Blue and Green LEDs are activated to allow seamless multi-tier autorun.
       ledRedState   = false;
-      ledGreenState = false;
+      ledGreenState = true;
       ledBlueState  = true;
       break;
 
     case PAGE_PHOSPHORUS:
-      // Phosphorus Assay: 625 nm Red LED (Molybdenum Blue Complex max absorption)
+      // Phosphorus Assay: 625 nm Red LED (Molybdenum Blue Complex secondary absorption band)
+      // (Primary peak at 880 nm, secondary at 710 nm; in visible range 625 nm provides highest dA/dC = 0.0753 AU/(mg/L))
       ledRedState   = true;
       ledGreenState = false;
       ledBlueState  = false;
       break;
 
     case PAGE_POTASSIUM:
-      // Potassium Assay: 625 nm Red LED (Sodium Tetraphenylborate turbidimetry)
+      // Potassium Assay: 625 nm Red LED (Sodium Tetraphenylborate turbidimetry / humic acid color bypass)
       ledRedState   = true;
       ledGreenState = false;
       ledBlueState  = false;
       break;
 
     case PAGE_SOIL_PH:
-      // Soil pH: Ratiometric Dual-Band (Green 525nm + Red 625nm)
+      // Soil pH: Ratiometric Dual-Band (Green 525nm + Red 625nm, Henderson-Hasselbalch log10(A_g/A_r))
       ledRedState   = true;
       ledGreenState = true;
       ledBlueState  = false;
@@ -1198,7 +1246,7 @@ void setAutoOpticsForScreen(AppScreen screen) {
       break;
 
     case PAGE_SPECTRUM:
-      // Spectrum Sweep: Off until user presses [DOWN] for automated 5-band sweep
+      // Spectrum Sweep: Off until user presses [DOWN] for automated multi-band sweep
       ledRedState   = false;
       ledGreenState = false;
       ledBlueState  = false;
@@ -1208,7 +1256,7 @@ void setAutoOpticsForScreen(AppScreen screen) {
       // Calibration Wizard: Auto-select active calibration nutrient channel
       if (activeCalibNutrient == CALIB_N) {
         ledRedState   = false;
-        ledGreenState = false;
+        ledGreenState = true;
         ledBlueState  = true;
       } else {
         ledRedState   = true;
@@ -1386,6 +1434,7 @@ void loop() {
   // 1.3 Analytical Model Toggle (Joystick Up in Dashboard or NPK Screen)
   if (btnJoyUp == LOW && lastBtnJoyUp == HIGH) {
     currentModel = (ModelMode)((currentModel + 1) % 3);
+    setAutoOpticsForScreen(currentScreen);
     if (currentScreen == PAGE_NPK_METER) {
       drawModelModeBadge();
     } else if (currentScreen == PAGE_DASHBOARD) {
@@ -1541,6 +1590,23 @@ void loop() {
       rr = r * 100.0f / rgb;
     }
 
+    // Universal Optical Corrections & Absorbances (Dark current & Blank normalization)
+    float I_b_corr = max(1.0f, (float)b - calibState.darkCurrent[0]);
+    float I_g_corr = max(1.0f, (float)g - calibState.darkCurrent[2]);
+    float I_r_corr = max(1.0f, (float)r - calibState.darkCurrent[4]);
+
+    float I_b_blank = max(1.0f, calibState.blankIntensity[0] - calibState.darkCurrent[0]);
+    float I_g_blank = max(1.0f, calibState.blankIntensity[2] - calibState.darkCurrent[2]);
+    float I_r_blank = max(1.0f, calibState.blankIntensity[4] - calibState.darkCurrent[4]);
+
+    float A_blue  = -log10f(constrain(I_b_corr / I_b_blank, 0.0001f, 1.50f));
+    float A_green = -log10f(constrain(I_g_corr / I_g_blank, 0.0001f, 1.50f));
+    float A_red   = -log10f(constrain(I_r_corr / I_r_blank, 0.0001f, 1.50f));
+
+    currentA_blue  = A_blue;
+    currentA_green = A_green;
+    currentA_red   = A_red;
+
     float valN = 0.0f, valP = 0.0f, valK = 0.0f;
 
     if (currentModel == MODEL_TINYML) {
@@ -1563,19 +1629,7 @@ void loop() {
       valP = calcP_Poly(gg);
       valK = calcK_Poly(rr);
     } else {
-      // 3. 2026 SOTA 3-Tier Multi-Wavelength Optical Calibration Engine
-      float I_b_corr = max(1.0f, (float)b - calibState.darkCurrent[0]);
-      float I_g_corr = max(1.0f, (float)g - calibState.darkCurrent[2]);
-      float I_r_corr = max(1.0f, (float)r - calibState.darkCurrent[4]);
-
-      float I_b_blank = max(1.0f, calibState.blankIntensity[0] - calibState.darkCurrent[0]);
-      float I_g_blank = max(1.0f, calibState.blankIntensity[2] - calibState.darkCurrent[2]);
-      float I_r_blank = max(1.0f, calibState.blankIntensity[4] - calibState.darkCurrent[4]);
-
-      float A_blue  = -log10f(constrain(I_b_corr / I_b_blank, 0.0001f, 1.50f));
-      float A_green = -log10f(constrain(I_g_corr / I_g_blank, 0.0001f, 1.50f));
-      float A_red   = -log10f(constrain(I_r_corr / I_r_blank, 0.0001f, 1.50f));
-
+      // 3. 2026 SOTA Multi-Wavelength Optical Standard Curve Calibration Engine
       // Nitrogen (Paper 2): Use in-situ curve if calibrated, otherwise auto 3-tier (0.1-100 mg/L)
       if (curveN.isFitted) {
         valN = calculateConcentration_SC(A_blue, curveN);
@@ -1583,7 +1637,7 @@ void loop() {
         valN = predict_nitrogen_autorun(A_blue, A_green);
       }
 
-      // Phosphorus (Paper 1): Use in-situ curve on Red channel or 2026 Q1 Quadratic Inversion (R2 = 0.9925)
+      // Phosphorus (Paper 1): 625 nm Red Channel Molybdenum Blue complex secondary slope
       if (curveP.isFitted) {
         valP = calculateConcentration_SC(A_red, curveP);
       } else {
@@ -1599,19 +1653,7 @@ void loop() {
     }
 
     // Soil pH Optical Ratiometric Model (Henderson-Hasselbalch A525/A625)
-    float I_b_corr = max(1.0f, (float)b - calibState.darkCurrent[0]);
-    float I_g_corr = max(1.0f, (float)g - calibState.darkCurrent[2]);
-    float I_r_corr = max(1.0f, (float)r - calibState.darkCurrent[4]);
-
-    float I_b_blank = max(1.0f, calibState.blankIntensity[0] - calibState.darkCurrent[0]);
-    float I_g_blank = max(1.0f, calibState.blankIntensity[2] - calibState.darkCurrent[2]);
-    float I_r_blank = max(1.0f, calibState.blankIntensity[4] - calibState.darkCurrent[4]);
-
-    float A_b_ph  = -log10f(constrain(I_b_corr / I_b_blank, 0.0001f, 1.50f));
-    float A_g_ph  = -log10f(constrain(I_g_corr / I_g_blank, 0.0001f, 1.50f));
-    float A_r_ph  = -log10f(constrain(I_r_corr / I_r_blank, 0.0001f, 1.50f));
-
-    float valPH = predict_soil_ph_optical(A_r_ph, A_g_ph, A_b_ph);
+    float valPH = predict_soil_ph_optical(A_red, A_green, A_blue);
 
     currentN  = valN;
     currentP  = valP;
@@ -1628,7 +1670,7 @@ void loop() {
       tft.drawString(valBuf, 150, 62);
 
       sprintf(valBuf, "%6.2f", valP);
-      tft.setTextColor(TFT_GREEN, TFT_BLACK);
+      tft.setTextColor((currentA_red > 0.500f) ? TFT_RED : TFT_GREEN, TFT_BLACK);
       tft.drawString(valBuf, 150, 96);
 
       sprintf(valBuf, "%6.2f", valK);
@@ -1646,8 +1688,26 @@ void loop() {
     } else if (currentScreen == PAGE_PHOSPHORUS) {
       sprintf(valBuf, "%6.2f", valP);
       tft.setTextSize(4);
-      tft.setTextColor(TFT_GREEN, 0x0842);
+      if (currentA_red > 0.500f) {
+        tft.setTextColor(TFT_RED, 0x0842); // Red alert if saturated
+      } else {
+        tft.setTextColor(TFT_GREEN, 0x0842);
+      }
       tft.drawString(valBuf, 20, 96);
+
+      // Realtime A625 telemetry badge update
+      tft.setTextSize(1);
+      char aRedLive[18];
+      sprintf(aRedLive, "A625: %0.3f", currentA_red);
+      if (currentA_red > 0.500f) {
+        tft.setTextColor(TFT_RED, 0x0842);
+        tft.drawString(aRedLive, 170, 118);
+        tft.drawString("[SATURATED]", 170, 128);
+      } else {
+        tft.setTextColor(0x07FF, 0x0842);
+        tft.drawString(aRedLive, 170, 118);
+        tft.drawString("[LINEAR OK]", 170, 128);
+      }
     } else if (currentScreen == PAGE_POTASSIUM) {
       sprintf(valBuf, "%6.2f", valK);
       tft.setTextSize(4);
