@@ -580,7 +580,7 @@ void drawDashboardPage() {
   drawSpectrometerLogo(10, 8);
 
   // Header Titles (True Thai Typography & Multicolor Brand)
-  drawThaiTextSm("สเปกโรฟโตมิเตอร์ SpecJC", 68, 24, TFT_YELLOW, 0x0842);
+  drawThaiTextSm("สเปกโทรไฟโตมิเตอร์", 68, 24, TFT_YELLOW, 0x0842);
   drawMulticolorBadge(54, 36, 0x0842, 1);
 
   // Page Indicator Badge
@@ -620,7 +620,7 @@ void drawDashboardPage() {
   tft.fillRoundRect(165, 65, 148, 22, 3, 0x2084);
 
   // Card 2 Header in Thai — fit within 148px card width from x=165
-  drawThaiTextSm("เซนเซอร์ & SD Card", 168, 80, TFT_WHITE, 0x2084);
+  drawThaiTextSm("อุปกรณ์และเซนเซอร์", 168, 80, TFT_WHITE, 0x2084);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -681,7 +681,7 @@ void drawNitrogenPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography — centered in banner (logo ends ~76px, badge [2/8] at x=270)
-  drawThaiTextSm("วิเคราะห์ไนโตรเจน (N)", 68, 28, 0x07FF, 0x0842);
+  drawThaiTextSm("วิเคราะห์ธาตุไนโตรเจน", 68, 28, 0x07FF, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -723,14 +723,14 @@ void drawNitrogenPage() {
 
   // Thai Status Recommendations
   if (currentN < 20.0f) {
-    drawThaiTextSm("สถานะ : ไนโตรเจนต่ำ ควรเสริมปุ๋ย", 18, 164, TFT_YELLOW, 0x0842);
-    drawThaiTextSm("แนะนำ : เพิ่มปุ๋ยไนโตรเจนส่งเสริมการเติบโต", 18, 184, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("สถานะ N ต่ำ ควรเสริมปุ๋ยด่วน", 18, 164, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ เพิ่มปุ๋ยยูเรีย 46-0-0", 18, 184, TFT_YELLOW, 0x0842);
   } else if (currentN <= 60.0f) {
-    drawThaiTextSm("สถานะ : ไนโตรเจนระดับเหมาะสม", 18, 164, TFT_GREEN, 0x0842);
-    drawThaiTextSm("แนะนำ : ธาตุอาหารสมบูรณ์ พืชเติบโตดี", 18, 184, TFT_GREEN, 0x0842);
+    drawThaiTextSm("สถานะ N ระดับเหมาะสม", 18, 164, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ ธาตุอาหารสมบูรณ์ พืชโตดี", 18, 184, TFT_GREEN, 0x0842);
   } else {
-    drawThaiTextSm("สถานะ : ไนโตรเจนสูงเกินเกณฑ์", 18, 164, TFT_RED, 0x0842);
-    drawThaiTextSm("แนะนำ : ชะลอการใส่ปุ๋ยเพื่อป้องกันบ้าใบ", 18, 184, TFT_RED, 0x0842);
+    drawThaiTextSm("สถานะ N สูงเกินเกณฑ์", 18, 164, TFT_RED, 0x0842);
+    drawThaiTextSm("แนะนำ ชะลอ N ป้องกันบ้าใบ", 18, 184, TFT_RED, 0x0842);
   }
 
   // Footer Help
@@ -751,7 +751,7 @@ void drawPhosphorusPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiTextSm("วิเคราะห์ฟอสฟอรัส (P)", 68, 28, TFT_GREEN, 0x0842);
+  drawThaiTextSm("วิเคราะห์ธาตุฟอสฟอรัส", 68, 28, TFT_GREEN, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -811,17 +811,17 @@ void drawPhosphorusPage() {
 
   // Thai Status Recommendations
   if (currentA_red > 0.500f) {
-    drawThaiTextSm("สถานะ : แสงอิ่มตัว (A > 0.500) เจือจาง 1:5", 18, 158, TFT_RED, 0x0842);
-    drawThaiTextSm("คำเตือน : กรุณาเจือจางตัวอย่างก่อนวัดซ้ำ", 18, 178, TFT_RED, 0x0842);
+    drawThaiTextSm("สถานะ แสงอิ่มตัว เจือจาง 1:5", 18, 158, TFT_RED, 0x0842);
+    drawThaiTextSm("คำเตือน วัดซ้ำหลังเจือจาง 1:5", 18, 178, TFT_RED, 0x0842);
   } else if (currentP < 15.0f) {
-    drawThaiTextSm("สถานะ : ฟอสฟอรัสต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
-    drawThaiTextSm("แนะนำ : ใส่ปุ๋ยฟอสเฟตบำรุงรากและตาดอก", 18, 178, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("สถานะ P ต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ ปุ๋ยฟอสเฟต 18-46-0 บำรุงราก", 18, 178, TFT_YELLOW, 0x0842);
   } else if (currentP <= 35.0f) {
-    drawThaiTextSm("สถานะ : ฟอสฟอรัสระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
-    drawThaiTextSm("แนะนำ : ธาตุอาหารพร้อมใช้ ระบบรากสมบูรณ์", 18, 178, TFT_GREEN, 0x0842);
+    drawThaiTextSm("สถานะ P ระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ บำรุงราก ส่งเสริมตาดอก", 18, 178, TFT_GREEN, 0x0842);
   } else {
-    drawThaiTextSm("สถานะ : ฟอสฟอรัสสะสมสูง", 18, 158, 0x07FF, 0x0842);
-    drawThaiTextSm("แนะนำ : งดปุ๋ยฟอสฟอรัสป้องกันตรึงจุลธาตุ", 18, 178, 0x07FF, 0x0842);
+    drawThaiTextSm("สถานะ P สะสมสูง", 18, 158, 0x07FF, 0x0842);
+    drawThaiTextSm("แนะนำ งดปุ๋ย P ป้องกันตรึงจุลธาตุ", 18, 178, 0x07FF, 0x0842);
   }
 
   // Footer Help
@@ -842,7 +842,7 @@ void drawPotassiumPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiTextSm("วิเคราะห์โพแทสเซียม (K)", 68, 28, TFT_RED, 0x0842);
+  drawThaiTextSm("วิเคราะห์ธาตุโพแทสเซียม", 68, 28, TFT_RED, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -884,14 +884,14 @@ void drawPotassiumPage() {
 
   // Thai Status Recommendations
   if (currentK < 80.0f) {
-    drawThaiTextSm("สถานะ : โพแทสเซียมต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
-    drawThaiTextSm("แนะนำ : เสริมปุ๋ยโพแทสเซียมเพิ่มความแข็งแรง", 18, 178, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("สถานะ K ต่ำกว่าเกณฑ์", 18, 158, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ เสริมปุ๋ย KCl 0-0-60", 18, 178, TFT_YELLOW, 0x0842);
   } else if (currentK <= 160.0f) {
-    drawThaiTextSm("สถานะ : โพแทสเซียมระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
-    drawThaiTextSm("แนะนำ : ช่วยพัฒนาคุณภาพผลผลิตเพิ่มความหวาน", 18, 178, TFT_GREEN, 0x0842);
+    drawThaiTextSm("สถานะ K ระดับเหมาะสม", 18, 158, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ ช่วยคุณภาพผล เพิ่มความหวาน", 18, 178, TFT_GREEN, 0x0842);
   } else {
-    drawThaiTextSm("สถานะ : โพแทสเซียมสะสมสูง", 18, 158, 0x07FF, 0x0842);
-    drawThaiTextSm("แนะนำ : ชะลอปุ๋ย K ป้องกันยับยั้งแคลเซียม", 18, 178, 0x07FF, 0x0842);
+    drawThaiTextSm("สถานะ K สะสมปริมาณสูง", 18, 158, 0x07FF, 0x0842);
+    drawThaiTextSm("แนะนำ ชะลอ K ป้องกัน Ca/Mg", 18, 178, 0x07FF, 0x0842);
   }
 
   // Footer Help
@@ -912,7 +912,7 @@ void drawSoilPhPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiTextSm("วิเคราะห์กรด-ด่างดิน pH", 68, 28, TFT_YELLOW, 0x0842);
+  drawThaiTextSm("วิเคราะห์ความเป็นกรดด่างดิน", 68, 28, TFT_YELLOW, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -962,17 +962,17 @@ void drawSoilPhPage() {
 
   // Thai Soil pH Recommendations
   if (phClass == PH_STRONGLY_ACIDIC) {
-    drawThaiTextSm("วินิจฉัย : ดินกรดรุนแรง (pH < 4.5)", 18, 158, TFT_RED, 0x0842);
-    drawThaiTextSm("แนะนำ : ใส่ปูนโดโลไมต์ 100-200 กก./ไร่", 18, 178, TFT_RED, 0x0842);
+    drawThaiTextSm("การวินิจฉัย ดินกรดรุนแรง pH < 4.5", 18, 158, TFT_RED, 0x0842);
+    drawThaiTextSm("แนะนำ ปูนโดโลไมต์ 100-200 กก./ไร่", 18, 178, TFT_RED, 0x0842);
   } else if (phClass == PH_MODERATELY_ACIDIC) {
-    drawThaiTextSm("วินิจฉัย : ดินกรดปานกลาง (pH 4.5-5.5)", 18, 158, TFT_YELLOW, 0x0842);
-    drawThaiTextSm("แนะนำ : เสริมปูนขาวยกระดับ pH ดิน", 18, 178, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("การวินิจฉัย ดินกรดปานกลาง 4.5-5.5", 18, 158, TFT_YELLOW, 0x0842);
+    drawThaiTextSm("แนะนำ เสริมปูนขาว ยก pH ดิน", 18, 178, TFT_YELLOW, 0x0842);
   } else if (phClass == PH_OPTIMAL_DURIAN) {
-    drawThaiTextSm("วินิจฉัย : ดินเหมาะสมสำหรับทุเรียน", 18, 158, TFT_GREEN, 0x0842);
-    drawThaiTextSm("แนะนำ : รักษาระดับดิน ดูดซึมธาตุอาหารสูงสุด", 18, 178, TFT_GREEN, 0x0842);
+    drawThaiTextSm("การวินิจฉัย ดินเหมาะสม pH ทุเรียน", 18, 158, TFT_GREEN, 0x0842);
+    drawThaiTextSm("แนะนำ รักษาระดับ ดูดซึมสูงสุด", 18, 178, TFT_GREEN, 0x0842);
   } else {
-    drawThaiTextSm("วินิจฉัย : ดินเป็นด่าง (pH > 6.5)", 18, 158, 0x07FF, 0x0842);
-    drawThaiTextSm("แนะนำ : เติมยิปซัมเกษตรปรับลด pH", 18, 178, 0x07FF, 0x0842);
+    drawThaiTextSm("การวินิจฉัย ดินเป็นด่าง pH > 6.5", 18, 158, 0x07FF, 0x0842);
+    drawThaiTextSm("แนะนำ ยิปซัมเกษตร ปรับลด pH", 18, 178, 0x07FF, 0x0842);
   }
 
   // Footer Help
