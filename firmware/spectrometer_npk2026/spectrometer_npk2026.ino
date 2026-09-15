@@ -105,9 +105,38 @@ uint32_t spectrumScanCount = 0;
 unsigned long lastMeasureTime = 0;
 unsigned long lastSecondTime  = 0;
 
-int clockHour = 12;
-int clockMin  = 46;
-int clockSec  = 0;
+int clockHour  = 12;
+int clockMin   = 40;
+int clockSec   = 0;
+int clockYear  = 2026;
+int clockMonth = 9;
+int clockDay   = 15;
+char dateBuf[16] = "15/09/2026";
+
+void initSystemDateTime() {
+  // Parse __TIME__ ("HH:MM:SS")
+  const char* tStr = __TIME__;
+  clockHour = (tStr[0] - '0') * 10 + (tStr[1] - '0');
+  clockMin  = (tStr[3] - '0') * 10 + (tStr[4] - '0');
+  clockSec  = (tStr[6] - '0') * 10 + (tStr[7] - '0');
+
+  // Parse __DATE__ ("Mmm dd yyyy" e.g. "Sep 15 2026")
+  const char* dStr = __DATE__;
+  char sMonth[5] = {0};
+  int d = 15, y = 2026;
+  if (sscanf(dStr, "%3s %d %d", sMonth, &d, &y) >= 2) {
+    clockDay = d;
+    clockYear = y;
+    const char* months[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+    for (int m = 0; m < 12; m++) {
+      if (strncmp(sMonth, months[m], 3) == 0) {
+        clockMonth = m + 1;
+        break;
+      }
+    }
+  }
+  sprintf(dateBuf, "%02d/%02d/%04d", clockDay, clockMonth, clockYear);
+}
 
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_600MS, TCS34725_GAIN_1X);
 
@@ -201,6 +230,9 @@ void logLiquidToSD();
 // ============================================================
 void setup() {
   Serial.begin(115200);
+
+  // 0. Initialize Real Time Clock from compiler timestamp
+  initSystemDateTime();
 
   // 1. Initialize Control Pins
   pinMode(BTN_A, INPUT_PULLUP);
@@ -407,8 +439,13 @@ void drawDashboardPage() {
 
     safeLoadFont20();
     tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("หน่วยวิจัยฟิสิกส์เกษตร มรภ รำไพพรรณี", 78, 34);
+    tft.drawString("หน่วยวิจัยเกษตรดิจิทัล", 78, 34);
+    int thaiW = tft.textWidth("หน่วยวิจัยเกษตรดิจิทัล");
     safeUnloadFont();
+
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_WHITE, 0x0842);
+    tft.drawString("JC_SciRBRU", 78 + thaiW + 6, 36);
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
@@ -416,7 +453,7 @@ void drawDashboardPage() {
 
     tft.setTextSize(1);
     tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("AI4D AgriPhysics - RBRU Research", 80, 34);
+    tft.drawString("AgriDigital - JC_SciRBRU", 80, 34);
   }
 
   // Page Indicator Badge
@@ -925,7 +962,7 @@ void drawNpkStaticLayout() {
   // Title 2: NPK Level Meter 2026 (White)
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("AI4D AgriPhysics Multi-Assay 2026", 15, 36);
+  tft.drawString("JC_SciRBRU Digital Agriculture 2026", 15, 36);
 
   // Page Indicator Badge
   tft.setTextSize(1);
@@ -968,7 +1005,15 @@ void drawNpkStaticLayout() {
   tft.drawFastHLine(5, 192, 310, TFT_LIGHTGREY);
   tft.drawFastHLine(5, 194, 310, TFT_MAGENTA);
 
-  // Footer Middle: ชีวะ ทัศนา | AI4D AGRIPHYSICS
+  // Footer Left: Live Date & Time
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString(dateBuf, 10, 202);
+  char initTimeBuf[12];
+  sprintf(initTimeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
+  tft.drawString(initTimeBuf, 10, 218);
+
+  // Footer Middle: ชีวะ ทัศนา | JC_SciRBRU
   if (fontLoaded) {
     safeLoadFont20();
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
@@ -981,7 +1026,7 @@ void drawNpkStaticLayout() {
   }
   tft.setTextSize(1);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
-  tft.drawString("AI4D AGRIPHYSICS", 108, 218);
+  tft.drawString("JC_SciRBRU", 120, 218);
 
   // Model Badge & Indicators
   drawModelModeBadge();
@@ -1327,7 +1372,11 @@ void loop() {
     clockSec++;
     if (clockSec >= 60) { clockSec = 0; clockMin++; }
     if (clockMin >= 60) { clockMin = 0; clockHour++; }
-    if (clockHour >= 24) { clockHour = 0; }
+    if (clockHour >= 24) {
+      clockHour = 0;
+      clockDay++;
+      sprintf(dateBuf, "%02d/%02d/%04d", clockDay, clockMonth, clockYear);
+    }
 
     if (currentScreen == PAGE_DASHBOARD) {
       char timeBuf[16];
@@ -1338,7 +1387,7 @@ void loop() {
     } else if (currentScreen == PAGE_NPK_METER) {
       tft.setTextSize(1);
       tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-      tft.drawString("11/05/2024", 10, 202);
+      tft.drawString(dateBuf, 10, 202);
 
       char timeBuf[12];
       sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
