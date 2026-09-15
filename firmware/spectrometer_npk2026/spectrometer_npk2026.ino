@@ -213,6 +213,8 @@ void safeLoadFont20() {
 void updateLedOutput();
 void setAutoOpticsForScreen(AppScreen screen);
 void drawMulticolorBadge(int x, int y, uint16_t bg, uint8_t size = 1);
+void drawSplashScreen();
+const char* getThaiDateStr();
 void drawLedStatusTag();
 void drawModelModeBadge();
 void drawDashboardModelBadge();
@@ -226,6 +228,101 @@ void drawActiveCalibrationScreen();
 void logSpectrumToSD();
 void logCalibToSD(const char* nutName, const StandardCurve &sc);
 void logLiquidToSD();
+
+// ============================================================
+// Format Thai Date: e.g. "16 ก.ย. 2569"
+// ============================================================
+const char* getThaiDateStr() {
+  static char thaiDateStr[32];
+  const char* thaiMonths[] = {
+    "", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+    "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+  };
+  const char* mStr = (clockMonth >= 1 && clockMonth <= 12) ? thaiMonths[clockMonth] : "ก.ย.";
+  int beYear = (clockYear < 2500) ? (clockYear + 543) : clockYear;
+  sprintf(thaiDateStr, "%d %s %d", clockDay, mStr, beYear);
+  return thaiDateStr;
+}
+
+// ============================================================
+// Futuristic Minimalist Splash Screen: SpecJC +AI Analyzer
+// Developers: ผศ.ดร.ชีวะ ทัศนา, ผศ.ดร.จิรภัทร จันทมาลี
+// Affiliation: ภายใต้หน่วย LEQs SciRBRU
+// ============================================================
+void drawSplashScreen() {
+  tft.fillScreen(TFT_BLACK);
+
+  // 1. Futuristic Corner Tech Brackets (Cyan 0x07FF)
+  tft.drawFastHLine(8, 8, 24, 0x07FF);
+  tft.drawFastVLine(8, 8, 24, 0x07FF);
+  tft.drawFastHLine(288, 8, 24, 0x07FF);
+  tft.drawFastVLine(311, 8, 24, 0x07FF);
+  tft.drawFastHLine(8, 231, 24, 0x07FF);
+  tft.drawFastVLine(8, 208, 24, 0x07FF);
+  tft.drawFastHLine(288, 231, 24, 0x07FF);
+  tft.drawFastVLine(311, 208, 24, 0x07FF);
+
+  // 2. High-Tech Optical Prism & Spectral Dispersion Graphic (Center: x=135, y=14)
+  int px = 135, py = 14;
+  // Triangular Glass Prism with Dual Bevel
+  tft.fillTriangle(px + 25, py + 2, px + 4, py + 38, px + 46, py + 38, 0x10E4);
+  tft.drawTriangle(px + 25, py + 2, px + 4, py + 38, px + 46, py + 38, 0x07FF);
+  tft.drawTriangle(px + 25, py + 4, px + 6, py + 36, px + 44, py + 36, TFT_WHITE);
+
+  // Incident Coherent White Light Beam
+  tft.drawFastHLine(px - 45, py + 24, 50, TFT_WHITE);
+  tft.drawFastHLine(px - 45, py + 25, 50, 0xCE79);
+
+  // Dispersed 5-Band Spectral Light Rays (Blue, Cyan, Green, Yellow, Red)
+  uint16_t specCols[5] = {0x001F, 0x07FF, TFT_GREEN, TFT_YELLOW, TFT_RED};
+  for (int i = 0; i < 5; i++) {
+    tft.drawLine(px + 28, py + 18 + (i * 3), px + 85, py + 6 + (i * 9), specCols[i]);
+    tft.drawLine(px + 28, py + 19 + (i * 3), px + 85, py + 7 + (i * 9), specCols[i]);
+  }
+
+  // 3. Brand Logo: SpecJC +AI Analyzer (Size 2 Bold Multicolor)
+  drawMulticolorBadge(54, 64, TFT_BLACK, 2);
+
+  // Double Gradient Divider Lines
+  tft.drawFastHLine(25, 94, 270, TFT_MAGENTA);
+  tft.drawFastHLine(25, 96, 270, 0x07FF);
+
+  // 4. Developers & Affiliation Information
+  if (fontLoaded) {
+    safeLoadFont20();
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.drawString("ผศ.ดร.ชีวะ ทัศนา   ผศ.ดร.จิรภัทร จันทมาลี", 24, 106);
+
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.drawString("ผู้พัฒนาระบบ SpecJC +AI", 90, 130);
+
+    tft.setTextColor(0x07FF, TFT_BLACK);
+    tft.drawString("ภายใต้หน่วย LEQs SciRBRU", 82, 152);
+    safeUnloadFont();
+  } else {
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+    tft.drawString("Asst. Prof. Dr. Chewa Thassana & Dr. Jirapat Janthamalee", 14, 110);
+    tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    tft.drawString("Developers of SpecJC +AI Analyzer", 60, 130);
+    tft.setTextColor(0x07FF, TFT_BLACK);
+    tft.drawString("Under LEQs Research Unit, SciRBRU", 62, 150);
+  }
+
+  // 5. High-Tech Animated Loading Progress Bar
+  tft.drawRoundRect(28, 180, 264, 14, 3, 0x2104);
+  tft.drawRoundRect(27, 179, 266, 16, 4, TFT_DARKGREY);
+
+  tft.setTextSize(1);
+  tft.setTextColor(0x07FF, TFT_BLACK);
+  tft.drawString("SYSTEM CORE INITIALIZING...", 30, 202);
+
+  for (int w = 2; w <= 260; w += 8) {
+    tft.fillRoundRect(30, 182, w, 10, 2, 0x07FF);
+    delay(40); // Smooth animated boot effect
+  }
+  delay(400); // User appreciation pause
+}
 
 // ============================================================
 // Setup Routine
@@ -267,20 +364,7 @@ void setup() {
   tft.setRotation(3);
   tft.fillScreen(TFT_BLACK);
 
-  // Immediate Boot Splash so the user never sees a blank white screen
-  tft.setTextSize(2);
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("NPK SPECTROMETER", 30, 80);
-  tft.setTextSize(1);
-  tft.setTextColor(0x07FF, TFT_BLACK);
-  tft.drawString("AI4D AgriPhysics - RBRU Research", 30, 115);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("Initializing 8-Screen Assay System...", 30, 145);
-
-  // 4. Initialize Baseline & Standard Curves
-  initCalibration();
-
-  // 5. Initialize SD Card (non-blocking)
+  // 4. Initialize SD Card & Detect Fonts (non-blocking)
   if (SD.begin(SDCARD_SS_PIN, SDCARD_SPI)) {
     Serial.println("SD card initialization successful!");
     hasSD = true;
@@ -321,26 +405,7 @@ void setup() {
       myFile.close();
     }
 
-    // Load saved blank & standard curves if available
-    if (loadCalibrationFromSD()) {
-      Serial.println("Loaded saved full calibration profile from SD card!");
-    }
-  } else {
-    Serial.println("SD card initialization failed or not inserted!");
-    hasSD = false;
-  }
-
-  // 6. Initialize Color Sensor
-  if (tcs.begin()) {
-    Serial.println("Found TCS34725 sensor");
-    hasTCS = true;
-  } else {
-    Serial.println("No TCS34725 found ... check connections");
-    hasTCS = false;
-  }
-
-  // 7. Check for Thai fonts on SD card safely
-  if (hasSD) {
+    // Check for Thai fonts on SD card safely
     if (SD.exists("/THSarabunPSK30.vlw")) {
       fontLoaded30 = true;
       Serial.println("Thai font THSarabunPSK30 found!");
@@ -349,8 +414,31 @@ void setup() {
       fontLoaded20 = true;
       Serial.println("Thai font THSarabunPSK20 found!");
     }
+
+    // Load saved blank & standard curves if available
+    if (loadCalibrationFromSD()) {
+      Serial.println("Loaded saved full calibration profile from SD card!");
+    }
+  } else {
+    Serial.println("SD card initialization failed or not inserted!");
+    hasSD = false;
   }
   fontLoaded = (fontLoaded30 || fontLoaded20);
+
+  // 5. Draw Futuristic SpecJC +AI Analyzer Boot Splash Screen with credits
+  drawSplashScreen();
+
+  // 6. Initialize Baseline & Standard Curves
+  initCalibration();
+
+  // 7. Initialize Color Sensor
+  if (tcs.begin()) {
+    Serial.println("Found TCS34725 sensor");
+    hasTCS = true;
+  } else {
+    Serial.println("No TCS34725 found ... check connections");
+    hasTCS = false;
+  }
 
   // Initial spectrum scan baseline
   currentSpectrum.scanComplete = true;
@@ -360,6 +448,14 @@ void setup() {
   for (int i = 0; i < NUM_SPECTRAL_BANDS; i++) {
     currentSpectrum.absorbance[i] = 0.20f + (0.08f * i);
   }
+
+  // 8. Initialize Wi-Fi & Embedded REST API Server (Standalone/Non-blocking)
+  wifiEngine.init();
+
+  // 9. Immediately Render First Screen & Set Auto-Optics
+  drawDashboardPage();
+  setAutoOpticsForScreen(PAGE_DASHBOARD);
+  screenChanged = false;
 
   // 8. Initialize Wi-Fi & Embedded REST API Server (Standalone/Non-blocking)
   wifiEngine.init();
@@ -566,7 +662,19 @@ void drawDashboardPage() {
   sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
   tft.setTextSize(2);
   tft.setTextColor(0x07FF, 0x0842); // Bright cyan
-  tft.drawString(timeBuf, 195, 164);
+  tft.drawString(timeBuf, 191, 155);
+
+  // Thai Date Display beneath Time (e.g. "16 ก.ย. 2569")
+  if (fontLoaded) {
+    safeLoadFont20();
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString(getThaiDateStr(), 182, 174);
+    safeUnloadFont();
+  } else {
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString(getThaiDateStr(), 188, 177);
+  }
 
   // 4. Footer Bar
   tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
@@ -1110,13 +1218,15 @@ void drawNpkStaticLayout() {
   tft.drawFastHLine(5, 192, 310, TFT_LIGHTGREY);
   tft.drawFastHLine(5, 194, 310, TFT_MAGENTA);
 
-  // Footer Left: Live Date & Time
-  tft.setTextSize(1);
-  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString(dateBuf, 10, 202);
+  // Footer Left: Live Time & Thai Date (Time above, Thai Date below)
   char initTimeBuf[12];
   sprintf(initTimeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
-  tft.drawString(initTimeBuf, 10, 218);
+  tft.setTextSize(1);
+  tft.setTextColor(0x07FF, TFT_BLACK);
+  tft.drawString(initTimeBuf, 10, 202);
+
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString(getThaiDateStr(), 10, 218);
 
   // Footer Middle: ชีวะ ทัศนา | JC_AI_SciRBRU (Multicolor Bold)
   if (fontLoaded) {
@@ -1583,15 +1693,27 @@ void loop() {
       sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
       tft.setTextSize(2);
       tft.setTextColor(0x07FF, 0x0842); // Bright cyan on Card 2 dark background
-      tft.drawString(timeBuf, 195, 164);
-    } else if (currentScreen == PAGE_NPK_METER) {
-      tft.setTextSize(1);
-      tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-      tft.drawString(dateBuf, 10, 202);
+      tft.drawString(timeBuf, 191, 155);
 
+      if (fontLoaded) {
+        safeLoadFont20();
+        tft.setTextColor(TFT_YELLOW, 0x0842);
+        tft.drawString(getThaiDateStr(), 182, 174);
+        safeUnloadFont();
+      } else {
+        tft.setTextSize(1);
+        tft.setTextColor(TFT_YELLOW, 0x0842);
+        tft.drawString(getThaiDateStr(), 188, 177);
+      }
+    } else if (currentScreen == PAGE_NPK_METER) {
       char timeBuf[12];
       sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
-      tft.drawString(timeBuf, 10, 218);
+      tft.setTextSize(1);
+      tft.setTextColor(0x07FF, TFT_BLACK);
+      tft.drawString(timeBuf, 10, 202);
+
+      tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+      tft.drawString(getThaiDateStr(), 10, 218);
     }
   }
 
