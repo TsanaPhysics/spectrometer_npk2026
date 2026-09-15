@@ -2,11 +2,21 @@
 #define WIFI_SERVER_ENGINE_H
 
 #include <Arduino.h>
+#include <Seeed_FS.h>
+#include "SD/Seeed_SD.h"
+
+// Set ENABLE_WIFI_SERVER to 1 only if RTL8720DN co-processor firmware is updated
+#ifndef ENABLE_WIFI_SERVER
+#define ENABLE_WIFI_SERVER 0
+#endif
+
+#if ENABLE_WIFI_SERVER
 #include "rpcWiFi.h"
 #include <WiFiClient.h>
 #include <WiFiServer.h>
-#include <Seeed_FS.h>
-#include "SD/Seeed_SD.h"
+#else
+#include <IPAddress.h>
+#endif
 
 // Default Wi-Fi credentials (Station mode)
 #ifndef WIFI_SSID
@@ -37,16 +47,23 @@ struct SpectrometerTelemetry {
 
 class WiFiServerEngine {
 private:
+#if ENABLE_WIFI_SERVER
   WiFiServer server;
   bool isApMode;
   IPAddress ipAddr;
   unsigned long lastConnectAttempt;
+#endif
   uint32_t recordCounter;
 
 public:
+#if ENABLE_WIFI_SERVER
   WiFiServerEngine() : server(80), isApMode(false), lastConnectAttempt(0), recordCounter(0) {}
+#else
+  WiFiServerEngine() : recordCounter(0) {}
+#endif
 
   void init() {
+#if ENABLE_WIFI_SERVER
     Serial.println(F("[WiFi] Initializing RTL8720DN Wi-Fi Subsystem..."));
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
@@ -86,29 +103,54 @@ public:
 
     server.begin();
     Serial.println(F("[WiFi] HTTP REST JSON Server listening on port 80"));
+#else
+    Serial.println(F("[WiFi] Standalone Mode (WiFi disabled for zero latency)"));
+#endif
     initJsonLogFile();
   }
 
   bool isConnected() const {
+#if ENABLE_WIFI_SERVER
     return isApMode || (WiFi.status() == WL_CONNECTED);
+#else
+    return false;
+#endif
   }
 
-  bool getIsApMode() const { return isApMode; }
+  bool getIsApMode() const { 
+#if ENABLE_WIFI_SERVER
+    return isApMode; 
+#else
+    return false;
+#endif
+  }
 
-  IPAddress getIP() const { return ipAddr; }
+  IPAddress getIP() const { 
+#if ENABLE_WIFI_SERVER
+    return ipAddr; 
+#else
+    return IPAddress(0, 0, 0, 0);
+#endif
+  }
 
   int getRSSI() const {
+#if ENABLE_WIFI_SERVER
     return isApMode ? 0 : WiFi.RSSI();
+#else
+    return 0;
+#endif
   }
 
   void initJsonLogFile() {
-    if (!SD.exists(JSON_LOG_FILE)) {
-      File f = SD.open(JSON_LOG_FILE, FILE_WRITE);
-      if (f) {
-        f.println(F("["));
-        f.println(F("]"));
-        f.close();
-        Serial.println(F("[JSON DB] Created initial DATA_LOG.json"));
+    if (SD.begin(SDCARD_SS_PIN, SDCARD_SPI)) {
+      if (!SD.exists(JSON_LOG_FILE)) {
+        File f = SD.open(JSON_LOG_FILE, FILE_WRITE);
+        if (f) {
+          f.println(F("["));
+          f.println(F("]"));
+          f.close();
+          Serial.println(F("[JSON DB] Created initial DATA_LOG.json"));
+        }
       }
     }
   }
@@ -118,13 +160,10 @@ public:
     Serial.print(F("[JSON DB] Logging measurement #"));
     Serial.println(recordCounter);
 
-    // Append JSON record before closing bracket ']'
-    // For simplicity, we open file, read position, or append
     File f = SD.open(JSON_LOG_FILE, FILE_WRITE);
     if (f) {
-      // Position before the trailing ']' if file has size > 2
       if (f.size() > 3) {
-        f.seek(f.size() - 2); // move before '\n]'
+        f.seek(f.size() - 2);
         f.println(F(","));
       } else {
         f.println(F("["));
@@ -164,8 +203,9 @@ public:
     }
   }
 
-  // Handle incoming HTTP REST clients
+  // Handle incoming HTTP REST clients (only active when ENABLE_WIFI_SERVER == 1)
   void handleClient(const SpectrometerTelemetry& t, bool& triggerScanSoil, bool& triggerScanLiquid, bool& triggerCalib) {
+#if ENABLE_WIFI_SERVER
     WiFiClient client = server.available();
     if (!client) return;
 
@@ -176,7 +216,6 @@ public:
       if (req.endsWith("\r\n\r\n")) break;
     }
 
-    // CORS Headers
     auto sendCorsHeaders = [&client](int code = 200) {
       if (code == 200) client.println(F("HTTP/1.1 200 OK"));
       else if (code == 204) client.println(F("HTTP/1.1 204 No Content"));
@@ -262,12 +301,18 @@ public:
       client.println(F("{\"status\":\"OK\",\"message\":\"Blank Reference Calibrated\"}"));
     }
     else {
-      // Default 200 root response
       sendCorsHeaders(200);
       client.println(F("{\"message\":\"NPK Spectrometer 2026 REST API Server\",\"version\":\"1.0.2\"}"));
     }
 
     client.stop();
+#else
+    // Standalone mode: do nothing
+    (void)t;
+    (void)triggerScanSoil;
+    (void)triggerScanLiquid;
+    (void)triggerCalib;
+#endif
   }
 };
 

@@ -145,6 +145,40 @@ float calcK_Poly(float rp) {
 WiFiServerEngine wifiEngine;
 float currentN = 45.2f, currentP = 22.8f, currentK = 128.5f, currentPH = 6.25f;
 
+// Safe Font Loader Management
+bool fontLoaded30 = false;
+bool fontLoaded20 = false;
+static bool isFontCurrentlyLoaded = false;
+
+void safeUnloadFont() {
+  if (isFontCurrentlyLoaded) {
+    tft.unloadFont();
+    isFontCurrentlyLoaded = false;
+  }
+}
+
+void safeLoadFont30() {
+  safeUnloadFont();
+  if (fontLoaded30) {
+    tft.loadFont("THSarabunPSK30", SD);
+    isFontCurrentlyLoaded = true;
+  } else if (fontLoaded20) {
+    tft.loadFont("THSarabunPSK20", SD);
+    isFontCurrentlyLoaded = true;
+  }
+}
+
+void safeLoadFont20() {
+  safeUnloadFont();
+  if (fontLoaded20) {
+    tft.loadFont("THSarabunPSK20", SD);
+    isFontCurrentlyLoaded = true;
+  } else if (fontLoaded30) {
+    tft.loadFont("THSarabunPSK30", SD);
+    isFontCurrentlyLoaded = true;
+  }
+}
+
 // Function Prototypes
 void updateLedOutput();
 void drawLedStatusTag();
@@ -191,10 +225,22 @@ void setup() {
   strip.clear();
   strip.show();
 
-  // 3. Initialize LCD Display
+  // 3. Initialize LCD Display & Backlight IMMEDIATELY
+  pinMode(LCD_BACKLIGHT, OUTPUT);
+  digitalWrite(LCD_BACKLIGHT, HIGH);
   tft.begin();
   tft.setRotation(3);
   tft.fillScreen(TFT_BLACK);
+
+  // Immediate Boot Splash so the user never sees a blank white screen
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString("NPK SPECTROMETER", 30, 80);
+  tft.setTextSize(1);
+  tft.setTextColor(0x07FF, TFT_BLACK);
+  tft.drawString("AI4D AgriPhysics - RBRU Research", 30, 115);
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString("Initializing 8-Screen Assay System...", 30, 145);
 
   // 4. Initialize Baseline & Standard Curves
   initCalibration();
@@ -258,11 +304,18 @@ void setup() {
     hasTCS = false;
   }
 
-  // 7. Check for Thai fonts on SD card
-  if (hasSD && SD.exists("/THSarabunPSK30.vlw")) {
-    fontLoaded = true;
-    Serial.println("Thai font THSarabunPSK30 found!");
+  // 7. Check for Thai fonts on SD card safely
+  if (hasSD) {
+    if (SD.exists("/THSarabunPSK30.vlw")) {
+      fontLoaded30 = true;
+      Serial.println("Thai font THSarabunPSK30 found!");
+    }
+    if (SD.exists("/THSarabunPSK20.vlw")) {
+      fontLoaded20 = true;
+      Serial.println("Thai font THSarabunPSK20 found!");
+    }
   }
+  fontLoaded = (fontLoaded30 || fontLoaded20);
 
   // Initial spectrum scan baseline
   currentSpectrum.scanComplete = true;
@@ -273,10 +326,13 @@ void setup() {
     currentSpectrum.absorbance[i] = 0.20f + (0.08f * i);
   }
 
-  // 8. Initialize Wi-Fi & Embedded JSON REST API Server
+  // 8. Initialize Wi-Fi & Embedded REST API Server (Standalone/Non-blocking)
   wifiEngine.init();
 
-  screenChanged = true;
+  // 9. Immediately Render First Screen
+  drawDashboardPage();
+  screenChanged = false;
+
   lastMeasureTime = millis();
   lastSecondTime  = millis();
 }
@@ -324,14 +380,14 @@ void drawDashboardPage() {
 
   // Header Titles
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
+    safeLoadFont30();
     tft.setTextColor(TFT_YELLOW, 0x0842);
     tft.drawString("สเปกโทรโฟโตมิเตอร์ NPK", 80, 8);
 
-    tft.loadFont("THSarabunPSK20", SD);
+    safeLoadFont20();
     tft.setTextColor(0x07FF, 0x0842);
     tft.drawString("หน่วยวิจัย AI4D มรภ.รำไพพรรณี", 80, 34);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
@@ -358,10 +414,10 @@ void drawDashboardPage() {
 
   // Card 1 Header (Large TextSize 2 or Sarabun font)
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK20", SD);
+    safeLoadFont20();
     tft.setTextColor(TFT_WHITE, 0x10E4);
     tft.drawString("ระบบประมวลผล", 32, 68);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_WHITE, 0x10E4);
@@ -399,10 +455,10 @@ void drawDashboardPage() {
 
   // Card 2 Header
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK20", SD);
+    safeLoadFont20();
     tft.setTextColor(TFT_WHITE, 0x2084);
     tft.drawString("อุปกรณ์/เซนเซอร์", 185, 68);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_WHITE, 0x2084);
@@ -448,10 +504,10 @@ void drawDashboardPage() {
   tft.drawFastHLine(0, 206, 320, 0x2104);
 
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK20", SD);
+    safeLoadFont20();
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.drawString("จอยสติ๊ก [< / >] สลับหน้า  |  [UP] สลับโหมด AI  |  A/B/C เปิด/ปิดไฟ", 15, 214);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(1);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
@@ -472,10 +528,10 @@ void drawNitrogenPage() {
   drawSpectrometerLogo(8, 4);
 
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
+    safeLoadFont30();
     tft.setTextColor(0x07FF, 0x0842);
     tft.drawString("วิเคราะห์ไนโตรเจน (N Mode)", 75, 8);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(0x07FF, 0x0842);
@@ -514,19 +570,37 @@ void drawNitrogenPage() {
   int barW = (int)constrain((currentN / 100.0f) * 278.0f, 2.0f, 278.0f);
   tft.fillRect(19, 143, barW, 8, 0x07FF);
 
-  tft.setTextSize(1);
-  if (currentN < 20.0f) {
-    tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("STATUS: LOW N (Tier 1: High Sensitivity 465nm)", 18, 160);
-    tft.drawString("REC: เพิ่มปุ๋ยไนโตรเจน เช่น ยูเรีย 46-0-0 เพื่อเร่งใบ", 18, 175);
-  } else if (currentN <= 60.0f) {
-    tft.setTextColor(TFT_GREEN, 0x0842);
-    tft.drawString("STATUS: OPTIMAL N (Tier 2: Agronomic Range)", 18, 160);
-    tft.drawString("REC: ระดับไนโตรเจนสมบูรณ์ เหมาะสมต่อการเจริญเติบโต", 18, 175);
+  if (fontLoaded) {
+    safeLoadFont20();
+    if (currentN < 20.0f) {
+      tft.setTextColor(TFT_YELLOW, 0x0842);
+      tft.drawString("สถานะ  ไนโตรเจนต่ำ (ระดับ 1 ไวสูง 465nm)", 18, 158);
+      tft.drawString("คำแนะนำ  เพิ่มปุ๋ยไนโตรเจน ยูเรีย 46-0-0 เพื่อเร่งใบ", 18, 174);
+    } else if (currentN <= 60.0f) {
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString("สถานะ  ไนโตรเจนเหมาะสม (ระดับ 2 ช่วงเกษตรกรรม)", 18, 158);
+      tft.drawString("คำแนะนำ  ระดับไนโตรเจนสมบูรณ์ เหมาะสมต่อการเจริญเติบโต", 18, 174);
+    } else {
+      tft.setTextColor(TFT_RED, 0x0842);
+      tft.drawString("สถานะ  ไนโตรเจนสูงเกิน (ระดับ 3 ย่าน 525nm)", 18, 158);
+      tft.drawString("คำแนะนำ  ชะลอการใส่ปุ๋ย N ป้องกันการบ้าใบและเสี่ยงโรคราก", 18, 174);
+    }
+    safeUnloadFont();
   } else {
-    tft.setTextColor(TFT_RED, 0x0842);
-    tft.drawString("STATUS: HIGH / EXCESS N (Tier 3: Green 525nm)", 18, 160);
-    tft.drawString("REC: ชะลอการใส่ปุ๋ย N ป้องกันการเฝือใบและเสี่ยงโรคราก", 18, 175);
+    tft.setTextSize(1);
+    if (currentN < 20.0f) {
+      tft.setTextColor(TFT_YELLOW, 0x0842);
+      tft.drawString("STATUS: LOW N (Tier 1: High Sensitivity 465nm)", 18, 160);
+      tft.drawString("REC: Add Nitrogen fertilizer (Urea 46-0-0)", 18, 175);
+    } else if (currentN <= 60.0f) {
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString("STATUS: OPTIMAL N (Tier 2: Agronomic Range)", 18, 160);
+      tft.drawString("REC: Optimal N level for vegetative growth", 18, 175);
+    } else {
+      tft.setTextColor(TFT_RED, 0x0842);
+      tft.drawString("STATUS: HIGH N (Tier 3: Green 525nm)", 18, 160);
+      tft.drawString("REC: Reduce N to prevent excessive vegetative shoot", 18, 175);
+    }
   }
 
   // Footer Help
@@ -547,10 +621,10 @@ void drawPhosphorusPage() {
   drawSpectrometerLogo(8, 4);
 
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
+    safeLoadFont30();
     tft.setTextColor(TFT_GREEN, 0x0842);
     tft.drawString("วิเคราะห์ฟอสฟอรัส (P Mode)", 75, 8);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_GREEN, 0x0842);
@@ -589,19 +663,37 @@ void drawPhosphorusPage() {
   int barW = (int)constrain((currentP / 50.0f) * 278.0f, 2.0f, 278.0f);
   tft.fillRect(19, 143, barW, 8, TFT_GREEN);
 
-  tft.setTextSize(1);
-  if (currentP < 15.0f) {
-    tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("STATUS: LOW P (Bray II < 15 mg/kg)", 18, 160);
-    tft.drawString("REC: ใส่ปุ๋ยฟอสเฟต 18-46-0 หรือร็อคฟอสเฟตบำรุงราก", 18, 175);
-  } else if (currentP <= 35.0f) {
-    tft.setTextColor(TFT_GREEN, 0x0842);
-    tft.drawString("STATUS: SUFFICIENT P (15 - 35 mg/kg)", 18, 160);
-    tft.drawString("REC: ฟอสฟอรัสพร้อมใช้เหมาะสม ช่วยการแตกรากและตาดอก", 18, 175);
+  if (fontLoaded) {
+    safeLoadFont20();
+    if (currentP < 15.0f) {
+      tft.setTextColor(TFT_YELLOW, 0x0842);
+      tft.drawString("สถานะ  ฟอสฟอรัสต่ำ (Bray II ต่ำกว่า 15 mg/kg)", 18, 158);
+      tft.drawString("คำแนะนำ  ใส่ปุ๋ยฟอสเฟต 18-46-0 หรือร็อคฟอสเฟตบำรุงราก", 18, 174);
+    } else if (currentP <= 35.0f) {
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString("สถานะ  ฟอสฟอรัสเหมาะสม (15 - 35 mg/kg)", 18, 158);
+      tft.drawString("คำแนะนำ  ฟอสฟอรัสพร้อมใช้ ช่วยการแตกรากและตาดอกสมบูรณ์", 18, 174);
+    } else {
+      tft.setTextColor(0x07FF, 0x0842);
+      tft.drawString("สถานะ  ฟอสฟอรัสสะสมสูง (เกิน 35 mg/kg)", 18, 158);
+      tft.drawString("คำแนะนำ  งดปุ๋ยฟอสฟอรัส ป้องกันการตรึงธาตุสังกะสีและเหล็ก", 18, 174);
+    }
+    safeUnloadFont();
   } else {
-    tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("STATUS: HIGH ACCUMULATION (> 35 mg/kg)", 18, 160);
-    tft.drawString("REC: งดปุ๋ยฟอสฟอรัส ป้องกันการตรึงธาตุสังกะสีและเหล็ก", 18, 175);
+    tft.setTextSize(1);
+    if (currentP < 15.0f) {
+      tft.setTextColor(TFT_YELLOW, 0x0842);
+      tft.drawString("STATUS: LOW P (Bray II < 15 mg/kg)", 18, 160);
+      tft.drawString("REC: Add phosphate fertilizer 18-46-0 for roots", 18, 175);
+    } else if (currentP <= 35.0f) {
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString("STATUS: SUFFICIENT P (15 - 35 mg/kg)", 18, 160);
+      tft.drawString("REC: Optimal available P for root and flower development", 18, 175);
+    } else {
+      tft.setTextColor(0x07FF, 0x0842);
+      tft.drawString("STATUS: HIGH ACCUMULATION (> 35 mg/kg)", 18, 160);
+      tft.drawString("REC: Suspend P fertilizer to avoid Zn/Fe micronutrient tie-up", 18, 175);
+    }
   }
 
   // Footer Help
@@ -622,10 +714,10 @@ void drawPotassiumPage() {
   drawSpectrometerLogo(8, 4);
 
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
+    safeLoadFont30();
     tft.setTextColor(TFT_RED, 0x0842);
     tft.drawString("วิเคราะห์โพแทสเซียม (K Mode)", 75, 8);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_RED, 0x0842);
@@ -664,19 +756,37 @@ void drawPotassiumPage() {
   int barW = (int)constrain((currentK / 250.0f) * 278.0f, 2.0f, 278.0f);
   tft.fillRect(19, 143, barW, 8, TFT_RED);
 
-  tft.setTextSize(1);
-  if (currentK < 80.0f) {
-    tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("STATUS: LOW POTASSIUM (< 80 mg/kg)", 18, 160);
-    tft.drawString("REC: เพิ่มปุ๋ยโพแทสเซียมคลอไรด์ 0-0-60 หรือ 0-0-50", 18, 175);
-  } else if (currentK <= 160.0f) {
-    tft.setTextColor(TFT_GREEN, 0x0842);
-    tft.drawString("STATUS: OPTIMAL FOR FRUITING (80 - 160 mg/kg)", 18, 160);
-    tft.drawString("REC: โพแทสเซียมพอเหมาะ เพิ่มคุณภาพเนื้อทุเรียนและความหวาน", 18, 175);
+  if (fontLoaded) {
+    safeLoadFont20();
+    if (currentK < 80.0f) {
+      tft.setTextColor(TFT_YELLOW, 0x0842);
+      tft.drawString("สถานะ  โพแทสเซียมต่ำ (ต่ำกว่า 80 mg/kg)", 18, 158);
+      tft.drawString("คำแนะนำ  เพิ่มปุ๋ยโพแทสเซียมคลอไรด์ 0-0-60 หรือ 0-0-50", 18, 174);
+    } else if (currentK <= 160.0f) {
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString("สถานะ  โพแทสเซียมเหมาะสมต่อการติดผล (80 - 160 mg/kg)", 18, 158);
+      tft.drawString("คำแนะนำ  โพแทสเซียมพอเหมาะ เพิ่มคุณภาพเนื้อทุเรียนและความหวาน", 18, 174);
+    } else {
+      tft.setTextColor(0x07FF, 0x0842);
+      tft.drawString("สถานะ  โพแทสเซียมสะสมสูง (เกิน 160 mg/kg)", 18, 158);
+      tft.drawString("คำแนะนำ  ชะลอใส่ K ป้องกันการยับยั้งการดูดซึม Ca และ Mg", 18, 174);
+    }
+    safeUnloadFont();
   } else {
-    tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("STATUS: HIGH CONCENTRATION (> 160 mg/kg)", 18, 160);
-    tft.drawString("REC: ปริมาณ K สูง ระวังการยับยั้งการดูดซึมแคลเซียมและแมกนีเซียม", 18, 175);
+    tft.setTextSize(1);
+    if (currentK < 80.0f) {
+      tft.setTextColor(TFT_YELLOW, 0x0842);
+      tft.drawString("STATUS: LOW POTASSIUM (< 80 mg/kg)", 18, 160);
+      tft.drawString("REC: Add Potassium Chloride 0-0-60", 18, 175);
+    } else if (currentK <= 160.0f) {
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString("STATUS: OPTIMAL FOR FRUITING (80 - 160 mg/kg)", 18, 160);
+      tft.drawString("REC: Adequate K for fruit filling and sweetness", 18, 175);
+    } else {
+      tft.setTextColor(0x07FF, 0x0842);
+      tft.drawString("STATUS: HIGH CONCENTRATION (> 160 mg/kg)", 18, 160);
+      tft.drawString("REC: Avoid excess K to prevent Ca/Mg inhibition", 18, 175);
+    }
   }
 
   // Footer Help
@@ -697,10 +807,10 @@ void drawSoilPhPage() {
   drawSpectrometerLogo(8, 4);
 
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
+    safeLoadFont30();
     tft.setTextColor(TFT_YELLOW, 0x0842);
     tft.drawString("วิเคราะห์ความเป็นกรด-ด่างดิน (Soil pH)", 70, 8);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
@@ -745,20 +855,42 @@ void drawSoilPhPage() {
   int barW = (int)constrain(normPh * 278.0f, 2.0f, 278.0f);
   tft.fillRect(19, 143, barW, 8, phColor);
 
-  tft.setTextSize(1);
-  tft.setTextColor(phColor, 0x0842);
-  char classBuf[64];
-  sprintf(classBuf, "DIAGNOSIS: %s", get_soil_ph_desc(phClass));
-  tft.drawString(classBuf, 18, 160);
-
-  if (phClass == PH_STRONGLY_ACIDIC) {
-    tft.drawString("REC: ดินกรดจัดมาก ใส่ปูนโดโลไมต์/ปูนขาว 100-200 กก./ไร่", 18, 175);
-  } else if (phClass == PH_MODERATELY_ACIDIC) {
-    tft.drawString("REC: ดินกรดปานกลาง ใส่ปูนโดโลไมต์ปรับสภาพ 50 กก./ไร่", 18, 175);
-  } else if (phClass == PH_OPTIMAL_DURIAN) {
-    tft.drawString("REC: สภาพกรด-ด่างสมบูรณ์แบบ ทุเรียนดูดซึม N-P-K ได้สูงสุด", 18, 175);
+  if (fontLoaded) {
+    safeLoadFont20();
+    if (phClass == PH_STRONGLY_ACIDIC) {
+      tft.setTextColor(TFT_RED, 0x0842);
+      tft.drawString("การวินิจฉัย  ดินกรดรุนแรงมาก", 18, 158);
+      tft.drawString("คำแนะนำ  ใส่ปูนโดโลไมต์หรือปูนขาว 100-200 กก./ไร่", 18, 174);
+    } else if (phClass == PH_MODERATELY_ACIDIC) {
+      tft.setTextColor(TFT_YELLOW, 0x0842);
+      tft.drawString("การวินิจฉัย  ดินกรดปานกลาง", 18, 158);
+      tft.drawString("คำแนะนำ  ใส่ปูนโดโลไมต์ปรับสภาพ 50 กก./ไร่", 18, 174);
+    } else if (phClass == PH_OPTIMAL_DURIAN) {
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString("การวินิจฉัย  กรด-ด่างสมบูรณ์แบบสำหรับทุเรียน", 18, 158);
+      tft.drawString("คำแนะนำ  รักษาระดับ pH ให้คงที่ พืชดูดซึม NPK ได้สูงสุด", 18, 174);
+    } else {
+      tft.setTextColor(0x07FF, 0x0842);
+      tft.drawString("การวินิจฉัย  ดินด่าง", 18, 158);
+      tft.drawString("คำแนะนำ  เติมยิปซัมเกษตรหรืออินทรียวัตถุเพื่อลดด่าง", 18, 174);
+    }
+    safeUnloadFont();
   } else {
-    tft.drawString("REC: ดินด่าง เติมยิปซัมเกษตรหรืออินทรียวัตถุเพื่อลดด่าง", 18, 175);
+    tft.setTextSize(1);
+    tft.setTextColor(phColor, 0x0842);
+    char classBuf[64];
+    sprintf(classBuf, "DIAGNOSIS: %s", get_soil_ph_desc(phClass));
+    tft.drawString(classBuf, 18, 160);
+
+    if (phClass == PH_STRONGLY_ACIDIC) {
+      tft.drawString("REC: Strongly acidic. Apply dolomite 100-200 kg/rai", 18, 175);
+    } else if (phClass == PH_MODERATELY_ACIDIC) {
+      tft.drawString("REC: Moderately acidic. Apply dolomite 50 kg/rai", 18, 175);
+    } else if (phClass == PH_OPTIMAL_DURIAN) {
+      tft.drawString("REC: Optimal pH range. N-P-K nutrient uptake maximized", 18, 175);
+    } else {
+      tft.drawString("REC: Alkaline soil. Add agricultural gypsum or compost", 18, 175);
+    }
   }
 
   // Footer Help
@@ -776,10 +908,10 @@ void drawNpkStaticLayout() {
 
   // Title 1: ปริมาณธาตุอาหารหลักในดิน (Yellow)
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
+    safeLoadFont30();
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.drawString("สรุปธาตุอาหารหลักและ pH ดิน", 35, 8);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
@@ -834,10 +966,10 @@ void drawNpkStaticLayout() {
 
   // Footer Middle: ชีวะ ทัศนา | AI4D AGRIPHYSICS
   if (fontLoaded) {
-    tft.loadFont("THSarabunPSK20", SD);
+    safeLoadFont20();
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.drawString("ชีวะ ทัศนา", 118, 200);
-    tft.unloadFont();
+    safeUnloadFont();
   } else {
     tft.setTextSize(1);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
