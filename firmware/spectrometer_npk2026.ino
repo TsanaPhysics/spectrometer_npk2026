@@ -211,9 +211,8 @@ void safeLoadFont20() {
 // Function Prototypes
 void updateLedOutput();
 void setAutoOpticsForScreen(AppScreen screen);
-void drawMulticolorBadge(int x, int y, uint16_t bg);
+void drawMulticolorBadge(int x, int y, uint16_t bg, uint8_t size = 1);
 void drawLedStatusTag();
-void drawSdStatusTag();
 void drawModelModeBadge();
 void drawDashboardModelBadge();
 void drawDashboardPage();
@@ -375,28 +374,34 @@ void setup() {
 
 // ============================================================
 // Render Bold Multicolor "JC_AI_SciRBRU" Badge
+// Color Scheme: JC (Red), AI (Orange), Sci (Yellow), RBRU (Green)
 // ============================================================
-void drawMulticolorBadge(int x, int y, uint16_t bg) {
-  tft.setTextSize(1);
+void drawMulticolorBadge(int x, int y, uint16_t bg, uint8_t size) {
+  tft.setTextSize(size);
   struct Seg {
     const char* str;
     uint16_t col;
   };
   const Seg segs[] = {
-    {"JC",   0x07FF},      // Vibrant Cyan
+    {"JC",   TFT_RED},       // Red (JC แดง)
     {"_",    TFT_LIGHTGREY},
-    {"AI",   TFT_YELLOW},  // Warm Yellow
+    {"AI",   TFT_ORANGE},    // Orange (AI ส้ม)
     {"_",    TFT_LIGHTGREY},
-    {"Sci",  TFT_MAGENTA}, // Pink/Magenta
-    {"RBRU", TFT_GREEN}    // Bright Green
+    {"Sci",  TFT_YELLOW},    // Yellow (Sci เหลือง)
+    {"RBRU", TFT_GREEN}      // Green (RBRU เขียวสดใส)
   };
 
   int curX = x;
+  int charW = 6 * size;
   for (int i = 0; i < 6; i++) {
     tft.setTextColor(segs[i].col, bg);
     tft.drawString(segs[i].str, curX, y);
     tft.drawString(segs[i].str, curX + 1, y); // 1px horizontal offset for bold
-    curX += strlen(segs[i].str) * 6;
+    if (size >= 2) {
+      tft.drawString(segs[i].str, curX, y + 1);
+      tft.drawString(segs[i].str, curX + 1, y + 1);
+    }
+    curX += strlen(segs[i].str) * charW;
   }
 }
 
@@ -460,25 +465,22 @@ void drawDashboardPage() {
   if (fontLoaded) {
     safeLoadFont30();
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("สเปกโทรโฟโตมิเตอร์", 78, 8);
+    tft.drawString("สเปกโทรโฟโตมิเตอร์", 78, 6);
     safeUnloadFont();
+
+    // Large Size-2 Multicolor Badge (JC: Red, AI: Orange, Sci: Yellow, RBRU: Green)
+    drawMulticolorBadge(76, 32, 0x0842, 2);
 
     safeLoadFont20();
     tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("หน่วยวิจัยเกษตรดิจิทัล", 78, 34);
-    int thaiW = tft.textWidth("หน่วยวิจัยเกษตรดิจิทัล");
+    tft.drawString("เกษตรดิจิทัล", 236, 33);
     safeUnloadFont();
-
-    drawMulticolorBadge(78 + thaiW + 6, 36, 0x0842);
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
-    tft.drawString("SPECTROMETER", 80, 10);
+    tft.drawString("SPECTROMETER", 80, 8);
 
-    tft.setTextSize(1);
-    tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("AgriDigital - ", 80, 34);
-    drawMulticolorBadge(160, 34, 0x0842);
+    drawMulticolorBadge(76, 32, 0x0842, 2);
   }
 
   // Page Indicator Badge
@@ -929,9 +931,17 @@ void drawSoilPhPage() {
   tft.setTextColor(phColor, 0x0842);
   tft.drawString(valStr, 25, 96);
 
-  tft.setTextSize(2);
-  tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("pH Level", 185, 110);
+  // Enlarge & Bold Colorful "pH Level" Display
+  tft.setTextSize(3);
+  tft.setTextColor(0x07FF, 0x0842); // Vibrant Cyan
+  tft.drawString("pH", 158, 100);
+  tft.drawString("pH", 159, 100);   // Bold horizontal
+  tft.drawString("pH", 158, 101);   // Bold vertical
+
+  tft.setTextColor(TFT_YELLOW, 0x0842); // Bright Yellow
+  tft.drawString("Level", 202, 100);
+  tft.drawString("Level", 203, 100); // Bold horizontal
+  tft.drawString("Level", 202, 101); // Bold vertical
 
   // pH Scale Visual Bar (3.5 - 8.5)
   tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
