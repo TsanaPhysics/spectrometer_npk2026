@@ -273,6 +273,17 @@ const char* getThaiDateStr() {
   return thaiDateStr;
 }
 
+// Short numeric date: dd/mm/yy  (Buddhist Era last 2 digits)
+// e.g. clockYear=2026 -> beYear=2569 -> "15/09/69"
+const char* getShortDateStr() {
+  static char shortDate[12];
+  int beYear = (clockYear < 2500) ? (clockYear + 543) : clockYear;
+  int beYY   = beYear % 100;  // last 2 digits
+  sprintf(shortDate, "%02d/%02d/%02d", clockDay, clockMonth, beYY);
+  return shortDate;
+}
+
+
 // ============================================================
 // Futuristic Minimalist Splash Screen: SpecJC +AI Analyzer
 // Developers: ผศ.ดร.ชีวะ ทัศนา, ผศ.ดร.จิรภัทร จันทมาลี
@@ -649,15 +660,12 @@ void drawDashboardPage() {
 
   tft.drawFastHLine(172, 152, 134, 0x2104);
 
-  // Large Clock (TextSize 2)
-  char timeBuf[16];
-  sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
-  tft.setTextSize(2);
-  tft.setTextColor(0x07FF, 0x0842); // Bright cyan
-  tft.drawString(timeBuf, 191, 155);
-
-  // Thai Date beneath Time (e.g. "16 ก.ย. 2569")
-  drawThaiTextSm(getThaiDateStr(), 182, 188, TFT_YELLOW, 0x0842);
+  // Clock + Date on one line (TextSize 1, compact)
+  char timeDateBuf[32];
+  sprintf(timeDateBuf, "%02d:%02d:%02d  %s", clockHour, clockMin, clockSec, getShortDateStr());
+  tft.setTextSize(1);
+  tft.setTextColor(0x07FF, 0x0842);
+  tft.drawString(timeDateBuf, 172, 165);
 
   // 4. Footer Bar
   tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
@@ -1033,13 +1041,12 @@ void drawNpkStaticLayout() {
   tft.drawFastHLine(5, 192, 310, TFT_LIGHTGREY);
   tft.drawFastHLine(5, 194, 310, TFT_MAGENTA);
 
-  // Footer Left: Live Time & Thai Date (True Thai Typography)
-  char initTimeBuf[12];
-  sprintf(initTimeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
+  // Footer Left: Live Clock + Date on one line
+  char timeDateBuf[32];
+  sprintf(timeDateBuf, "%02d:%02d:%02d  %s", clockHour, clockMin, clockSec, getShortDateStr());
   tft.setTextSize(1);
   tft.setTextColor(0x07FF, TFT_BLACK);
-  tft.drawString(initTimeBuf, 10, 200);
-  drawThaiTextSm(getThaiDateStr(), 10, 214, TFT_YELLOW, TFT_BLACK);
+  tft.drawString(timeDateBuf, 10, 204);
 
   // Footer Middle: ผศ.ดร.ชีวะ ทัศนา (True Thai Typography)
   drawThaiTextSm("ผศ.ดร.ชีวะ ทัศนา", 95, 200, TFT_YELLOW, TFT_BLACK);
@@ -1493,22 +1500,22 @@ void loop() {
     }
 
     if (currentScreen == PAGE_DASHBOARD) {
-      char timeBuf[16];
-      sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
-      tft.setTextSize(2);
-      tft.setTextColor(0x07FF, 0x0842); // Bright cyan on Card 2 dark background
-      tft.drawString(timeBuf, 191, 155);
-
-      // Thai Date (True Thai Typography — no SD card dependency)
-      drawThaiTextSm(getThaiDateStr(), 182, 188, TFT_YELLOW, 0x0842);
+      char timeDateBuf[32];
+      sprintf(timeDateBuf, "%02d:%02d:%02d  %s", clockHour, clockMin, clockSec, getShortDateStr());
+      // Clear old area first
+      tft.fillRect(172, 158, 145, 12, 0x0842);
+      tft.setTextSize(1);
+      tft.setTextColor(0x07FF, 0x0842);
+      tft.drawString(timeDateBuf, 172, 165);
     } else if (currentScreen == PAGE_NPK_METER) {
-      char timeBuf[12];
-      sprintf(timeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
+      char timeDateBuf[32];
+      sprintf(timeDateBuf, "%02d:%02d:%02d  %s", clockHour, clockMin, clockSec, getShortDateStr());
+      tft.fillRect(10, 198, 180, 12, TFT_BLACK);
       tft.setTextSize(1);
       tft.setTextColor(0x07FF, TFT_BLACK);
-      tft.drawString(timeBuf, 10, 200);
-      drawThaiTextSm(getThaiDateStr(), 10, 214, TFT_YELLOW, TFT_BLACK);
+      tft.drawString(timeDateBuf, 10, 204);
     }
+
   }
 
   // 4. Periodic Sensor Measurement & NPK Calculation (every 800ms)
