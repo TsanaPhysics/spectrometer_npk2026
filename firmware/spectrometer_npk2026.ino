@@ -230,15 +230,15 @@ void logCalibToSD(const char* nutName, const StandardCurve &sc);
 void logLiquidToSD();
 
 // ============================================================
-// Format Thai Date: e.g. "16 ก.ย. 2569"
+// Format Date with Buddhist Era: e.g. "16 Sep 2569"
 // ============================================================
 const char* getThaiDateStr() {
   static char thaiDateStr[32];
-  const char* thaiMonths[] = {
-    "", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
-    "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+  const char* engMonths[] = {
+    "", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   };
-  const char* mStr = (clockMonth >= 1 && clockMonth <= 12) ? thaiMonths[clockMonth] : "ก.ย.";
+  const char* mStr = (clockMonth >= 1 && clockMonth <= 12) ? engMonths[clockMonth] : "Sep";
   int beYear = (clockYear < 2500) ? (clockYear + 543) : clockYear;
   sprintf(thaiDateStr, "%d %s %d", clockDay, mStr, beYear);
   return thaiDateStr;
@@ -288,26 +288,16 @@ void drawSplashScreen() {
   tft.drawFastHLine(25, 96, 270, 0x07FF);
 
   // 4. Developers & Affiliation Information
-  if (fontLoaded) {
-    safeLoadFont20();
-    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("ผศ.ดร.ชีวะ ทัศนา   ผศ.ดร.จิรภัทร จันทมาลี", 24, 106);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString("Asst. Prof. Dr. Chewa Thassana", 72, 108);
+  tft.drawString("& Asst. Prof. Dr. Jirapat Janthamalee", 50, 122);
 
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.drawString("ผู้พัฒนาระบบ SpecJC +AI", 90, 130);
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString("Developers: SpecJC +AI Analyzer", 66, 140);
 
-    tft.setTextColor(0x07FF, TFT_BLACK);
-    tft.drawString("ภายใต้หน่วย LEQs SciRBRU", 82, 152);
-    safeUnloadFont();
-  } else {
-    tft.setTextSize(1);
-    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("Asst. Prof. Dr. Chewa Thassana & Dr. Jirapat Janthamalee", 14, 110);
-    tft.setTextColor(TFT_WHITE, TFT_BLACK);
-    tft.drawString("Developers of SpecJC +AI Analyzer", 60, 130);
-    tft.setTextColor(0x07FF, TFT_BLACK);
-    tft.drawString("Under LEQs Research Unit, SciRBRU", 62, 150);
-  }
+  tft.setTextColor(0x07FF, TFT_BLACK);
+  tft.drawString("LEQs Research Unit, SciRBRU", 78, 156);
 
   // 5. High-Tech Animated Loading Progress Bar
   tft.drawRoundRect(28, 180, 264, 14, 3, 0x2104);
@@ -405,15 +395,9 @@ void setup() {
       myFile.close();
     }
 
-    // Check for Thai fonts on SD card safely
-    if (SD.exists("/THSarabunPSK30.vlw")) {
-      fontLoaded30 = true;
-      Serial.println("Thai font THSarabunPSK30 found!");
-    }
-    if (SD.exists("/THSarabunPSK20.vlw")) {
-      fontLoaded20 = true;
-      Serial.println("Thai font THSarabunPSK20 found!");
-    }
+    // Disable external VLW font loading to ensure 100% crisp typography without glyph corruption
+    fontLoaded30 = false;
+    fontLoaded20 = false;
 
     // Load saved blank & standard curves if available
     if (loadCalibrationFromSD()) {
@@ -423,7 +407,7 @@ void setup() {
     Serial.println("SD card initialization failed or not inserted!");
     hasSD = false;
   }
-  fontLoaded = (fontLoaded30 || fontLoaded20);
+  fontLoaded = false;
 
   // 5. Draw Futuristic SpecJC +AI Analyzer Boot Splash Screen with credits
   drawSplashScreen();
