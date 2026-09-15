@@ -556,8 +556,8 @@ void drawDashboardPage() {
   drawSpectrometerLogo(10, 8);
 
   // Header Titles (True Thai Typography & Multicolor Brand)
-  drawThaiText("เครื่องสเปกโทรโฟโตมิเตอร์", 64, 24, TFT_YELLOW, 0x0842);
-  drawMulticolorBadge(54, 32, 0x0842, 2);
+  drawThaiText("สเปกโรฟโตมิเตอร์ SpecJC", 68, 24, TFT_YELLOW, 0x0842);
+  drawMulticolorBadge(54, 36, 0x0842, 1);
 
   // Page Indicator Badge
   tft.setTextSize(1);
@@ -573,8 +573,8 @@ void drawDashboardPage() {
   tft.drawRoundRect(6, 64, 150, 134, 4, 0x07FF);
   tft.fillRoundRect(7, 65, 148, 22, 3, 0x10E4);
 
-  // Card 1 Header in Thai
-  drawThaiText("ระบบประมวลผล", 32, 80, TFT_WHITE, 0x10E4);
+  // Card 1 Header in Thai — fit within 148px card width from x=32
+  drawThaiText("ระบบประมวลผล", 18, 80, TFT_WHITE, 0x10E4);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -595,8 +595,8 @@ void drawDashboardPage() {
   tft.drawRoundRect(164, 64, 150, 134, 4, TFT_MAGENTA);
   tft.fillRoundRect(165, 65, 148, 22, 3, 0x2084);
 
-  // Card 2 Header in Thai
-  drawThaiText("อุปกรณ์และเซนเซอร์", 172, 80, TFT_WHITE, 0x2084);
+  // Card 2 Header in Thai — fit within 148px card width from x=165
+  drawThaiText("เซนเซอร์ & SD Card", 168, 80, TFT_WHITE, 0x2084);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -656,8 +656,8 @@ void drawNitrogenPage() {
   tft.fillRect(0, 0, 320, 48, 0x0842);
   drawSpectrometerLogo(8, 4);
 
-  // Header in True Thai Typography
-  drawThaiText("วิเคราะห์ไนโตรเจน (N)", 75, 28, 0x07FF, 0x0842);
+  // Header in True Thai Typography — centered in banner (logo ends ~76px, badge [2/8] at x=270)
+  drawThaiText("วิเคราะห์ไนโตรเจน (N)", 68, 28, 0x07FF, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -727,7 +727,7 @@ void drawPhosphorusPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiText("วิเคราะห์ฟอสฟอรัส (P)", 75, 28, TFT_GREEN, 0x0842);
+  drawThaiText("วิเคราะห์ฟอสฟอรัส (P)", 68, 28, TFT_GREEN, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -818,7 +818,7 @@ void drawPotassiumPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiText("วิเคราะห์โพแทสเซียม (K)", 75, 28, TFT_RED, 0x0842);
+  drawThaiText("วิเคราะห์โพแทสเซียม (K)", 68, 28, TFT_RED, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -888,7 +888,7 @@ void drawSoilPhPage() {
   drawSpectrometerLogo(8, 4);
 
   // Header in True Thai Typography
-  drawThaiText("วิเคราะห์กรด-ด่างดิน (pH)", 72, 28, TFT_YELLOW, 0x0842);
+  drawThaiText("วิเคราะห์กรด-ด่างดิน pH", 68, 28, TFT_YELLOW, 0x0842);
 
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
@@ -965,7 +965,7 @@ void drawNpkStaticLayout() {
   tft.fillScreen(TFT_BLACK);
 
   // Title 1: สรุปธาตุอาหาร NPK และ pH ดิน (Yellow — True Thai Typography)
-  drawThaiText("สรุปธาตุอาหาร NPK & pH ดิน", 35, 26, TFT_YELLOW, TFT_BLACK);
+  drawThaiText("สรุป NPK & pH ดิน", 55, 26, TFT_YELLOW, TFT_BLACK);
 
   // Title 2: SpecJC +AI Analyzer 2026 (White)
   tft.setTextSize(1);
