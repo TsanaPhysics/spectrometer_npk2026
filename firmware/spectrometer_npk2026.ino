@@ -211,6 +211,7 @@ void safeLoadFont20() {
 // Function Prototypes
 void updateLedOutput();
 void setAutoOpticsForScreen(AppScreen screen);
+void drawMulticolorBadge(int x, int y, uint16_t bg);
 void drawLedStatusTag();
 void drawSdStatusTag();
 void drawModelModeBadge();
@@ -373,6 +374,33 @@ void setup() {
 }
 
 // ============================================================
+// Render Bold Multicolor "JC_AI_SciRBRU" Badge
+// ============================================================
+void drawMulticolorBadge(int x, int y, uint16_t bg) {
+  tft.setTextSize(1);
+  struct Seg {
+    const char* str;
+    uint16_t col;
+  };
+  const Seg segs[] = {
+    {"JC",   0x07FF},      // Vibrant Cyan
+    {"_",    TFT_LIGHTGREY},
+    {"AI",   TFT_YELLOW},  // Warm Yellow
+    {"_",    TFT_LIGHTGREY},
+    {"Sci",  TFT_MAGENTA}, // Pink/Magenta
+    {"RBRU", TFT_GREEN}    // Bright Green
+  };
+
+  int curX = x;
+  for (int i = 0; i < 6; i++) {
+    tft.setTextColor(segs[i].col, bg);
+    tft.drawString(segs[i].str, curX, y);
+    tft.drawString(segs[i].str, curX + 1, y); // 1px horizontal offset for bold
+    curX += strlen(segs[i].str) * 6;
+  }
+}
+
+// ============================================================
 // Draw Embedded Optical Spectrometer Logo
 // ============================================================
 void drawSpectrometerLogo(int x, int y) {
@@ -445,9 +473,7 @@ void drawDashboardPage() {
     int thaiW = tft.textWidth("หน่วยวิจัยเกษตรดิจิทัล");
     safeUnloadFont();
 
-    tft.setTextSize(1);
-    tft.setTextColor(TFT_WHITE, 0x0842);
-    tft.drawString("JC_SciRBRU", 78 + thaiW + 6, 36);
+    drawMulticolorBadge(78 + thaiW + 6, 36, 0x0842);
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, 0x0842);
@@ -455,7 +481,8 @@ void drawDashboardPage() {
 
     tft.setTextSize(1);
     tft.setTextColor(0x07FF, 0x0842);
-    tft.drawString("AgriDigital - JC_SciRBRU", 80, 34);
+    tft.drawString("AgriDigital - ", 80, 34);
+    drawMulticolorBadge(160, 34, 0x0842);
   }
 
   // Page Indicator Badge
@@ -606,7 +633,13 @@ void drawNitrogenPage() {
 
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("mg/kg N", 195, 110);
+  tft.drawString("mg/kg", 170, 110);
+
+  // Large Bold Pink N
+  tft.setTextSize(4);
+  tft.setTextColor(TFT_MAGENTA, 0x0842); // ชมพู Pink/Magenta
+  tft.drawString("N", 248, 96);
+  tft.drawString("N", 249, 96); // Bold offset
 
   // Tier Status & Diagnostic Bar
   tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
@@ -699,7 +732,13 @@ void drawPhosphorusPage() {
 
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("mg/kg P", 195, 110);
+  tft.drawString("mg/kg", 170, 110);
+
+  // Large Bold Blue P
+  tft.setTextSize(4);
+  tft.setTextColor(0x34DF, 0x0842); // น้ำเงิน Vivid Blue
+  tft.drawString("P", 248, 96);
+  tft.drawString("P", 249, 96); // Bold offset
 
   // Progress / Range Bar (0 - 50 mg/kg)
   tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
@@ -792,7 +831,13 @@ void drawPotassiumPage() {
 
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("mg/kg K", 195, 110);
+  tft.drawString("mg/kg", 170, 110);
+
+  // Large Bold Red K
+  tft.setTextSize(4);
+  tft.setTextColor(TFT_RED, 0x0842); // แดง Red
+  tft.drawString("K", 248, 96);
+  tft.drawString("K", 249, 96); // Bold offset
 
   // Progress Bar (0 - 250 mg/kg)
   tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
@@ -964,7 +1009,7 @@ void drawNpkStaticLayout() {
   // Title 2: NPK Level Meter 2026 (White)
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("JC_SciRBRU Digital Agriculture 2026", 15, 36);
+  tft.drawString("JC_AI_SciRBRU Digital Agriculture 2026", 15, 36);
 
   // Page Indicator Badge
   tft.setTextSize(1);
@@ -1015,7 +1060,7 @@ void drawNpkStaticLayout() {
   sprintf(initTimeBuf, "%02d:%02d:%02d", clockHour, clockMin, clockSec);
   tft.drawString(initTimeBuf, 10, 218);
 
-  // Footer Middle: ชีวะ ทัศนา | JC_SciRBRU
+  // Footer Middle: ชีวะ ทัศนา | JC_AI_SciRBRU (Multicolor Bold)
   if (fontLoaded) {
     safeLoadFont20();
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
@@ -1026,9 +1071,7 @@ void drawNpkStaticLayout() {
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.drawString("Chewa Thassana", 112, 202);
   }
-  tft.setTextSize(1);
-  tft.setTextColor(TFT_GREEN, TFT_BLACK);
-  tft.drawString("JC_SciRBRU", 120, 218);
+  drawMulticolorBadge(105, 218, TFT_BLACK);
 
   // Model Badge & Indicators
   drawModelModeBadge();
