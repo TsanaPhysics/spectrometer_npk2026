@@ -20,10 +20,10 @@
 #define P_POLY_C    (-0.006035f)
 
 static inline float predict_phosphorus_option1_quadratic(float a_red) {
-    // C = (-b - sqrt(b^2 - 4*a*(c - A))) / (2*a)
+    // C = (-b + sqrt(b^2 - 4*a*(c - A))) / (2*a)
     float disc = (P_POLY_B * P_POLY_B) - 4.0f * P_POLY_A * (P_POLY_C - a_red);
     if (disc < 0.0f) disc = 0.0f;
-    float c = (-P_POLY_B - sqrtf(disc)) / (2.0f * P_POLY_A);
+    float c = (-P_POLY_B + sqrtf(disc)) / (2.0f * P_POLY_A);
     if (c < 1.0f) c = 1.0f;
     if (c > 10.0f) c = 10.0f;
     return c;
