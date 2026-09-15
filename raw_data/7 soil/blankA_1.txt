@@ -1,0 +1,3 @@
+blankA_1  :  Time_24ms. Gain_1x
+Light Source Color - OFF
+N,P,K

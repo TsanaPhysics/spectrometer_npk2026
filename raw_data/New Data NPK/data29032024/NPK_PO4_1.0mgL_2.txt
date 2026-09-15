@@ -1,0 +1,9 @@
+NPK_PO4_1.0mgL_2  :  ปริมาณ 1.0 มิลลิกรัมต่อลิตร...NPK_RGBGLOVE_Auto_TCS
+Light Source Color - OFF
+N,P,K
+0,1,1,0
+0,1,1,0
+0,1,1,0
+0,1,1,0
+0,1,1,0
+0,1,1,0

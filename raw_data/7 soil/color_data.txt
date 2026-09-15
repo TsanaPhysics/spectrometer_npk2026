@@ -1,0 +1,7 @@
+Light Source Color - GREEN	 , Time to Change Color
+Light Source Color - GREEN	 , Time to Change Color
+Light Source Color - RED	 , Time to Change Color
+Light Source Color - RED	 , Time to Change Color
+Light Source Color - RED	 , Time to Change Color
+Light Source Color - RED	 , Time to Change Color
+Light Source Color - RED	 , Time to Change Color

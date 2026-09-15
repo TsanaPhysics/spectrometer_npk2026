@@ -15,3 +15,14 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+# Python & Matplotlib Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+data/.matplotlib_cache/
+research_papers/build/
+firmware/build/
+*.bin
+*.elf

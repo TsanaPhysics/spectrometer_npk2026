@@ -1,0 +1,4 @@
+npk_PO4_10mgL_0  :  ปริมาณ 10 มิลลิกรัมต่อลิตร  npk_detector_TSCRGB2024 
+Light Source Color - OFF
+N,P,K
+0, 0,0,0

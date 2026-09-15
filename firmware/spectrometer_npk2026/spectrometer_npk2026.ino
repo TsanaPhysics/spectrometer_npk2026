@@ -11,6 +11,9 @@
 #include "Spectrum_Engine.h"
 #include "Liquid_Engine.h"
 #include "WiFi_Server_Engine.h"
+#include "npk_calibration_matrices.h"
+#include "phosphorus_q1_models.h"
+#include "soil_ph_model.h"
 
 // ============================================================
 // Pin Definitions
@@ -34,15 +37,18 @@ Adafruit_NeoPixel strip(NUM_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 #define BTN_JOY_RIGHT  WIO_5S_RIGHT  // โยกขวา  -> หน้าจอถัดไป
 
 // ============================================================
-// State Machine & Screen Definitions
+// State Machine & Screen Definitions (8 Separated Specialized Screens)
 // ============================================================
 enum AppScreen {
-  PAGE_DASHBOARD = 0,
-  PAGE_NPK_METER = 1,
-  PAGE_SPECTRUM  = 2,
-  PAGE_CALIBRATE = 3,
-  PAGE_LIQUID    = 4,
-  NUM_PAGES      = 5
+  PAGE_DASHBOARD = 0, // 1/8 Overview Dashboard
+  PAGE_NITROGEN  = 1, // 2/8 Dedicated Nitrogen Assay (Indophenol Blue 465/525nm + 3-Tier)
+  PAGE_PHOSPHORUS= 2, // 3/8 Dedicated Phosphorus Assay (Molybdenum Blue 625nm + Q1 Poly)
+  PAGE_POTASSIUM = 3, // 4/8 Dedicated Potassium Assay (Turbidimetry 625nm)
+  PAGE_SOIL_PH   = 4, // 5/8 Dedicated Soil pH Assay (Ratiometric Green/Red 525/625nm)
+  PAGE_NPK_METER = 5, // 6/8 NPK & pH Summary Overview Meter
+  PAGE_SPECTRUM  = 6, // 7/8 5-Band Real-Time Spectral Scan
+  PAGE_CALIBRATE = 7, // 8/8 Multi-Point Field In-Situ Standard Curve Wizard
+  NUM_PAGES      = 8
 };
 
 enum ModelMode {
@@ -53,7 +59,7 @@ enum ModelMode {
 
 enum CalibNutrient {
   CALIB_N = 0, // Nitrogen (465 nm Blue)
-  CALIB_P = 1, // Phosphorus (525 nm Green)
+  CALIB_P = 1, // Phosphorus (625 nm Red / Molybdenum Blue)
   CALIB_K = 2  // Potassium (625 nm Red)
 };
 
@@ -137,15 +143,19 @@ float calcK_Poly(float rp) {
 }
 
 WiFiServerEngine wifiEngine;
-float currentN = 45.2f, currentP = 22.8f, currentK = 128.5f;
+float currentN = 45.2f, currentP = 22.8f, currentK = 128.5f, currentPH = 6.25f;
 
 // Function Prototypes
 void updateLedOutput();
 void drawLedStatusTag();
 void drawSdStatusTag();
 void drawModelModeBadge();
-void drawNpkStaticLayout();
 void drawDashboardPage();
+void drawNitrogenPage();
+void drawPhosphorusPage();
+void drawPotassiumPage();
+void drawSoilPhPage();
+void drawNpkStaticLayout();
 void drawActiveCalibrationScreen();
 void logSpectrumToSD();
 void logCalibToSD(const char* nutName, const StandardCurve &sc);
@@ -335,7 +345,7 @@ void drawDashboardPage() {
   // Page Indicator Badge
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, 0x0842);
-  tft.drawString("[1/5]", 285, 10);
+  tft.drawString("[1/8]", 285, 10);
 
   // Double Divider Lines
   tft.drawFastHLine(0, 56, 320, TFT_MAGENTA);
@@ -452,7 +462,314 @@ void drawDashboardPage() {
 
 
 // ============================================================
-// Page 1: NPK Level Meter 1.02 (Exact Original Layout)
+// Page 1: Dedicated Nitrogen Assay (465/525 nm, 3-Tier)
+// ============================================================
+void drawNitrogenPage() {
+  tft.fillScreen(TFT_BLACK);
+
+  // Top Banner
+  tft.fillRect(0, 0, 320, 48, 0x0842);
+  drawSpectrometerLogo(8, 4);
+
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK30", SD);
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("วิเคราะห์ไนโตรเจน (N Mode)", 75, 8);
+    tft.unloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("NITROGEN ASSAY", 75, 12);
+  }
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("[2/8]", 285, 12);
+
+  tft.drawFastHLine(0, 48, 320, 0x07FF);
+  tft.drawFastHLine(0, 50, 320, TFT_MAGENTA);
+
+  // Main Measurement Card
+  tft.fillRoundRect(8, 56, 304, 140, 6, 0x0842);
+  tft.drawRoundRect(8, 56, 304, 140, 6, 0x07FF);
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("REAGENT: Indophenol Blue Complex", 18, 64);
+  tft.drawString("OPTICAL BAND: 465nm (Blue) / 525nm (Green)", 18, 76);
+
+  // Large Number Display
+  char valStr[16];
+  sprintf(valStr, "%6.2f", currentN);
+  tft.setTextSize(4);
+  tft.setTextColor(0x07FF, 0x0842);
+  tft.drawString(valStr, 20, 96);
+
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("mg/kg N", 195, 110);
+
+  // Tier Status & Diagnostic Bar
+  tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
+  int barW = (int)constrain((currentN / 100.0f) * 278.0f, 2.0f, 278.0f);
+  tft.fillRect(19, 143, barW, 8, 0x07FF);
+
+  tft.setTextSize(1);
+  if (currentN < 20.0f) {
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("STATUS: LOW N (Tier 1: High Sensitivity 465nm)", 18, 160);
+    tft.drawString("REC: เพิ่มปุ๋ยไนโตรเจน เช่น ยูเรีย 46-0-0 เพื่อเร่งใบ", 18, 175);
+  } else if (currentN <= 60.0f) {
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("STATUS: OPTIMAL N (Tier 2: Agronomic Range)", 18, 160);
+    tft.drawString("REC: ระดับไนโตรเจนสมบูรณ์ เหมาะสมต่อการเจริญเติบโต", 18, 175);
+  } else {
+    tft.setTextColor(TFT_RED, 0x0842);
+    tft.drawString("STATUS: HIGH / EXCESS N (Tier 3: Green 525nm)", 18, 160);
+    tft.drawString("REC: ชะลอการใส่ปุ๋ย N ป้องกันการเฝือใบและเสี่ยงโรคราก", 18, 175);
+  }
+
+  // Footer Help
+  tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString("[< / >] Prev/Next Mode  |  [DOWN] Recalculate Assay", 10, 214);
+}
+
+// ============================================================
+// Page 2: Dedicated Phosphorus Assay (625 nm, Q1 Poly)
+// ============================================================
+void drawPhosphorusPage() {
+  tft.fillScreen(TFT_BLACK);
+
+  // Top Banner
+  tft.fillRect(0, 0, 320, 48, 0x0842);
+  drawSpectrometerLogo(8, 4);
+
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK30", SD);
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("วิเคราะห์ฟอสฟอรัส (P Mode)", 75, 8);
+    tft.unloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("PHOSPHORUS ASSAY", 75, 12);
+  }
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("[3/8]", 285, 12);
+
+  tft.drawFastHLine(0, 48, 320, TFT_GREEN);
+  tft.drawFastHLine(0, 50, 320, TFT_MAGENTA);
+
+  // Main Measurement Card
+  tft.fillRoundRect(8, 56, 304, 140, 6, 0x0842);
+  tft.drawRoundRect(8, 56, 304, 140, 6, TFT_GREEN);
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("REAGENT: Molybdenum Blue Complex", 18, 64);
+  tft.drawString("MODEL: Q1 Quadratic Root Inversion (R2 = 0.9925)", 18, 76);
+
+  // Large Number Display
+  char valStr[16];
+  sprintf(valStr, "%6.2f", currentP);
+  tft.setTextSize(4);
+  tft.setTextColor(TFT_GREEN, 0x0842);
+  tft.drawString(valStr, 20, 96);
+
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("mg/kg P", 195, 110);
+
+  // Progress / Range Bar (0 - 50 mg/kg)
+  tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
+  int barW = (int)constrain((currentP / 50.0f) * 278.0f, 2.0f, 278.0f);
+  tft.fillRect(19, 143, barW, 8, TFT_GREEN);
+
+  tft.setTextSize(1);
+  if (currentP < 15.0f) {
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("STATUS: LOW P (Bray II < 15 mg/kg)", 18, 160);
+    tft.drawString("REC: ใส่ปุ๋ยฟอสเฟต 18-46-0 หรือร็อคฟอสเฟตบำรุงราก", 18, 175);
+  } else if (currentP <= 35.0f) {
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("STATUS: SUFFICIENT P (15 - 35 mg/kg)", 18, 160);
+    tft.drawString("REC: ฟอสฟอรัสพร้อมใช้เหมาะสม ช่วยการแตกรากและตาดอก", 18, 175);
+  } else {
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("STATUS: HIGH ACCUMULATION (> 35 mg/kg)", 18, 160);
+    tft.drawString("REC: งดปุ๋ยฟอสฟอรัส ป้องกันการตรึงธาตุสังกะสีและเหล็ก", 18, 175);
+  }
+
+  // Footer Help
+  tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString("[< / >] Prev/Next Mode  |  [DOWN] Recalculate Assay", 10, 214);
+}
+
+// ============================================================
+// Page 3: Dedicated Potassium Assay (Turbidimetry 625 nm)
+// ============================================================
+void drawPotassiumPage() {
+  tft.fillScreen(TFT_BLACK);
+
+  // Top Banner
+  tft.fillRect(0, 0, 320, 48, 0x0842);
+  drawSpectrometerLogo(8, 4);
+
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK30", SD);
+    tft.setTextColor(TFT_RED, 0x0842);
+    tft.drawString("วิเคราะห์โพแทสเซียม (K Mode)", 75, 8);
+    tft.unloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_RED, 0x0842);
+    tft.drawString("POTASSIUM ASSAY", 75, 12);
+  }
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("[4/8]", 285, 12);
+
+  tft.drawFastHLine(0, 48, 320, TFT_RED);
+  tft.drawFastHLine(0, 50, 320, TFT_MAGENTA);
+
+  // Main Measurement Card
+  tft.fillRoundRect(8, 56, 304, 140, 6, 0x0842);
+  tft.drawRoundRect(8, 56, 304, 140, 6, TFT_RED);
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("METHOD: Sodium Tetraphenylborate Turbidimetry", 18, 64);
+  tft.drawString("OPTICS: 625nm Red Scattering / Baseline Compensated", 18, 76);
+
+  // Large Number Display
+  char valStr[16];
+  sprintf(valStr, "%6.2f", currentK);
+  tft.setTextSize(4);
+  tft.setTextColor(TFT_RED, 0x0842);
+  tft.drawString(valStr, 20, 96);
+
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("mg/kg K", 195, 110);
+
+  // Progress Bar (0 - 250 mg/kg)
+  tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
+  int barW = (int)constrain((currentK / 250.0f) * 278.0f, 2.0f, 278.0f);
+  tft.fillRect(19, 143, barW, 8, TFT_RED);
+
+  tft.setTextSize(1);
+  if (currentK < 80.0f) {
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("STATUS: LOW POTASSIUM (< 80 mg/kg)", 18, 160);
+    tft.drawString("REC: เพิ่มปุ๋ยโพแทสเซียมคลอไรด์ 0-0-60 หรือ 0-0-50", 18, 175);
+  } else if (currentK <= 160.0f) {
+    tft.setTextColor(TFT_GREEN, 0x0842);
+    tft.drawString("STATUS: OPTIMAL FOR FRUITING (80 - 160 mg/kg)", 18, 160);
+    tft.drawString("REC: โพแทสเซียมพอเหมาะ เพิ่มคุณภาพเนื้อทุเรียนและความหวาน", 18, 175);
+  } else {
+    tft.setTextColor(0x07FF, 0x0842);
+    tft.drawString("STATUS: HIGH CONCENTRATION (> 160 mg/kg)", 18, 160);
+    tft.drawString("REC: ปริมาณ K สูง ระวังการยับยั้งการดูดซึมแคลเซียมและแมกนีเซียม", 18, 175);
+  }
+
+  // Footer Help
+  tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString("[< / >] Prev/Next Mode  |  [DOWN] Recalculate Assay", 10, 214);
+}
+
+// ============================================================
+// Page 4: Dedicated Soil pH Assay (Ratiometric Green/Red)
+// ============================================================
+void drawSoilPhPage() {
+  tft.fillScreen(TFT_BLACK);
+
+  // Top Banner
+  tft.fillRect(0, 0, 320, 48, 0x0842);
+  drawSpectrometerLogo(8, 4);
+
+  if (fontLoaded) {
+    tft.loadFont("THSarabunPSK30", SD);
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("วิเคราะห์ความเป็นกรด-ด่างดิน (Soil pH)", 70, 8);
+    tft.unloadFont();
+  } else {
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_YELLOW, 0x0842);
+    tft.drawString("SOIL pH ASSAY", 75, 12);
+  }
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("[5/8]", 285, 12);
+
+  tft.drawFastHLine(0, 48, 320, TFT_YELLOW);
+  tft.drawFastHLine(0, 50, 320, TFT_MAGENTA);
+
+  // Main Measurement Card
+  tft.fillRoundRect(8, 56, 304, 140, 6, 0x0842);
+  tft.drawRoundRect(8, 56, 304, 140, 6, TFT_YELLOW);
+
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_LIGHTGREY, 0x0842);
+  tft.drawString("INDICATOR: Universal / Bromothymol Blue Dye", 18, 64);
+  tft.drawString("MODEL: Henderson-Hasselbalch Ratio (A525/A625)", 18, 76);
+
+  // Large Number Display
+  char valStr[16];
+  sprintf(valStr, "%5.2f", currentPH);
+  tft.setTextSize(4);
+
+  SoilPhClass phClass = classify_soil_ph(currentPH);
+  uint16_t phColor = (phClass == PH_OPTIMAL_DURIAN) ? TFT_GREEN :
+                     ((phClass == PH_STRONGLY_ACIDIC) ? TFT_RED : TFT_YELLOW);
+
+  tft.setTextColor(phColor, 0x0842);
+  tft.drawString(valStr, 25, 96);
+
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_WHITE, 0x0842);
+  tft.drawString("pH Level", 185, 110);
+
+  // pH Scale Visual Bar (3.5 - 8.5)
+  tft.drawRect(18, 142, 280, 10, TFT_DARKGREY);
+  float normPh = (currentPH - 3.5f) / (8.5f - 3.5f);
+  int barW = (int)constrain(normPh * 278.0f, 2.0f, 278.0f);
+  tft.fillRect(19, 143, barW, 8, phColor);
+
+  tft.setTextSize(1);
+  tft.setTextColor(phColor, 0x0842);
+  char classBuf[64];
+  sprintf(classBuf, "DIAGNOSIS: %s", get_soil_ph_desc(phClass));
+  tft.drawString(classBuf, 18, 160);
+
+  if (phClass == PH_STRONGLY_ACIDIC) {
+    tft.drawString("REC: ดินกรดจัดมาก ใส่ปูนโดโลไมต์/ปูนขาว 100-200 กก./ไร่", 18, 175);
+  } else if (phClass == PH_MODERATELY_ACIDIC) {
+    tft.drawString("REC: ดินกรดปานกลาง ใส่ปูนโดโลไมต์ปรับสภาพ 50 กก./ไร่", 18, 175);
+  } else if (phClass == PH_OPTIMAL_DURIAN) {
+    tft.drawString("REC: สภาพกรด-ด่างสมบูรณ์แบบ ทุเรียนดูดซึม N-P-K ได้สูงสุด", 18, 175);
+  } else {
+    tft.drawString("REC: ดินด่าง เติมยิปซัมเกษตรหรืออินทรียวัตถุเพื่อลดด่าง", 18, 175);
+  }
+
+  // Footer Help
+  tft.drawFastHLine(0, 204, 320, TFT_DARKGREY);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString("[< / >] Prev/Next Mode  |  [DOWN] Calibrate Buffer", 10, 214);
+}
+
+// ============================================================
+// Page 5: Soil N-P-K & pH Summary Overview
 // ============================================================
 void drawNpkStaticLayout() {
   tft.fillScreen(TFT_BLACK);
@@ -461,78 +778,55 @@ void drawNpkStaticLayout() {
   if (fontLoaded) {
     tft.loadFont("THSarabunPSK30", SD);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("ปริมาณธาตุอาหารหลักในดิน", 45, 10);
+    tft.drawString("สรุปธาตุอาหารหลักและ pH ดิน", 35, 8);
     tft.unloadFont();
   } else {
     tft.setTextSize(2);
     tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-    tft.drawString("Soil NPK Nutrients", 50, 12);
+    tft.drawString("Soil NPK & pH Meter", 35, 10);
   }
 
-  // Title 2: NPK Level Meter 1.02 (White)
-  tft.setTextSize(2);
+  // Title 2: NPK Level Meter 2026 (White)
+  tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("NPK Level Meter 1.02", 15, 36);
+  tft.drawString("AI4D AgriPhysics Multi-Assay 2026", 15, 36);
 
   // Page Indicator Badge
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("[2/5]", 285, 12);
+  tft.drawString("[6/8]", 285, 10);
 
   // Upper Double Separator Line (Magenta + Cyan)
-  tft.drawFastHLine(5, 62, 310, TFT_MAGENTA);
-  tft.drawFastHLine(5, 64, 310, 0x07FF);
+  tft.drawFastHLine(5, 52, 310, TFT_MAGENTA);
+  tft.drawFastHLine(5, 54, 310, 0x07FF);
 
-  // Row 1: ไนโตรเจน N :
-  if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
-    tft.setTextColor(TFT_BLUE, TFT_BLACK);
-    tft.drawString("ไนโตรเจน", 8, 80);
-    tft.unloadFont();
-  } else {
-    tft.setTextSize(2);
-    tft.setTextColor(0x07FF, TFT_BLACK);
-    tft.drawString("Nitrogen", 8, 80);
-  }
+  // Row 1: ไนโตรเจน N
   tft.setTextSize(2);
   tft.setTextColor(0x07FF, TFT_BLACK);
-  tft.drawString("N :", 112, 80);
+  tft.drawString("Nitrogen  N :", 8, 62);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("mg/kg", 245, 80);
+  tft.drawString("mg/kg", 245, 62);
 
-  // Row 2: ฟอสฟอรัส P :
-  if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.drawString("ฟอสฟอรัส", 8, 120);
-    tft.unloadFont();
-  } else {
-    tft.setTextSize(2);
-    tft.setTextColor(TFT_GREEN, TFT_BLACK);
-    tft.drawString("Phosphorus", 8, 120);
-  }
+  // Row 2: ฟอสฟอรัส P
   tft.setTextSize(2);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
-  tft.drawString("P :", 112, 120);
+  tft.drawString("Phosphor  P :", 8, 96);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("mg/kg", 245, 120);
+  tft.drawString("mg/kg", 245, 96);
 
-  // Row 3: โพแทสเซียม K :
-  if (fontLoaded) {
-    tft.loadFont("THSarabunPSK30", SD);
-    tft.setTextColor(TFT_RED, TFT_BLACK);
-    tft.drawString("โพแทสเซียม", 8, 160);
-    tft.unloadFont();
-  } else {
-    tft.setTextSize(2);
-    tft.setTextColor(TFT_RED, TFT_BLACK);
-    tft.drawString("Potassium", 8, 160);
-  }
+  // Row 3: โพแทสเซียม K
   tft.setTextSize(2);
   tft.setTextColor(TFT_RED, TFT_BLACK);
-  tft.drawString("K :", 112, 160);
+  tft.drawString("Potassium K :", 8, 130);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("mg/kg", 245, 160);
+  tft.drawString("mg/kg", 245, 130);
+
+  // Row 4: ความเป็นกรด-ด่างดิน Soil pH
+  tft.setTextSize(2);
+  tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+  tft.drawString("Soil pH     :", 8, 164);
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString("pH", 245, 164);
 
   // Lower Double Separator Line (LightGrey + Magenta)
   tft.drawFastHLine(5, 192, 310, TFT_LIGHTGREY);
@@ -767,7 +1061,7 @@ void loop() {
       updateLedOutput();
 
       int bandIdx = (activeCalibNutrient == CALIB_N) ? 0 :
-                    ((activeCalibNutrient == CALIB_P) ? 2 : 4);
+                    ((activeCalibNutrient == CALIB_P) ? 4 : 4); // Both P (Molybdenum Blue) and K absorb at Red (band 4: 625nm), N absorbs at Blue (band 0: 465nm)
 
       // Record absorbance for current step
       targetCurve->absorbances[targetCurve->currentStep] = sweepRes.absorbance[bandIdx];
@@ -782,13 +1076,6 @@ void loop() {
       logCalibToSD(nName, *targetCurve);
 
       drawActiveCalibrationScreen();
-    } else if (currentScreen == PAGE_LIQUID) {
-      // Execute Liquid Optics Multi-Wavelength Analysis
-      drawLiquidOpticsPage(tft, currentLiquidResult, true, fontLoaded);
-      analyzeLiquidOptics(strip, tcs, calibState, currentLiquidResult, hasTCS);
-      drawLiquidOpticsPage(tft, currentLiquidResult, false, fontLoaded);
-      logLiquidToSD();
-      updateLedOutput();
     }
     delay(150);
   }
@@ -836,17 +1123,13 @@ void loop() {
 
   // 1.5 Joystick Press (Context Sensitive)
   if (btnJoyPress == LOW && lastBtnJoyPress == HIGH) {
-    if (currentScreen == PAGE_CALIBRATE || currentScreen == PAGE_LIQUID) {
+    if (currentScreen == PAGE_CALIBRATE) {
       // Capture & Save Zero Blanking on all 5 channels
       tft.setTextColor(TFT_YELLOW, TFT_BLACK);
       tft.drawString("MEASURING WATER BLANK...", 16, 180);
       captureBlankReference(strip, tcs, calibState, hasTCS);
       updateLedOutput();
-      if (currentScreen == PAGE_CALIBRATE) {
-        drawActiveCalibrationScreen();
-      } else {
-        drawLiquidOpticsPage(tft, currentLiquidResult, false, fontLoaded);
-      }
+      drawActiveCalibrationScreen();
     } else {
       // Toggle White LED in other screens
       bool allOn = (ledRedState && ledGreenState && ledBlueState);
@@ -876,6 +1159,18 @@ void loop() {
       case PAGE_DASHBOARD:
         drawDashboardPage();
         break;
+      case PAGE_NITROGEN:
+        drawNitrogenPage();
+        break;
+      case PAGE_PHOSPHORUS:
+        drawPhosphorusPage();
+        break;
+      case PAGE_POTASSIUM:
+        drawPotassiumPage();
+        break;
+      case PAGE_SOIL_PH:
+        drawSoilPhPage();
+        break;
       case PAGE_NPK_METER:
         drawNpkStaticLayout();
         break;
@@ -884,9 +1179,6 @@ void loop() {
         break;
       case PAGE_CALIBRATE:
         drawActiveCalibrationScreen();
-        break;
-      case PAGE_LIQUID:
-        drawLiquidOpticsPage(tft, currentLiquidResult, false, fontLoaded);
         break;
     }
   }
@@ -952,7 +1244,7 @@ void loop() {
       valP = calcP_Poly(gg);
       valK = calcK_Poly(rr);
     } else {
-      // 3. In-Situ Standard Curve Calibration (C = (A - c) / m)
+      // 3. 2026 SOTA 3-Tier Multi-Wavelength Optical Calibration Engine
       float I_b_corr = max(1.0f, (float)b - calibState.darkCurrent[0]);
       float I_g_corr = max(1.0f, (float)g - calibState.darkCurrent[2]);
       float I_r_corr = max(1.0f, (float)r - calibState.darkCurrent[4]);
@@ -961,31 +1253,95 @@ void loop() {
       float I_g_blank = max(1.0f, calibState.blankIntensity[2] - calibState.darkCurrent[2]);
       float I_r_blank = max(1.0f, calibState.blankIntensity[4] - calibState.darkCurrent[4]);
 
-      float A_blue  = -log10f(constrain(I_b_corr / I_b_blank, 0.001f, 1.50f));
-      float A_green = -log10f(constrain(I_g_corr / I_g_blank, 0.001f, 1.50f));
-      float A_red   = -log10f(constrain(I_r_corr / I_r_blank, 0.001f, 1.50f));
+      float A_blue  = -log10f(constrain(I_b_corr / I_b_blank, 0.0001f, 1.50f));
+      float A_green = -log10f(constrain(I_g_corr / I_g_blank, 0.0001f, 1.50f));
+      float A_red   = -log10f(constrain(I_r_corr / I_r_blank, 0.0001f, 1.50f));
 
-      valN = calculateConcentration_SC(A_blue, curveN);
-      valP = calculateConcentration_SC(A_green, curveP);
-      valK = calculateConcentration_SC(A_red, curveK);
+      // Nitrogen (Paper 2): Use in-situ curve if calibrated, otherwise auto 3-tier (0.1-100 mg/L)
+      if (curveN.isFitted) {
+        valN = calculateConcentration_SC(A_blue, curveN);
+      } else {
+        valN = predict_nitrogen_autorun(A_blue, A_green);
+      }
+
+      // Phosphorus (Paper 1): Use in-situ curve on Red channel or 2026 Q1 Quadratic Inversion (R2 = 0.9925)
+      if (curveP.isFitted) {
+        valP = calculateConcentration_SC(A_red, curveP);
+      } else {
+        valP = predict_phosphorus_autorun(A_red);
+      }
+
+      // Potassium: Red channel standard curve or polynomial
+      if (curveK.isFitted) {
+        valK = calculateConcentration_SC(A_red, curveK);
+      } else {
+        valK = calcK_Poly(rr);
+      }
     }
 
-    // Update NPK Screen Display
+    // Soil pH Optical Ratiometric Model (Henderson-Hasselbalch A525/A625)
+    float I_b_corr = max(1.0f, (float)b - calibState.darkCurrent[0]);
+    float I_g_corr = max(1.0f, (float)g - calibState.darkCurrent[2]);
+    float I_r_corr = max(1.0f, (float)r - calibState.darkCurrent[4]);
+
+    float I_b_blank = max(1.0f, calibState.blankIntensity[0] - calibState.darkCurrent[0]);
+    float I_g_blank = max(1.0f, calibState.blankIntensity[2] - calibState.darkCurrent[2]);
+    float I_r_blank = max(1.0f, calibState.blankIntensity[4] - calibState.darkCurrent[4]);
+
+    float A_b_ph  = -log10f(constrain(I_b_corr / I_b_blank, 0.0001f, 1.50f));
+    float A_g_ph  = -log10f(constrain(I_g_corr / I_g_blank, 0.0001f, 1.50f));
+    float A_r_ph  = -log10f(constrain(I_r_corr / I_r_blank, 0.0001f, 1.50f));
+
+    float valPH = predict_soil_ph_optical(A_r_ph, A_g_ph, A_b_ph);
+
+    currentN  = valN;
+    currentP  = valP;
+    currentK  = valK;
+    currentPH = valPH;
+
+    // Update Screen Display Depending on Current Active Page
+    char valBuf[16];
     if (currentScreen == PAGE_NPK_METER) {
       tft.setTextSize(2);
-      char valBuf[16];
 
       sprintf(valBuf, "%6.2f", valN);
       tft.setTextColor(0x07FF, TFT_BLACK);
-      tft.drawString(valBuf, 150, 80);
+      tft.drawString(valBuf, 150, 62);
 
       sprintf(valBuf, "%6.2f", valP);
       tft.setTextColor(TFT_GREEN, TFT_BLACK);
-      tft.drawString(valBuf, 150, 120);
+      tft.drawString(valBuf, 150, 96);
 
       sprintf(valBuf, "%6.2f", valK);
       tft.setTextColor(TFT_RED, TFT_BLACK);
-      tft.drawString(valBuf, 150, 160);
+      tft.drawString(valBuf, 150, 130);
+
+      sprintf(valBuf, "%6.2f", valPH);
+      tft.setTextColor(TFT_YELLOW, TFT_BLACK);
+      tft.drawString(valBuf, 150, 164);
+    } else if (currentScreen == PAGE_NITROGEN) {
+      sprintf(valBuf, "%6.2f", valN);
+      tft.setTextSize(4);
+      tft.setTextColor(0x07FF, 0x0842);
+      tft.drawString(valBuf, 20, 96);
+    } else if (currentScreen == PAGE_PHOSPHORUS) {
+      sprintf(valBuf, "%6.2f", valP);
+      tft.setTextSize(4);
+      tft.setTextColor(TFT_GREEN, 0x0842);
+      tft.drawString(valBuf, 20, 96);
+    } else if (currentScreen == PAGE_POTASSIUM) {
+      sprintf(valBuf, "%6.2f", valK);
+      tft.setTextSize(4);
+      tft.setTextColor(TFT_RED, 0x0842);
+      tft.drawString(valBuf, 20, 96);
+    } else if (currentScreen == PAGE_SOIL_PH) {
+      sprintf(valBuf, "%5.2f", valPH);
+      tft.setTextSize(4);
+      SoilPhClass phCls = classify_soil_ph(valPH);
+      uint16_t phCol = (phCls == PH_OPTIMAL_DURIAN) ? TFT_GREEN :
+                       ((phCls == PH_STRONGLY_ACIDIC) ? TFT_RED : TFT_YELLOW);
+      tft.setTextColor(phCol, 0x0842);
+      tft.drawString(valBuf, 25, 96);
     }
 
     // Auto-detect SD card if inserted while running
@@ -999,7 +1355,7 @@ void loop() {
       }
     }
 
-    // Save NPK data to SD Card
+    // Save NPK & Soil pH data to SD Card
     if (hasSD) {
       myFile = SD.open("NPK.csv", FILE_APPEND);
       if (myFile) {
@@ -1014,16 +1370,13 @@ void loop() {
         myFile.print(valN, 2); myFile.print(",");
         myFile.print(valP, 2); myFile.print(",");
         myFile.print(valK, 2); myFile.print(",");
+        myFile.print(valPH, 2); myFile.print(",");
         const char* mStr = (currentModel == MODEL_TINYML) ? "TinyML" :
                            ((currentModel == MODEL_POLY) ? "Poly" : "StdCurve");
         myFile.println(mStr);
         myFile.close();
       }
     }
-
-    currentN = valN;
-    currentP = valP;
-    currentK = valK;
   }
 
   // 5. Handle Wi-Fi REST API Clients & Remote Commands
@@ -1031,6 +1384,7 @@ void loop() {
   telem.n = currentN;
   telem.p = currentP;
   telem.k = currentK;
+  telem.soil_ph = currentPH;
   telem.ref_n = currentLiquidResult.refractiveIndex_n;
   telem.density = currentLiquidResult.density_g_cm3;
   telem.brix = currentLiquidResult.brix_deg;
@@ -1038,7 +1392,7 @@ void loop() {
   strncpy(telem.clarity, currentLiquidResult.clarity, sizeof(telem.clarity));
   for (int i = 0; i < 5; i++) telem.absorbance[i] = currentSpectrum.absorbance[i];
   telem.currentPage = (int)currentScreen + 1;
-  telem.isSoil = (currentScreen != PAGE_LIQUID);
+  telem.isSoil = true;
 
   bool triggerScanSoil = false;
   bool triggerScanLiquid = false;

@@ -1,0 +1,10 @@
+P10_KH_2_PO_4 concentrate 10 mg/L rum time 30s/color 3 loops :NPKautoT:
+09/09/2023,15:01:41
+1,White_1,4
+2,White_2,251
+3,White_3,246
+4,White_4,250
+5,White_5,255
+6,White_6,254
+7,White_7,249
+8,White_8,255

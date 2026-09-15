@@ -1,0 +1,6 @@
+Soil_2  :  soil npk_detector_TSCRGB2024
+Light Source Color - OFF
+N,P,K
+0, 94,173,174
+0, 94,173,174
+0, 94,173,174

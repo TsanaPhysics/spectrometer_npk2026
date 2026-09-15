@@ -1,0 +1,59 @@
+{
+    "Option_1_Quadratic_Polynomial": {
+        "name": "Option 1: Quadratic Polynomial (Edge Embedded Optimal)",
+        "target_equation_forward": "A = -0.00727 * C^2 + 0.12370 * C + -0.00603",
+        "inverse_equation": "C = (-b - sqrt(b^2 - 4*a*(c - A))) / (2*a)",
+        "coefficients": {
+            "a": -0.007269667747409539,
+            "b": 0.12370405102111319,
+            "c": -0.006034574201772304
+        },
+        "R2_Abs": 0.9924721139612075,
+        "RMSE_Abs": 0.013446508703217062,
+        "MAE_Abs": 0.011361191157533493,
+        "R2_Conc": 0.8423154721030299,
+        "RMSE_Conc_mg_L": 1.264415243440334,
+        "inference_time_us": 1.8,
+        "complexity": "O(1) Algebraic Formula"
+    },
+    "Option_2_Langmuir_Isotherm": {
+        "name": "Option 2: Langmuir Chemical Kinetics Isotherm",
+        "target_equation_forward": "A = (0.82581 * C) / (5.20846 + C)",
+        "inverse_equation": "C = (5.20846 * A) / (0.82581 - A)",
+        "coefficients": {
+            "Amax": 0.8258084202574126,
+            "Kd": 5.208457198564463
+        },
+        "R2_Abs": 0.9608718879330098,
+        "RMSE_Abs": 0.03065613967944111,
+        "MAE_Abs": 0.025375183539854154,
+        "R2_Conc": 0.8933074774327784,
+        "RMSE_Conc_mg_L": 1.0400690513539617,
+        "inference_time_us": 2.4,
+        "complexity": "O(1) Mechanistic Rate Equation"
+    },
+    "Option_3_Dual_Channel_Optics": {
+        "name": "Option 3: Dual-Channel Turbidity-Compensated Optics (White & Diff Ratio)",
+        "white_linear_forward": "A_White = 0.03984 * C + 0.07638",
+        "white_linear_inverse": "C = (A_White - 0.07638) / 0.03984",
+        "differential_channel": "Delta_A = A_Red - 0.40 * A_White = 0.02900 * C + 0.10263",
+        "coefficients": {
+            "slope_white": 0.03984076998659284,
+            "intercept_white": 0.07637890279882364,
+            "alpha": 0.4
+        },
+        "R2_White": 0.8306625260591768,
+        "RMSE_White": 0.05727790626230145,
+        "R2_Conc_White": 0.7961416717036787,
+        "RMSE_Conc_White_mg_L": 1.43767066453727,
+        "R2_Differential": 0.8618830905575171,
+        "inference_time_us": 1.2,
+        "complexity": "O(1) Dual Linear Fusion"
+    },
+    "Baseline_Linear_Red": {
+        "name": "Baseline: Standard Linear Beer-Lambert (Red Channel)",
+        "equation": "A = 0.04493 * C + 0.13318",
+        "R2_Abs": 0.8522553525759595,
+        "RMSE_Abs": 0.059570177936139196
+    }
+}

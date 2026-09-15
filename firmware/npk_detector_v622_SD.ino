@@ -1,3 +1,13 @@
+/**
+ * ============================================================================
+ * NPK Detector v6.2.2 (Legacy SD Baseline Firmware)
+ * Preserved for historical baseline comparisons & calibration logging.
+ * NOTE: For the active 2026 SOTA firmware with 3-Tier Multi-Wavelength Engine,
+ * Wi-Fi REST API, and Quadratic Phosphorus Inversion, see:
+ *   -> spectrometer_npk2026/spectrometer_npk2026.ino
+ * ============================================================================
+ */
+
 #include <Wire.h>
 #include <SPI.h>
 #include <Seeed_FS.h>

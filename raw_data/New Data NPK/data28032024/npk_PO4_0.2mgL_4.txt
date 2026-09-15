@@ -1,0 +1,4 @@
+npk_PO4_0.2mgL_4  :  ปริมาณ 0.2 มิลลิกรัมต่อลิตร  npk_detector_TSCRGB2024 
+Light Source Color - OFF
+N,P,K
+0, 154,152,150

@@ -1,0 +1,13 @@
+PO4_02mgL_1  :  ปริมาณ 0.2 มิลลิกรัมต่อลิตร... NPK_RGBGLOVE_Auto_TCS
+Light Source Color - OFF
+N,P,K
+Light Source Color - WHITE	 , 28/03/2024,10:12:53
+0,1,1,0
+Light Source Color - OFF	 , 28/03/2024,10:13:05
+1,206,255,255
+Light Source Color - RED	 , 28/03/2024,10:13:17
+2,1,1,0
+Light Source Color - OFF	 , 28/03/2024,10:13:29
+3,184,11,21
+Light Source Color - GREEN	 , 28/03/2024,10:13:41
+4,1,1,0

@@ -1,0 +1,6 @@
+npk_N_1.0mgL_4  :  ปริมาณ 1.0 มิลลิกรัมต่อลิตร  npk_detector_TSCRGB2024 
+Light Source Color - OFF
+N,P,K
+0, 81,142,172
+0, 81,142,172
+0, 81,142,172

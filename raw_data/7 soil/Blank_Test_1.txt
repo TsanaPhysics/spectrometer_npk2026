@@ -1,0 +1,9 @@
+Blank_Test_1  :  Time_300ms. Gain_1X
+Light Source Color - OFF
+N,P,K
+1, 154,152,150
+2, 154,152,150
+Light Source Color - BLUE	 , 08/05/2024,11:08:17
+1, 154,152,150
+2, 154,152,150
+3, 154,152,150

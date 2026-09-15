@@ -1,0 +1,4 @@
+E_614_manual_1  :  Time_6144ms. Gain_1X
+Light Source Color - OFF
+N,P,K
+,C

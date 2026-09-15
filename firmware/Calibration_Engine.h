@@ -56,7 +56,7 @@ struct StandardCurve {
 struct FullCalibrationProfile {
   CalibrationState blank;
   StandardCurve curveN; // Nitrogen (465 nm Blue)
-  StandardCurve curveP; // Phosphorus (525 nm Green)
+  StandardCurve curveP; // Phosphorus (625 nm Red / Molybdenum Blue)
   StandardCurve curveK; // Potassium (625 nm Red)
 };
 
@@ -243,7 +243,7 @@ inline void drawStandardCurvePlot(
   tft.setTextColor(TFT_WHITE, 0x18E3);
   tft.drawString("CALIBRATION CURVE & METROLOGY", 8, 8);
   tft.setTextColor(TFT_YELLOW, 0x18E3);
-  tft.drawString("[Page 4/5]", 250, 8);
+  tft.drawString("[Page 8/8]", 250, 8);
 
   // Plot Area: X in [34, 214] (W=180), Y in [34, 174] (H=140)
   const int X0 = 34;
