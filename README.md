@@ -297,10 +297,22 @@ spectrometer_npk2026/
 │   ├── manual_assembly_operation.md    # คู่มือการประกอบและการปฏิบัติการภาคสนาม
 │   ├── npk_raw_data_ml_handbook.md     # คู่มือข้อมูลดิบและกระบวนการฝึกสอนแบบจำลอง Machine Learning
 │   └── latex/                          # ต้นฉบับเอกสารวิชาการ XeLaTeX พร้อมสไตล์ rbru_manual
+├── models_3d/                          # ชุดโมเดล 3 มิติเชิงทัศนศาสตร์วิศวกรรม (Optical Rig & Enclosure)
+│   ├── README.md                       # คู่มือการพิมพ์ 3 มิติ สเปกทัศนศาสตร์ และพารามิเตอร์ Slicer
+│   ├── cuvette_optical_chamber.scad    # โค้ดพารามิเตอร์ OpenSCAD ห้องวัดแสง (Cuvette Slot & 3mm Aperture)
+│   ├── light_tight_lid.scad            # โค้ดพารามิเตอร์ OpenSCAD ฝาปิดกันแสงเขี้ยวซ้อน (Labyrinth Seal)
+│   ├── spectrometer_assembly.scad      # โค้ดรวม Exploded View พร้อมจำลองลำแสงเลเซอร์
+│   ├── cuvette_optical_chamber.stl     # ไฟล์เมชพร้อมพิมพ์ 3D สำหรับห้องวัดแสง (286,800 Triangles)
+│   ├── light_tight_lid.stl             # ไฟล์เมชพร้อมพิมพ์ 3D สำหรับฝาปิดกันแสง (209,088 Triangles)
+│   └── viewer_3d.html                  # หน้าเว็บจำลอง 3 มิติแบบหมุนดูได้ 360 องศา (Three.js Web Viewer)
 ├── scripts/
+│   ├── generate_3d_models.py           # สคริปต์สร้างโมเดล 3D STL ด้วย Signed Distance Fields & Marching Cubes
 │   ├── npk_master_pipeline.py          # ไปป์ไลน์ประมวลผลข้อมูลและฝึกสอนแบบจำลองครบวงจร
 │   ├── build_academic_pdfs.py          # สคริปต์คอมไพล์เอกสารวิจัยเป็น PDF มาตรฐานการพิมพ์
 │   └── update_documentation_8screens.py# สคริปต์อัปเดตสถาปัตยกรรมเอกสารคู่มือ 8 หน้าจอ
+├── web/                                # เว็บแอปพลิเคชันแดชบอร์ด IoT และพรีวิว 3 มิติ
+│   ├── index.html                      # แดชบอร์ดมอนิเตอร์ NPK และสมบัติของเหลว
+│   └── viewer_3d.html                  # ระบบพรีวิว 3 มิติห้องตรวจวัดแสง (Three.js Interactive Viewer)
 └── data/
     ├── NPK.csv                         # ตัวอย่างประวัติการวัดความเข้มข้นดิน
     ├── SPECTRUM.csv                    # ตัวอย่างสเปกตรัมการดูดกลืนแสง
