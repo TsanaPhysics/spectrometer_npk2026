@@ -289,6 +289,7 @@
         <div class="btn-grid">
             <button class="tool-btn" id="btn-wireframe" onclick="toggleWireframe()">โครงลวด (Wireframe)</button>
             <button class="tool-btn" id="btn-cutaway" onclick="toggleCutaway()">ผ่าครึ่ง (Cutaway)</button>
+            <button class="tool-btn" id="btn-load-spector" onclick="loadSpectorV4()">SpectorV4 Shell</button>
             <button class="tool-btn" id="btn-reset-cam" onclick="resetCamera()">รีเซ็ตมุมกล้อง</button>
             <button class="tool-btn" id="btn-autorotate" onclick="toggleAutoRotate()">หมุนรอบตัว</button>
         </div>
@@ -596,6 +597,35 @@
             controls.autoRotate = !controls.autoRotate;
             controls.autoRotateSpeed = 2.0;
             document.getElementById('btn-autorotate').classList.toggle('active', controls.autoRotate);
+        };
+
+        let spectorMesh = null;
+        window.loadSpectorV4 = function() {
+            if (spectorMesh) {
+                spectorMesh.visible = !spectorMesh.visible;
+                document.getElementById('btn-load-spector').classList.toggle('active', spectorMesh.visible);
+                document.getElementById('hud-text').textContent = `SpectorV4 Shell: ${spectorMesh.visible ? 'Visible' : 'Hidden'}`;
+                return;
+            }
+            const loader = new THREE.STLLoader();
+            loader.load('SpectorV4.stl', function(geometry) {
+                const matSpector = new THREE.MeshStandardMaterial({
+                    color: 0x38bdf8,
+                    metalness: 0.25,
+                    roughness: 0.6,
+                    transparent: true,
+                    opacity: 0.75,
+                    wireframe: isWireframe
+                });
+                spectorMesh = new THREE.Mesh(geometry, matSpector);
+                spectorMesh.castShadow = true;
+                spectorMesh.receiveShadow = true;
+                scene.add(spectorMesh);
+                document.getElementById('btn-load-spector').classList.add('active');
+                document.getElementById('hud-text').textContent = 'Loaded SpectorV4.stl Master Chassis (13,120 Triangles)';
+            }, undefined, function(err) {
+                document.getElementById('hud-text').textContent = 'Cannot auto-load SpectorV4.stl via local file protocol. Drag & drop SpectorV4.stl file directly!';
+            });
         };
 
         // --- 8. Drag and Drop STL Loader ---
