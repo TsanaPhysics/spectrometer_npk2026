@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thailand 3D Topographic Model Viewer - JC_AI_SciRBRU</title>
+    <style>
+        :root {
+            --primary: #00e5ff;
+            --accent: #10b981;
+            --gold: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #080c14;
+            --panel-bg: rgba(13, 20, 36, 0.88);
+            --border-color: rgba(0, 229, 255, 0.25);
+            --text-main: #f1f5f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Sarabun", "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Top Header */
+        header {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            z-index: 10;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 22px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65);
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header h1 span.highlight {
+            color: var(--primary);
+        }
+
+        header p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Floating Control Panel */
+        .controls-panel {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 10;
+            width: 330px;
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 4px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 0.76rem;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .control-group label span.val {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 3px;
+            background: #1e293b;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button.tool-btn {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        button.tool-btn:hover {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--primary);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        button.tool-btn.active {
+            background: var(--primary);
+            color: #080c14;
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+        }
+
+        /* Specs Badge */
+        .specs-badge {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.74rem;
+            line-height: 1.5;
+            color: #94a3b8;
+        }
+
+        .specs-badge ul {
+            list-style: none;
+            margin-top: 4px;
+        }
+
+        .specs-badge li {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 3px;
+        }
+
+        .specs-badge li::before {
+            content: "•";
+            position: absolute;
+            left: 2px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Bottom Status HUD */
+        .status-hud {
+            position: absolute;
+            bottom: 18px;
+            left: 20px;
+            z-index: 10;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .download-bar {
+            position: absolute;
+            bottom: 18px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #0284c7, #00e5ff);
+            border: none;
+            color: #04121e;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(0, 229, 255, 0.4);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 229, 255, 0.6);
+        }
+    </style>
+    <!-- Three.js & Controls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <header>
+        <h1><span class="highlight">Kingdom of Thailand</span> • 3D Topographic Model</h1>
+        <p>หน่วยวิจัยเกษตรดิจิทัล JC_AI_SciRBRU | สาขาวิชาฟิสิกส์ มรภ.รำไพพรรณี</p>
+    </header>
+
+    <div class="controls-panel">
+        <div class="section-title">เลือกรูปแบบโมเดล 3D (Model Mode)</div>
+        <div class="btn-grid">
+            <button class="tool-btn active" id="btn-mode-plinth" onclick="switchModel('plinth')">🗺️ แป้นจารึก (Plinth)</button>
+            <button class="tool-btn" id="btn-mode-standalone" onclick="switchModel('standalone')">🇹🇭 ลอยตัว (Standalone)</button>
+        </div>
+
+        <div class="section-title">การปรับแต่งความสูงนูนต่ำ (Relief Exaggeration)</div>
+        <div class="control-group">
+            <label>ความสูงภูมิประเทศ: <span id="val-exag" class="val">1.0x</span></label>
+            <input type="range" id="slider-exag" min="0.5" max="2.5" value="1.0" step="0.1">
+        </div>
+
+        <div class="section-title">ธีมสีและวัสดุ (Color Shader)</div>
+        <div class="btn-grid">
+            <button class="tool-btn active" id="btn-theme-hypso" onclick="setMaterialTheme('hypso')">🌈 ภูมิประเทศจริง</button>
+            <button class="tool-btn" id="btn-theme-matte" onclick="setMaterialTheme('matte')">🖤 ดำด้าน (Matte)</button>
+            <button class="tool-btn" id="btn-theme-gold" onclick="setMaterialTheme('gold')">🏆 ทองบรอนซ์</button>
+            <button class="tool-btn" id="btn-theme-jade" onclick="setMaterialTheme('jade')">🌿 หยกเกษตร</button>
+        </div>
+
+        <div class="section-title">มุมกล้องและหมุดสถานที่ (Views & Pins)</div>
+        <div class="btn-grid">
+            <button class="tool-btn" id="btn-view-iso" onclick="setCameraView('iso')">มุมไอโซเมตริก</button>
+            <button class="tool-btn" id="btn-view-top" onclick="setCameraView('top')">มองตรง (Top-Down)</button>
+            <button class="tool-btn" id="btn-view-north" onclick="setCameraView('north')">ยอดดอยภาคเหนือ</button>
+            <button class="tool-btn" id="btn-view-rbru" onclick="setCameraView('rbru')">จันทบุรี (RBRU)</button>
+        </div>
+
+        <div class="btn-grid">
+            <button class="tool-btn active" id="btn-toggle-pins" onclick="togglePins()">📍 หมุดสำคัญ</button>
+            <button class="tool-btn" id="btn-wireframe" onclick="toggleWireframe()">🕸️ โครงลวด</button>
+            <button class="tool-btn" id="btn-autorotate" onclick="toggleAutoRotate()">🔄 หมุนรอบตัว</button>
+            <button class="tool-btn" id="btn-reset-cam" onclick="resetCamera()">🎯 รีเซ็ตมุม</button>
+        </div>
+
+        <div class="specs-badge">
+            <b>ข้อมูลทางภูมิศาสตร์และมาตราส่วน:</b>
+            <ul>
+                <li>ข้อมูลระดับความสูง: AWS Terrarium DEM (High-Res)</li>
+                <li>จุดสูงสุด: ดอยอินทนนท์ 2,565 m (Z = 12.4 mm)</li>
+                <li>เส้นขอบเขต: 77 จังหวัด สลักร่องลึก 0.4 mm</li>
+                <li>ขนาดแป้นพิมพ์: 120 x 200 mm (พร้อมพิมพ์ 3D)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="status-hud">
+        <div class="status-dot"></div>
+        <span id="hud-text">3D Thailand Topographic Model Active | 474,188 Triangles Loaded</span>
+    </div>
+
+    <div class="download-bar">
+        <a id="download-link" href="thailand_topographic_map_3d.stl" download="thailand_topographic_map_3d.stl" class="btn-download">
+            📥 ดาวน์โหลดไฟล์ STL พร้อมพิมพ์ 3D
+        </a>
+    </div>
+
+    <script>
+        // --- 1. Scene & Camera Setup ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x080c14);
+        scene.fog = new THREE.FogExp2(0x080c14, 0.0025);
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.5, 2000);
+        camera.position.set(0, -180, 190);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 0, 6);
+        controls.maxPolarAngle = Math.PI / 2 + 0.05;
+
+        // --- 2. Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xfff8e7, 1.1);
+        sunLight.position.set(-90, -120, 150);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        scene.add(sunLight);
+
+        const fillLight = new THREE.DirectionalLight(0x00e5ff, 0.35);
+        fillLight.position.set(100, 120, 80);
+        scene.add(fillLight);
+
+        // Ground Pedestal Grid
+        const gridHelper = new THREE.GridHelper(300, 30, 0x00e5ff, 0x1e293b);
+        gridHelper.rotation.x = Math.PI / 2;
+        gridHelper.position.z = -0.1;
+        scene.add(gridHelper);
+
+        // --- 3. Material Generators ---
+        let currentTheme = 'hypso';
+        let isWireframe = false;
+
+        function createHypsometricVertexColors(geometry) {
+            const pos = geometry.attributes.position;
+            const count = pos.count;
+            const colors = new Float32Array(count * 3);
+            
+            // Z min/max
+            let zMin = 999, zMax = -999;
+            for (let i = 0; i < count; i++) {
+                const z = pos.getZ(i);
+                if (z < zMin) zMin = z;
+                if (z > zMax) zMax = z;
+            }
+            const zRange = Math.max(zMax - zMin, 1.0);
+
+            // Palette
+            const colorOcean  = new THREE.Color(0x0284c7);
+            const colorPlains = new THREE.Color(0x15803d);
+            const colorPlat   = new THREE.Color(0xeab308);
+            const colorRidge  = new THREE.Color(0xb91c1c);
+            const colorPeak   = new THREE.Color(0xf8fafc);
+
+            for (let i = 0; i < count; i++) {
+                const z = pos.getZ(i);
+                const t = (z - zMin) / zRange;
+                let c = new THREE.Color();
+                if (t < 0.15) {
+                    c.copy(colorOcean).lerp(colorPlains, t / 0.15);
+                } else if (t < 0.40) {
+                    c.copy(colorPlains).lerp(colorPlat, (t - 0.15) / 0.25);
+                } else if (t < 0.75) {
+                    c.copy(colorPlat).lerp(colorRidge, (t - 0.40) / 0.35);
+                } else {
+                    c.copy(colorRidge).lerp(colorPeak, (t - 0.75) / 0.25);
+                }
+                colors[i * 3 + 0] = c.r;
+                colors[i * 3 + 1] = c.g;
+                colors[i * 3 + 2] = c.b;
+            }
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        }
+
+        function getMaterial(theme) {
+            if (theme === 'hypso') {
+                return new THREE.MeshStandardMaterial({
+                    vertexColors: true,
+                    roughness: 0.55,
+                    metalness: 0.15,
+                    wireframe: isWireframe
+                });
+            } else if (theme === 'matte') {
+                return new THREE.MeshStandardMaterial({
+                    color: 0x1e293b,
+                    roughness: 0.85,
+                    metalness: 0.1,
+                    wireframe: isWireframe
+                });
+            } else if (theme === 'gold') {
+                return new THREE.MeshStandardMaterial({
+                    color: 0xd97706,
+                    roughness: 0.35,
+                    metalness: 0.75,
+                    wireframe: isWireframe
+                });
+            } else if (theme === 'jade') {
+                return new THREE.MeshStandardMaterial({
+                    color: 0x059669,
+                    roughness: 0.4,
+                    metalness: 0.3,
+                    wireframe: isWireframe
+                });
+            }
+        }
+
+        // --- 4. Model Loading ---
+        let currentMode = 'plinth';
+        let plinthMesh = null;
+        let standaloneMesh = null;
+        const loader = new THREE.STLLoader();
+
+        function loadModelFile(path, callback) {
+            document.getElementById('hud-text').textContent = `Loading ${path}...`;
+            const resolvedPath = window.location.pathname.includes('/web/') ? '../models_3d/' + path : path;
+            loader.load(resolvedPath, (geometry) => {
+                createHypsometricVertexColors(geometry);
+                const mat = getMaterial(currentTheme);
+                const mesh = new THREE.Mesh(geometry, mat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                callback(mesh);
+            }, undefined, (err) => {
+                document.getElementById('hud-text').textContent = `Error loading ${path}. Please open via HTTP server!`;
+            });
+        }
+
+        // Initial Load
+        loadModelFile('thailand_topographic_map_3d.stl', (mesh) => {
+            plinthMesh = mesh;
+            scene.add(plinthMesh);
+            document.getElementById('hud-text').textContent = 'Loaded Thailand Master Plinth (474,188 Triangles)';
+        });
+
+        window.switchModel = function(mode) {
+            currentMode = mode;
+            document.getElementById('btn-mode-plinth').classList.toggle('active', mode === 'plinth');
+            document.getElementById('btn-mode-standalone').classList.toggle('active', mode === 'standalone');
+
+            const downloadLink = document.getElementById('download-link');
+            if (mode === 'plinth') {
+                if (standaloneMesh) standaloneMesh.visible = false;
+                if (plinthMesh) {
+                    plinthMesh.visible = true;
+                } else {
+                    loadModelFile('thailand_topographic_map_3d.stl', (m) => {
+                        plinthMesh = m;
+                        scene.add(plinthMesh);
+                    });
+                }
+                downloadLink.href = 'thailand_topographic_map_3d.stl';
+                downloadLink.download = 'thailand_topographic_map_3d.stl';
+                document.getElementById('hud-text').textContent = 'Showing Integrated Display Plinth (120 x 200 mm)';
+            } else {
+                if (plinthMesh) plinthMesh.visible = false;
+                if (standaloneMesh) {
+                    standaloneMesh.visible = true;
+                } else {
+                    loadModelFile('thailand_country_standalone_3d.stl', (m) => {
+                        standaloneMesh = m;
+                        scene.add(standaloneMesh);
+                    });
+                }
+                downloadLink.href = 'thailand_country_standalone_3d.stl';
+                downloadLink.download = 'thailand_country_standalone_3d.stl';
+                document.getElementById('hud-text').textContent = 'Showing Standalone Country Silhouette (74 x 135 mm)';
+            }
+        };
+
+        // --- 5. Interactive Landmarks Group ---
+        const groupPins = new THREE.Group();
+        scene.add(groupPins);
+
+        const pinData = [
+            { name: "ดอยอินทนนท์ (2,565 m)", x: -28, y: 55, z: 13.5, color: 0xef4444 },
+            { name: "ดอยหลวงเชียงดาว (2,175 m)", x: -24, y: 64, z: 12.0, color: 0xf97316 },
+            { name: "เขาค้อ เพชรบูรณ์ (1,820 m)", x: -2, y: 36, z: 10.5, color: 0xeab308 },
+            { name: "เขาสอยดาว จันทบุรี (1,675 m)", x: 10, y: -4, z: 10.0, color: 0x10b981 },
+            { name: "มรภ.รำไพพรรณี (RBRU)", x: 9.5, y: -8, z: 4.5, color: 0x00e5ff },
+            { name: "กรุงเทพมหานคร (Bangkok)", x: -5, y: 5, z: 3.5, color: 0x38bdf8 },
+            { name: "ยอดเขาหลวง นครศรีฯ (1,835 m)", x: -15, y: -48, z: 11.0, color: 0xf59e0b },
+            { name: "ทิวเขาสันกาลาคีรี (ยะลา/เบตง)", x: -3, y: -72, z: 8.5, color: 0xa855f7 }
+        ];
+
+        const pinGeom = new THREE.SphereGeometry(1.8, 16, 16);
+        pinData.forEach(p => {
+            const pinMat = new THREE.MeshStandardMaterial({ color: p.color, emissive: p.color, emissiveIntensity: 0.35 });
+            const pinMesh = new THREE.Mesh(pinGeom, pinMat);
+            pinMesh.position.set(p.x, p.y, p.z);
+            groupPins.add(pinMesh);
+
+            // Stem
+            const stemGeom = new THREE.CylinderGeometry(0.3, 0.3, p.z, 8);
+            stemGeom.rotateX(Math.PI / 2);
+            const stemMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
+            const stem = new THREE.Mesh(stemGeom, stemMat);
+            stem.position.set(p.x, p.y, p.z / 2);
+            groupPins.add(stem);
+        });
+
+        window.togglePins = function() {
+            groupPins.visible = !groupPins.visible;
+            document.getElementById('btn-toggle-pins').classList.toggle('active', groupPins.visible);
+        };
+
+        // --- 6. Sliders & View Controls ---
+        const sliderExag = document.getElementById('slider-exag');
+        const valExag = document.getElementById('val-exag');
+
+        sliderExag.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            valExag.textContent = val.toFixed(1) + 'x';
+            if (plinthMesh) plinthMesh.scale.z = val;
+            if (standaloneMesh) standaloneMesh.scale.z = val;
+            groupPins.position.z = (val - 1.0) * 8.0;
+        });
+
+        window.setMaterialTheme = function(theme) {
+            currentTheme = theme;
+            document.querySelectorAll('[id^="btn-theme-"]').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-theme-' + theme).classList.add('active');
+
+            const mat = getMaterial(theme);
+            if (plinthMesh) plinthMesh.material = mat;
+            if (standaloneMesh) standaloneMesh.material = mat;
+        };
+
+        window.toggleWireframe = function() {
+            isWireframe = !isWireframe;
+            document.getElementById('btn-wireframe').classList.toggle('active', isWireframe);
+            if (plinthMesh) plinthMesh.material.wireframe = isWireframe;
+            if (standaloneMesh) standaloneMesh.material.wireframe = isWireframe;
+        };
+
+        window.toggleAutoRotate = function() {
+            controls.autoRotate = !controls.autoRotate;
+            controls.autoRotateSpeed = 2.0;
+            document.getElementById('btn-autorotate').classList.toggle('active', controls.autoRotate);
+        };
+
+        window.resetCamera = function() {
+            camera.position.set(0, -180, 190);
+            controls.target.set(0, 0, 6);
+            controls.autoRotate = false;
+            document.getElementById('btn-autorotate').classList.remove('active');
+        };
+
+        window.setCameraView = function(view) {
+            if (view === 'iso') {
+                camera.position.set(90, -160, 150);
+                controls.target.set(0, 0, 6);
+            } else if (view === 'top') {
+                camera.position.set(0, 0, 240);
+                controls.target.set(0, 0, 6);
+            } else if (view === 'north') {
+                camera.position.set(-28, 10, 45);
+                controls.target.set(-28, 55, 12);
+            } else if (view === 'rbru') {
+                camera.position.set(10, -40, 30);
+                controls.target.set(9.5, -8, 5);
+            }
+        };
+
+        // --- 7. Animation Loop ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
