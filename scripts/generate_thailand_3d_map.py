@@ -223,13 +223,49 @@ def generate_thailand_3d_models():
     # Peak relief = 3.2 + (elev / 2565.0) * 11.8 mm -> Max 15.0 mm at Doi Inthanon
     elev_relief = 3.2 + (sampled_elev / 2565.0) * 11.8
     
+    # 4.1 Carve Major River Basins (ลุ่มน้ำหลัก: เจ้าพระยา, ปิง, วัง, ยม, น่าน, ท่าจีน, แม่กลอง, โขง, ชี, มูล, ตาปี)
+    rivers_path = os.path.join(data_dir, "thailand_rivers.geojson")
+    river_mask = np.zeros((H_px, W_px), dtype=bool)
+    
+    if os.path.exists(rivers_path):
+        print("Rasterizing and engraving Thailand major river networks...")
+        with open(rivers_path, 'r', encoding='utf-8') as rf:
+            rivers_data = json.load(rf)
+            
+        for rf_feat in rivers_data['features']:
+            r_geom = rf_feat['geometry']
+            r_coords = r_geom['coordinates']
+            r_lines = r_coords if r_geom['type'] == 'MultiLineString' else [r_coords]
+            for r_seg in r_lines:
+                r_pts = np.array(r_seg)
+                if len(r_pts) < 2:
+                    continue
+                r_cols = np.clip(np.round(map_x0 + (r_pts[:, 0] - lon_min) / (lon_max - lon_min) * (map_w_px - 1)).astype(int), 0, W_px - 1)
+                r_rows = np.clip(np.round(map_y0 + (lat_max - r_pts[:, 1]) / (lat_max - lat_min) * (map_h_px - 1)).astype(int), 0, H_px - 1)
+                for ri in range(len(r_pts) - 1):
+                    rlr, rlc = line(r_rows[ri], r_cols[ri], r_rows[ri+1], r_cols[ri+1])
+                    river_mask[rlr, rlc] = True
+                    # Widen major river channels slightly
+                    if ri < len(r_pts) - 1:
+                        for dr in [-1, 0, 1]:
+                            for dc in [-1, 0, 1]:
+                                river_mask[np.clip(rlr + dr, 0, H_px - 1), np.clip(rlc + dc, 0, W_px - 1)] = True
+                                
+    # Apply elevation to target region
     target_region = z_plinth[map_y0:map_y1, map_x0:map_x1]
     sub_mask = th_mask[map_y0:map_y1, map_x0:map_x1]
     target_region[sub_mask] = elev_relief[sub_mask]
     
-    # Province borders: engrave -0.40 mm into the terrain
+    # Province borders: engrave -0.30 mm into the terrain
     target_borders = border_mask[map_y0:map_y1, map_x0:map_x1] & sub_mask
-    target_region[target_borders] -= 0.40
+    target_region[target_borders] -= 0.30
+    
+    # Carve riverbeds: -0.42 mm channel depth
+    sub_rivers = river_mask[map_y0:map_y1, map_x0:map_x1] & sub_mask
+    target_region[sub_rivers] -= 0.42
+    
+    # Also update elev_relief for standalone model
+    elev_relief[sub_rivers] -= 0.42
     
     # 5. Render Embossed Typography & Compass Rose onto Plinth Base
     print("Rendering embossed Thai/English typography & badges...")
@@ -241,24 +277,25 @@ def generate_thailand_3d_models():
     font_path_en = '/System/Library/Fonts/Supplemental/Arial Bold.ttf'
     
     try:
-        f_title_th = ImageFont.truetype(font_path_th, 15)
-        f_title_en = ImageFont.truetype(font_path_en, 10)
-        f_sub_th   = ImageFont.truetype(font_path_th, 9)
-        f_sub_en   = ImageFont.truetype(font_path_en, 8)
+        f_title_th = ImageFont.truetype(font_path_th, 14)
+        f_title_en = ImageFont.truetype(font_path_en, 9)
+        f_sub_th   = ImageFont.truetype(font_path_th, 8)
+        f_sub_en   = ImageFont.truetype(font_path_en, 7)
         f_coord    = ImageFont.truetype(font_path_en, 7)
     except Exception:
         f_title_th = f_title_en = f_sub_th = f_sub_en = f_coord = ImageFont.load_default()
         
     # Header
-    draw.text((W_px // 2, 18), "ราชอาณาจักรไทย • THAILAND", font=f_title_th, fill=255, anchor='mm')
-    draw.text((W_px // 2, 34), "TOPOGRAPHIC RELIEF MAP 2026", font=f_title_en, fill=220, anchor='mm')
+    draw.text((W_px // 2, 16), "ราชอาณาจักรไทย • THAILAND", font=f_title_th, fill=255, anchor='mm')
+    draw.text((W_px // 2, 30), "TOPOGRAPHY & RIVER BASIN NETWORK 2026", font=f_title_en, fill=220, anchor='mm')
     
     # Footer
-    draw.text((W_px // 2, H_px - 26), "หน่วยวิจัยเกษตรดิจิทัล JC_AI_SciRBRU • มรภ.รำไพพรรณี", font=f_sub_th, fill=240, anchor='mm')
-    draw.text((W_px // 2, H_px - 13), "DIGITAL AGRIPHYSICS • SCALE 1:10,000,000", font=f_sub_en, fill=200, anchor='mm')
+    draw.text((W_px // 2, H_px - 34), "หน่วยวิจัยเกษตรดิจิทัล JC_AI_SciRBRU • มรภ.รำไพพรรณี", font=f_sub_th, fill=240, anchor='mm')
+    draw.text((W_px // 2, H_px - 22), "ลุ่มน้ำเจ้าพระยา • ปิง วัง ยม น่าน • โขง ชี มูล • แม่กลอง • ตาปี", font=f_sub_th, fill=210, anchor='mm')
+    draw.text((W_px // 2, H_px - 11), "DIGITAL AGRIPHYSICS • SCALE 1:10,000,000", font=f_sub_en, fill=190, anchor='mm')
     
     # Compass Rose at Top-Right
-    cx, cy = W_px - 32, 68
+    cx, cy = W_px - 30, 64
     draw.line([(cx, cy - 16), (cx, cy + 16)], fill=255, width=2)
     draw.line([(cx - 16, cy), (cx + 16, cy)], fill=255, width=2)
     draw.polygon([(cx, cy - 16), (cx - 3, cy - 3), (cx, cy), (cx + 3, cy - 3)], fill=255)
