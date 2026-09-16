@@ -43,6 +43,14 @@ models_3d/
 │   ├── thailand_viewer_3d.html           # เว็บแอป Three.js สกรีนชั้นความสูง 7 ระดับและโครงข่ายลุ่มน้ำ 3D
 │   └── README.md                         # คู่มือภูมิสารสนเทศและตารางสลับสีเส้นใย (Slicing Guide)
 │
+├── yamaha_tzr/                           # 🏍️ โครงการแบบจำลองวิศวกรรมยานยนต์เรซซิ่ง Yamaha TZR (Deltabox & YPVS)
+│   ├── yamaha_tzr.scad                   # สคริปต์พารามิเตอร์ OpenSCAD โครงสร้างมอเตอร์ไซค์สมบูรณ์แบบ
+│   ├── yamaha_tzr_3d.stl                 # ไฟล์ STL รถสปอร์ตอิสระ 1:10 (Watertight 100% | 656,754 Tris)
+│   ├── yamaha_tzr_on_stand_3d.stl        # ไฟล์ STL รถพร้อมสแตนด์เซอร์วิสสนามแข่ง (Watertight 100% | 904,638 Tris)
+│   ├── yamaha_tzr_analysis.png           # พิมพ์เขียววิศวกรรม 4 มุมมองความละเอียดสูง 3,800 x 2,300 px
+│   ├── tzr_viewer_3d.html                # เว็บแอป Three.js เรนเดอร์ 3D เลือกลายแข่ง/ส่องเฟรม X-Ray/ป้ายชิ้นส่วน
+│   └── README.md                         # คู่มือวิศวกรรมยานยนต์ 7 เสาหลักและคู่มือการสไลซ์พิมพ์ 3 มิติ
+│
 └── README.md                             # (ไฟล์นี้) ดัชนีภาพรวมและแนวทางการจัดระเบียบ 3D
 ```
 
@@ -59,6 +67,11 @@ models_3d/
 * **แบบจำลองแป้นจารึก:** ขนาด $120 \times 200 \times 12.4\text{ mm}$ สลักร่องลุ่มน้ำลึก $-0.42\text{ mm}$ ขอบเขต 77 จังหวัด และตัวอักษรจารึกภาษาไทย-อังกฤษ
 * **แบบจำลองลอยตัว (Standalone):** ขนาด $74 \times 135 \times 12.5\text{ mm}$ ตัดขอบตามรูปทรงขวานทองของประเทศไทย
 * **โปรแกรมจำลอง 3 มิติ:** เปิด [`thailand_map/thailand_viewer_3d.html`](thailand_map/thailand_viewer_3d.html) หรือ [`../web/thailand_viewer_3d.html`](../web/thailand_viewer_3d.html) เพื่อใช้งานระบบสกรีนชั้นความสูง 7 ระดับสีวิทยาศาสตร์ และกรองโครงข่ายลุ่มน้ำ 3D
+
+### 2.3 กลุ่มงานยานยนต์และเรซซิ่งโมเดลลิ่ง (`yamaha_tzr/`)
+* **โครงสร้างโมเดล:** ถอดรหัสสถาปัตยกรรม 7 เสาหลักของ Yamaha TZR 150/250 (เฟรม Deltabox อะลูมิเนียม, เครื่องยนต์ 2 จังหวะ YPVS, ท่อรีดไอเสีย Hydroformed Expansion Chamber, สวิงอาร์ม Monocross, โช้คหน้า 38mm พร้อมแฮนด์จับโช้ค, ล้อแม็ก 3 ก้าน 17 นิ้ว และแฟริ่งแอโรไดนามิกส์ 90s GP)
+* **โมเดล 3 มิติ:** ไฟล์ STL ทั้งสองเวอร์ชันมีความสมบูรณ์แบบระดับ Manifold 100% (Watertight, Boundary Edges = 0) พร้อมพิมพ์ 3D ทุกระบบ
+* **โปรแกรมจำลอง 3 มิติ:** เปิด [`yamaha_tzr/tzr_viewer_3d.html`](yamaha_tzr/tzr_viewer_3d.html) หรือ [`../web/tzr_viewer_3d.html`](../web/tzr_viewer_3d.html) เพื่อเลือกลายแข่ง (Speedblock, Tech Blue, Stealth, Deltabox Silver, 60th GP Yellow), โหมดส่องโครงสร้างโปร่งใส X-Ray Naked Frame, และป้ายชี้ตำแหน่งชิ้นส่วนวิศวกรรม 8 จุด
 
 ---
 

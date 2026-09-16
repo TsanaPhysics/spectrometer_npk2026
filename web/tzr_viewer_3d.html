@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yamaha TZR 3D CAD Engineering Viewer - Deltabox & YPVS Racing Model</title>
+    <style>
+        :root {
+            --primary: #00e5ff;
+            --accent: #ef4444;
+            --gold: #f59e0b;
+            --blue: #3b82f6;
+            --bg-dark: #070a12;
+            --panel-bg: rgba(11, 16, 30, 0.92);
+            --border-color: rgba(0, 229, 255, 0.28);
+            --text-main: #f1f5f9;
+            --speedblock-red: #d90429;
+            --speedblock-white: #edf2f4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Sarabun", "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        header {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            z-index: 10;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            color: #fff;
+            font-weight: 900;
+            font-size: 0.95rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            letter-spacing: 1.5px;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header h1 span.highlight {
+            color: var(--primary);
+        }
+
+        header p {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .controls-panel {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 10;
+            width: 350px;
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .btn-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+        }
+
+        .tool-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tool-btn:hover {
+            background: rgba(0, 229, 255, 0.18);
+            border-color: var(--primary);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(14, 165, 233, 0.25));
+            border-color: var(--primary);
+            color: #00e5ff;
+            font-weight: 600;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .color-btn {
+            height: 38px;
+            border-radius: 6px;
+            border: 2px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.68rem;
+            font-weight: 700;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.05);
+            border-color: #fff;
+        }
+
+        .color-btn.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--primary);
+        }
+
+        .specs-badge {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px dashed rgba(0, 229, 255, 0.25);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.72rem;
+            line-height: 1.5;
+            color: #94a3b8;
+        }
+
+        .specs-badge ul {
+            list-style: none;
+            margin-top: 4px;
+        }
+
+        .specs-badge li {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 3px;
+        }
+
+        .specs-badge li::before {
+            content: "▸";
+            position: absolute;
+            left: 2px;
+            color: var(--primary);
+        }
+
+        .specs-badge li b {
+            color: #e2e8f0;
+        }
+
+        .hud-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .download-bar {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: #ffffff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(239, 68, 68, 0.65);
+        }
+
+        .btn-download.secondary {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            color: var(--primary);
+        }
+
+        .btn-download.secondary:hover {
+            background: rgba(0, 229, 255, 0.2);
+            box-shadow: 0 6px 20px rgba(0, 229, 255, 0.4);
+        }
+
+        .annotation-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: rgba(13, 20, 36, 0.90);
+            border: 1px solid var(--primary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            color: #fff;
+            pointer-events: none;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+
+        .annotation-label::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px;
+            border-style: solid;
+            border-color: var(--primary) transparent transparent transparent;
+        }
+
+        /* Loading spinner */
+        #loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(7, 10, 18, 0.92);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 229, 255, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-text {
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+    </style>
+    <!-- Three.js + OrbitControls + STLLoader from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div id="loading-text">กำลังโหลดโมเดล 3D Yamaha TZR...</div>
+    </div>
+
+    <header>
+        <div class="brand-badge">YAMAHA</div>
+        <div>
+            <h1><span class="highlight">TZR 150 / 250</span> • 3D CAD Engineering Rig</h1>
+            <p>Deltabox Aluminum Twin-Spar & YPVS 2-Stroke Racing Heritage | AI4D Digital Agriphysics CAD</p>
+        </div>
+    </header>
+
+    <div class="controls-panel">
+        <div class="section-title">
+            <span>ตัวเลือกโมเดล (Model Mode)</span>
+        </div>
+        <div class="btn-grid">
+            <button class="tool-btn active" id="btn-model-stand" onclick="switchModel('stand')">🏁 บนสแตนด์ตั้งแข่ง</button>
+            <button class="tool-btn" id="btn-model-free" onclick="switchModel('free')">🏍️ ตัวรถอิสระ</button>
+        </div>
+
+        <div class="section-title">
+            <span>ชุดสีและลายแข่ง (Livery Theme)</span>
+        </div>
+        <div class="color-palette">
+            <div class="color-btn active" id="color-speedblock" style="background: linear-gradient(135deg, #d90429 50%, #ffffff 50%); color: #000;" onclick="setTheme('speedblock')" title="Yamaha Racing Speedblock (แดง/ขาว)">
+                Speedblock
+            </div>
+            <div class="color-btn" id="color-techblue" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: #fff;" onclick="setTheme('techblue')" title="Yamaha Tech Blue (น้ำเงินเรซซิ่ง)">
+                Tech Blue
+            </div>
+            <div class="color-btn" id="color-stealth" style="background: linear-gradient(135deg, #111827, #374151); color: #f59e0b;" onclick="setTheme('stealth')" title="Stealth Matte Black & Gold">
+                Stealth
+            </div>
+            <div class="color-btn" id="color-silver" style="background: linear-gradient(135deg, #94a3b8, #cbd5e1); color: #0f172a;" onclick="setTheme('silver')" title="Machined Deltabox Silver">
+                Silver
+            </div>
+        </div>
+        <div class="btn-grid" style="margin-top: 2px;">
+            <button class="tool-btn" id="btn-theme-anniv" onclick="setTheme('anniversary')">🟡 60th GP Yellow</button>
+            <button class="tool-btn" id="btn-theme-xray" onclick="setTheme('xray')">🩻 X-Ray Naked Frame</button>
+        </div>
+
+        <div class="section-title">
+            <span>มุมมองเรซซิ่ง (Camera Views)</span>
+        </div>
+        <div class="btn-grid-3">
+            <button class="tool-btn" onclick="setCameraView('iso')">ไอโซเมตริก</button>
+            <button class="tool-btn" onclick="setCameraView('exhaust')">ท่อรีดไอเสีย</button>
+            <button class="tool-btn" onclick="setCameraView('deltabox')">เฟรมเดลต้าบ็อกซ์</button>
+            <button class="tool-btn" onclick="setCameraView('top')">มองบน (Top)</button>
+            <button class="tool-btn" onclick="setCameraView('cockpit')">ค็อกพิทแฮนด์</button>
+            <button class="tool-btn" onclick="setCameraView('front')">หน้าตรงแอโร่</button>
+        </div>
+
+        <div class="section-title">
+            <span>ตัวช่วยแสดงผล (Display & Visuals)</span>
+        </div>
+        <div class="btn-grid">
+            <button class="tool-btn active" id="btn-toggle-pins" onclick="togglePins()">📍 ป้ายชิ้นส่วน</button>
+            <button class="tool-btn" id="btn-wireframe" onclick="toggleWireframe()">🕸️ โครงลวด Mesh</button>
+            <button class="tool-btn active" id="btn-autorotate" onclick="toggleAutoRotate()">🔄 หมุนรอบตัว</button>
+            <button class="tool-btn" id="btn-lighting" onclick="toggleLighting()">💡 แสงไนท์เรซ</button>
+        </div>
+
+        <div class="specs-badge">
+            <b>ข้อมูลสเปกทางวิศวกรรม (Engineering Specs):</b>
+            <ul>
+                <li><b>เฟรม:</b> Yamaha Deltabox Twin-Spar อะลูมิเนียมเกรดสูง</li>
+                <li><b>เครื่องยนต์:</b> 2-Stroke ระบายความร้อนด้วยน้ำ พร้อมวาล์ว YPVS</li>
+                <li><b>ระบบท่อ:</b> ท่อรีดขยายตัว (Hydroformed Expansion Chamber)</li>
+                <li><b>ช่วงล่าง:</b> โช้คหน้าเทเลสโคปิค + สวิงอาร์มหลัง Monocross</li>
+                <li><b>ฐานล้อ:</b> 135 mm (Scale 1:10) / 1,350 mm (รถจริง 1:1)</li>
+                <li><b>โทโพโลยี 3D:</b> 100% Watertight Solid (Marching Cubes SDF)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="hud-status">
+        <div class="status-dot"></div>
+        <span id="hud-text">โมเดล 3D โหลดสำเร็จ: 904,638 สามเหลี่ยม (Watertight Manifold)</span>
+    </div>
+
+    <div class="download-bar">
+        <a id="btn-download-scad" href="yamaha_tzr.scad" download="yamaha_tzr.scad" class="btn-download secondary" title="ดาวน์โหลดซอร์สโค้ดพารามิเตอร์ OpenSCAD">
+            📐 โค้ด OpenSCAD (.scad)
+        </a>
+        <a id="btn-download-stl" href="yamaha_tzr_on_stand_3d.stl" download="yamaha_tzr_on_stand_3d.stl" class="btn-download" title="ดาวน์โหลดโมเดลสามมิติพร้อมพิมพ์ 3D">
+            📥 ดาวน์โหลด 3D STL
+        </a>
+    </div>
+
+    <div id="labels-container"></div>
+
+    <script>
+        // Check relative path context (works in models_3d/yamaha_tzr/ and web/)
+        const inModelsDir = window.location.pathname.includes('/models_3d/');
+        const stlBase = inModelsDir ? './' : '../models_3d/yamaha_tzr/';
+        
+        // Update download links based on path
+        document.getElementById('btn-download-scad').href = stlBase + 'yamaha_tzr.scad';
+        document.getElementById('btn-download-stl').href = stlBase + 'yamaha_tzr_on_stand_3d.stl';
+
+        const container = document.getElementById('canvas-container');
+        const labelsContainer = document.getElementById('labels-container');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const hudText = document.getElementById('hud-text');
+
+        // Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x070a12);
+        scene.fog = new THREE.FogExp2(0x070a12, 0.0022);
+
+        const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 1, 2500);
+        camera.position.set(170, -180, 110);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // OrbitControls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.target.set(0, 0, 48);
+        controls.maxPolarAngle = Math.PI / 2 - 0.01; // Don't dip below floor
+        controls.minDistance = 30;
+        controls.maxDistance = 600;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.8;
+
+        // Lighting System
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xfff8f0, 1.35);
+        keyLight.position.set(150, -120, 180);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.camera.near = 10;
+        keyLight.shadow.camera.far = 600;
+        keyLight.shadow.camera.left = -150;
+        keyLight.shadow.camera.right = 150;
+        keyLight.shadow.camera.top = 150;
+        keyLight.shadow.camera.bottom = -150;
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0x00e5ff, 0.55);
+        fillLight.position.set(-180, 150, 100);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0xef4444, 0.45);
+        rimLight.position.set(80, 180, 70);
+        scene.add(rimLight);
+
+        // Grid & Floor Plate
+        const gridHelper = new THREE.GridHelper(380, 38, 0x00e5ff, 0x1e293b);
+        gridHelper.rotation.x = Math.PI / 2;
+        gridHelper.position.z = 0;
+        scene.add(gridHelper);
+
+        const floorGeom = new THREE.PlaneGeometry(500, 500);
+        const floorMat = new THREE.MeshStandardMaterial({
+            color: 0x070b14,
+            roughness: 0.85,
+            metalness: 0.2
+        });
+        const floorMesh = new THREE.Mesh(floorGeom, floorMat);
+        floorMesh.position.z = -0.2;
+        floorMesh.receiveShadow = true;
+        scene.add(floorMesh);
+
+        // State variables
+        let currentModelKey = 'stand'; // 'stand' or 'free'
+        let currentTheme = 'speedblock';
+        let isWireframe = false;
+        let showPins = true;
+        let isNightLighting = false;
+
+        let activeMesh = null;
+        const groupPins = new THREE.Group();
+        scene.add(groupPins);
+
+        // Callout Annotations (Coordinates tuned to Yamaha TZR model coordinates)
+        const annotations = [
+            { name: "เฟรม Deltabox อะลูมิเนียม", x: 10, y: 0, z: 62, color: 0x00e5ff, desc: "Twin-spar extruded aluminum" },
+            { name: "เครื่องยนต์ 2 จังหวะ YPVS", x: -5, y: 0, z: 40, color: 0xf59e0b, desc: "Liquid-cooled power valve system" },
+            { name: "ท่อรีดไอเสีย Expansion Chamber", x: -15, y: 16, z: 32, color: 0xef4444, desc: "Hydroformed cone diffuser" },
+            { name: "ปลายท่ออะลูมิเนียม Silencer", x: -65, y: 19, z: 42, color: 0xd97706, desc: "Upswept racing silencer" },
+            { name: "โช้คหน้าเทเลสโคปิค & แฮนด์จับโช้ค", x: 62, y: 0, z: 68, color: 0x38bdf8, desc: "Clip-on racing handlebars" },
+            { name: "สวิงอาร์ม & โช้คเดี่ยว Monocross", x: -35, y: 0, z: 35, color: 0x10b981, desc: "Progressive linkage monoshock" },
+            { name: "ล้อแม็ก 3 ก้าน & ดิสก์เบรก", x: 67, y: 0, z: 27, color: 0xa855f7, desc: "17-inch 3-spoke lightweight alloy" },
+            { name: "สแตนด์ตั้งเซอร์วิส Paddock Stand", x: -75, y: 0, z: 15, color: 0xd90429, desc: "Heavy-duty racing stand" }
+        ];
+
+        // Shader / Vertex coloring based on TZR part coordinates
+        function applyProceduralLivery(geometry, theme) {
+            const pos = geometry.attributes.position;
+            const count = pos.count;
+            let colors = geometry.attributes.color ? geometry.attributes.color.array : new Float32Array(count * 3);
+
+            const tempColor = new THREE.Color();
+
+            // Coordinate extents from TZR geometry:
+            // x: [-95, 95], y: [-24, 24], z: [0, 95]
+            for (let i = 0; i < count; i++) {
+                const x = pos.getX(i);
+                const y = pos.getY(i);
+                const z = pos.getZ(i);
+
+                if (theme === 'speedblock') {
+                    // Yamaha Racing Speedblock: Red tank/cowl, White fairing body, Dark engine/frame/tires
+                    const distFrontWheel = Math.hypot(x - 67.5, z - 27.0);
+                    const distRearWheel = Math.hypot(x - 67.5, z - 27.0);
+
+                    // Tires / Wheels
+                    if ((Math.hypot(x - 67.5, z - 27.0) < 30 && Math.abs(y) < 14) || 
+                        (Math.hypot(x + 67.5, z - 27.0) < 30 && Math.abs(y) < 14)) {
+                        const r = Math.hypot(Math.abs(x) - 67.5, z - 27.0);
+                        if (r > 21) {
+                            tempColor.setHex(0x1a1d24); // Treaded tire rubber
+                        } else {
+                            tempColor.setHex(0xd90429); // Red alloy wheel spokes
+                        }
+                    }
+                    // Paddock Stand
+                    else if (x < -60 && z < 28 && Math.abs(y) > 16) {
+                        tempColor.setHex(0xd90429); // Red stand
+                    }
+                    // Expansion chamber & exhaust
+                    else if (y > 8 && z < 45 && x < 15) {
+                        if (x < -48) {
+                            tempColor.setHex(0xc0c5ce); // Brushed Aluminum silencer
+                        } else {
+                            tempColor.setHex(0x374151); // Dark tempered steel pipe
+                        }
+                    }
+                    // Deltabox frame & swingarm
+                    else if (z < 62 && z > 28 && Math.abs(x) < 35 && Math.abs(y) > 10 && z > 42) {
+                        tempColor.setHex(0xd8e2dc); // Polished Deltabox spar
+                    }
+                    // Engine block
+                    else if (Math.abs(x) < 22 && z < 48 && z > 15 && Math.abs(y) < 12) {
+                        tempColor.setHex(0x27272a); // Gunmetal engine casing
+                    }
+                    // Upper bodywork / Fuel Tank / Fairing
+                    else if (z >= 55) {
+                        if (x > 15 && x < 55 && z > 65) {
+                            // Windscreen
+                            tempColor.setHex(0x1e293b);
+                        } else if (z > 60 && x < 25) {
+                            // Red Tank & Tail Cowl
+                            tempColor.setHex(0xd90429);
+                        } else {
+                            // Pearl White Fairing
+                            tempColor.setHex(0xf8fafc);
+                        }
+                    }
+                    // Front fender & lower cowl
+                    else if (z < 55 && z > 25 && x > 20) {
+                        tempColor.setHex(0xf8fafc); // White lower fairing
+                    } else {
+                        tempColor.setHex(0x475569); // Mechanical grey
+                    }
+
+                } else if (theme === 'techblue') {
+                    // Yamaha Tech Blue & Cyan
+                    const rWheel = Math.min(Math.hypot(x - 67.5, z - 27.0), Math.hypot(x + 67.5, z - 27.0));
+                    if (rWheel < 30 && Math.abs(y) < 14) {
+                        tempColor.setHex(rWheel > 21 ? 0x111827 : 0x0284c7);
+                    } else if (y > 8 && z < 45 && x < 15) {
+                        tempColor.setHex(x < -48 ? 0x94a3b8 : 0x1e293b);
+                    } else if (z >= 50 && (x < 30 || z > 62)) {
+                        tempColor.setHex(0x1d4ed8); // Deep Tech Blue
+                    } else if (z < 50 && z > 25 && x > 15) {
+                        tempColor.setHex(0x38bdf8); // Cyan Accent
+                    } else {
+                        tempColor.setHex(0x334155); // Frame & Motor
+                    }
+
+                } else if (theme === 'stealth') {
+                    // Stealth Matte Black with Satin Bronze/Gold wheels & accents
+                    const rWheel = Math.min(Math.hypot(x - 67.5, z - 27.0), Math.hypot(x + 67.5, z - 27.0));
+                    if (rWheel < 30 && Math.abs(y) < 14) {
+                        tempColor.setHex(rWheel > 21 ? 0x09090b : 0xd97706); // Gold wheels
+                    } else if (y > 8 && z < 45 && x < 15) {
+                        tempColor.setHex(0x27272a); // Carbon/black exhaust
+                    } else if (z >= 50) {
+                        tempColor.setHex(0x18181b); // Satin Obsidian body
+                    } else {
+                        tempColor.setHex(0x27272a); // Charcoal frame
+                    }
+
+                } else if (theme === 'silver') {
+                    // Raw Machined Aluminum / Deltabox Heritage Silver
+                    const rWheel = Math.min(Math.hypot(x - 67.5, z - 27.0), Math.hypot(x + 67.5, z - 27.0));
+                    if (rWheel < 30 && Math.abs(y) < 14) {
+                        tempColor.setHex(rWheel > 21 ? 0x18181b : 0x64748b);
+                    } else if (z >= 50) {
+                        tempColor.setHex(0xe2e8f0); // Bright Aluminum
+                    } else {
+                        tempColor.setHex(0x94a3b8); // Cast Aluminum
+                    }
+
+                } else if (theme === 'anniversary') {
+                    // Kenny Roberts 60th GP Yellow with Black & White strobe
+                    const rWheel = Math.min(Math.hypot(x - 67.5, z - 27.0), Math.hypot(x + 67.5, z - 27.0));
+                    if (rWheel < 30 && Math.abs(y) < 14) {
+                        tempColor.setHex(rWheel > 21 ? 0x18181b : 0xfbbf24);
+                    } else if (z >= 52) {
+                        tempColor.setHex(0xf59e0b); // Racing Yellow
+                    } else if (z >= 44 && z < 52) {
+                        tempColor.setHex(0x0f172a); // Black Strobe Stripe
+                    } else {
+                        tempColor.setHex(0x334155);
+                    }
+
+                } else if (theme === 'xray') {
+                    // Translucent Cyan frame & engine inspection
+                    tempColor.setHex(0x00e5ff);
+                }
+
+                colors[i * 3] = tempColor.r;
+                colors[i * 3 + 1] = tempColor.g;
+                colors[i * 3 + 2] = tempColor.b;
+            }
+
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        }
+
+        function createMaterialForTheme(theme) {
+            if (theme === 'xray') {
+                return new THREE.MeshPhysicalMaterial({
+                    vertexColors: true,
+                    wireframe: isWireframe,
+                    transparent: true,
+                    opacity: 0.35,
+                    roughness: 0.15,
+                    metalness: 0.8,
+                    transmission: 0.65,
+                    ior: 1.45
+                });
+            } else {
+                return new THREE.MeshStandardMaterial({
+                    vertexColors: true,
+                    wireframe: isWireframe,
+                    roughness: theme === 'stealth' ? 0.6 : 0.28,
+                    metalness: theme === 'silver' ? 0.75 : 0.45
+                });
+            }
+        }
+
+        // STLLoader instance
+        const loader = new THREE.STLLoader();
+
+        function loadModel(modelKey) {
+            loadingOverlay.style.opacity = '1';
+            loadingOverlay.style.pointerEvents = 'auto';
+            loadingText.innerText = `กำลังโหลดโมเดล 3D Yamaha TZR (${modelKey === 'stand' ? 'พร้อมสแตนด์' : 'ตัวรถ'})...`;
+
+            const fileName = modelKey === 'stand' ? 'yamaha_tzr_on_stand_3d.stl' : 'yamaha_tzr_3d.stl';
+            const url = stlBase + fileName;
+
+            loader.load(url, function (geometry) {
+                if (activeMesh) {
+                    scene.remove(activeMesh);
+                    activeMesh.geometry.dispose();
+                    activeMesh.material.dispose();
+                }
+
+                geometry.computeVertexNormals();
+                applyProceduralLivery(geometry, currentTheme);
+
+                const mat = createMaterialForTheme(currentTheme);
+                activeMesh = new THREE.Mesh(geometry, mat);
+                activeMesh.castShadow = true;
+                activeMesh.receiveShadow = true;
+                scene.add(activeMesh);
+
+                const triCount = geometry.attributes.position.count / 3;
+                hudText.innerText = `โมเดล 3D โหลดสำเร็จ: ${triCount.toLocaleString()} สามเหลี่ยม (Watertight 100%)`;
+
+                // Update download STL link
+                document.getElementById('btn-download-stl').href = url;
+                document.getElementById('btn-download-stl').download = fileName;
+
+                loadingOverlay.style.opacity = '0';
+                loadingOverlay.style.pointerEvents = 'none';
+            }, function (xhr) {
+                if (xhr.lengthComputable) {
+                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                    loadingText.innerText = `กำลังดาวน์โหลดเมช 3D... ${percent}%`;
+                }
+            }, function (error) {
+                console.error("Error loading STL:", error);
+                loadingText.innerText = `⚠️ ไม่พบไฟล์โมเดลที่ ${url} (กรุณาตรวจสอบเส้นทางไฟล์)`;
+            });
+        }
+
+        // Model Switching
+        function switchModel(key) {
+            if (currentModelKey === key) return;
+            currentModelKey = key;
+            document.getElementById('btn-model-stand').classList.toggle('active', key === 'stand');
+            document.getElementById('btn-model-free').classList.toggle('active', key === 'free');
+            loadModel(key);
+        }
+
+        // Theme Switcher
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-theme-anniv').classList.remove('active');
+            document.getElementById('btn-theme-xray').classList.remove('active');
+
+            if (theme === 'speedblock') document.getElementById('color-speedblock').classList.add('active');
+            else if (theme === 'techblue') document.getElementById('color-techblue').classList.add('active');
+            else if (theme === 'stealth') document.getElementById('color-stealth').classList.add('active');
+            else if (theme === 'silver') document.getElementById('color-silver').classList.add('active');
+            else if (theme === 'anniversary') document.getElementById('btn-theme-anniv').classList.add('active');
+            else if (theme === 'xray') document.getElementById('btn-theme-xray').classList.add('active');
+
+            if (activeMesh) {
+                applyProceduralLivery(activeMesh.geometry, currentTheme);
+                activeMesh.material = createMaterialForTheme(currentTheme);
+                activeMesh.geometry.attributes.color.needsUpdate = true;
+            }
+        }
+
+        // Wireframe Toggle
+        function toggleWireframe() {
+            isWireframe = !isWireframe;
+            document.getElementById('btn-wireframe').classList.toggle('active', isWireframe);
+            if (activeMesh) {
+                activeMesh.material.wireframe = isWireframe;
+            }
+        }
+
+        // Auto-Rotate Toggle
+        function toggleAutoRotate() {
+            controls.autoRotate = !controls.autoRotate;
+            document.getElementById('btn-autorotate').classList.toggle('active', controls.autoRotate);
+        }
+
+        // Lighting Toggle (Day / Night Neon)
+        function toggleLighting() {
+            isNightLighting = !isNightLighting;
+            document.getElementById('btn-lighting').classList.toggle('active', isNightLighting);
+            if (isNightLighting) {
+                ambientLight.intensity = 0.2;
+                keyLight.color.setHex(0x00e5ff);
+                keyLight.intensity = 1.6;
+                fillLight.color.setHex(0xef4444);
+                fillLight.intensity = 1.4;
+                scene.background.setHex(0x030508);
+                scene.fog.color.setHex(0x030508);
+            } else {
+                ambientLight.intensity = 0.45;
+                keyLight.color.setHex(0xfff8f0);
+                keyLight.intensity = 1.35;
+                fillLight.color.setHex(0x00e5ff);
+                fillLight.intensity = 0.55;
+                scene.background.setHex(0x070a12);
+                scene.fog.color.setHex(0x070a12);
+            }
+        }
+
+        // Build 3D Annotation Pins
+        function buildPins() {
+            const pinGeom = new THREE.SphereGeometry(1.4, 16, 16);
+            annotations.forEach((p, idx) => {
+                const pinGroup = new THREE.Group();
+                pinGroup.position.set(p.x, p.y, p.z);
+
+                const pinMat = new THREE.MeshStandardMaterial({
+                    color: p.color,
+                    emissive: p.color,
+                    emissiveIntensity: 0.6
+                });
+                const sphere = new THREE.Mesh(pinGeom, pinMat);
+                pinGroup.add(sphere);
+
+                // Vertical stem down to component
+                const stemGeom = new THREE.CylinderGeometry(0.2, 0.2, 10, 8);
+                const stemMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45 });
+                const stem = new THREE.Mesh(stemGeom, stemMat);
+                stem.position.z = -5;
+                stem.rotation.x = Math.PI / 2;
+                pinGroup.add(stem);
+
+                pinGroup.userData = { id: idx, info: p };
+                groupPins.add(pinGroup);
+
+                // HTML Label Overlay
+                const label = document.createElement('div');
+                label.className = 'annotation-label';
+                label.id = `label-pin-${idx}`;
+                label.innerHTML = `<b>${p.name}</b><br><span style="color:#94a3b8; font-size:0.6rem;">${p.desc}</span>`;
+                labelsContainer.appendChild(label);
+            });
+        }
+
+        function togglePins() {
+            showPins = !showPins;
+            document.getElementById('btn-toggle-pins').classList.toggle('active', showPins);
+            groupPins.visible = showPins;
+            labelsContainer.style.display = showPins ? 'block' : 'none';
+        }
+
+        // Camera Views
+        function setCameraView(viewKey) {
+            controls.autoRotate = false;
+            document.getElementById('btn-autorotate').classList.remove('active');
+
+            const targetPos = new THREE.Vector3(0, 0, 45);
+            let camPos = new THREE.Vector3();
+
+            switch (viewKey) {
+                case 'iso':
+                    camPos.set(160, -170, 105);
+                    break;
+                case 'exhaust':
+                    // Right side view of expansion chamber
+                    camPos.set(-20, 200, 48);
+                    break;
+                case 'deltabox':
+                    // Left side view of twin-spar deltabox
+                    camPos.set(0, -200, 48);
+                    break;
+                case 'top':
+                    camPos.set(0, 0.1, 230);
+                    break;
+                case 'cockpit':
+                    // View from above the seat looking forward past windscreen
+                    camPos.set(-35, 0, 82);
+                    targetPos.set(45, 0, 65);
+                    break;
+                case 'front':
+                    camPos.set(200, 0, 50);
+                    break;
+            }
+
+            // Animate transition
+            animateCamera(camPos, targetPos);
+        }
+
+        function animateCamera(targetCamPos, targetLookAt) {
+            const startPos = camera.position.clone();
+            const startTarget = controls.target.clone();
+            const startTime = performance.now();
+            const duration = 650; // ms
+
+            function updateCam() {
+                const now = performance.now();
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Cubic ease out
+                const ease = 1 - Math.pow(1 - progress, 3);
+
+                camera.position.lerpVectors(startPos, targetCamPos, ease);
+                controls.target.lerpVectors(startTarget, targetLookAt, ease);
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCam);
+                }
+            }
+            updateCam();
+        }
+
+        // Project 3D pin locations to 2D screen coordinates
+        function updateLabels() {
+            if (!showPins) return;
+            const tempV = new THREE.Vector3();
+            annotations.forEach((p, idx) => {
+                tempV.set(p.x, p.y, p.z + 1.5);
+                tempV.project(camera);
+
+                // Check if behind camera
+                if (tempV.z > 1) {
+                    const label = document.getElementById(`label-pin-${idx}`);
+                    if (label) label.style.opacity = '0';
+                    return;
+                }
+
+                const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
+
+                const label = document.getElementById(`label-pin-${idx}`);
+                if (label) {
+                    label.style.left = `${x}px`;
+                    label.style.top = `${y}px`;
+                    label.style.opacity = '1';
+                }
+            });
+        }
+
+        // Window resize handler
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            updateLabels();
+            renderer.render(scene, camera);
+        }
+
+        // Init
+        buildPins();
+        loadModel(currentModelKey);
+        animate();
+    </script>
+</body>
+</html>
