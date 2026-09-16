@@ -193,7 +193,7 @@ def generate_light_tight_lid_stl(filepath, res=0.30):
     write_binary_stl(filepath, verts, faces)
 
 if __name__ == '__main__':
-    out_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models_3d")
+    out_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models_3d", "spectrometer", "v4_chamber")
     os.makedirs(out_dir, exist_ok=True)
     
     chamber_stl = os.path.join(out_dir, "cuvette_optical_chamber.stl")

@@ -295,7 +295,7 @@ def generate_spector_v5_lid(filepath, res=0.30):
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.dirname(script_dir)
-    models_dir = os.path.join(root_dir, "models_3d")
+    models_dir = os.path.join(root_dir, "models_3d", "spectrometer", "v5_workstation")
     os.makedirs(models_dir, exist_ok=True)
     
     ws_stl = os.path.join(models_dir, "spector_v5_workstation.stl")

@@ -622,7 +622,7 @@
                 return;
             }
             const loader = new THREE.STLLoader();
-            const url = window.location.pathname.includes('/web/') ? '../models_3d/SpectorV4.stl' : 'SpectorV4.stl';
+            const url = window.location.pathname.includes('/web/') ? '../models_3d/spectrometer/v4_chamber/SpectorV4.stl' : 'v4_chamber/SpectorV4.stl';
             loader.load(url, function(geometry) {
                 geometry.rotateX(-Math.PI / 2);
                 const matSpector = new THREE.MeshStandardMaterial({
@@ -654,7 +654,7 @@
                 return;
             }
             const loader = new THREE.STLLoader();
-            const url = window.location.pathname.includes('/web/') ? '../models_3d/spector_v5_workstation.stl' : 'spector_v5_workstation.stl';
+            const url = window.location.pathname.includes('/web/') ? '../models_3d/spectrometer/v5_workstation/spector_v5_workstation.stl' : 'v5_workstation/spector_v5_workstation.stl';
             document.getElementById('hud-text').textContent = 'Loading SpectorV5 Workstation STL mesh...';
             loader.load(url, function(geometry) {
                 geometry.rotateX(-Math.PI / 2);
@@ -690,7 +690,7 @@
                 return;
             }
             const loader = new THREE.STLLoader();
-            const url = window.location.pathname.includes('/web/') ? '../models_3d/spector_v5_lid.stl' : 'spector_v5_lid.stl';
+            const url = window.location.pathname.includes('/web/') ? '../models_3d/spectrometer/v5_workstation/spector_v5_lid.stl' : 'v5_workstation/spector_v5_lid.stl';
             loader.load(url, function(geometry) {
                 geometry.rotateX(-Math.PI / 2);
                 const matLid5 = new THREE.MeshStandardMaterial({

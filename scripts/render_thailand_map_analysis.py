@@ -22,7 +22,8 @@ def generate_analysis_plot():
     print("Generating Enhanced Thailand 3D Topographic & River Basin Visualization...")
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_dir = os.path.join(base_dir, "data")
-    out_dir = os.path.join(base_dir, "models_3d")
+    out_dir = os.path.join(base_dir, "models_3d", "thailand_map")
+    os.makedirs(out_dir, exist_ok=True)
     
     # 1. Load GIS Data
     dem_path = os.path.join(data_dir, "thailand_dem_mosaic.npz")

@@ -620,7 +620,7 @@
 
         function loadModelFile(path, callback) {
             document.getElementById('hud-text').textContent = 'กำลังโหลดโมเดล ' + path + '...';
-            const resolvedPath = window.location.pathname.includes('/web/') ? '../models_3d/' + path : path;
+            const resolvedPath = window.location.pathname.includes('/web/') ? '../models_3d/thailand_map/' + path : path;
             loader.load(resolvedPath, (geometry) => {
                 applyVertexColors(geometry, currentTheme);
                 const mat = getMaterial(currentTheme);

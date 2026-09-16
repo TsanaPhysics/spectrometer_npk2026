@@ -26,3 +26,4 @@ research_papers/build/
 firmware/build/
 *.bin
 *.elf
+.vscode/

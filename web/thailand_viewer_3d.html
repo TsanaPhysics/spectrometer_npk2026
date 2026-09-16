@@ -442,7 +442,7 @@
     </div>
 
     <div class="download-bar">
-        <a id="download-link" href="thailand_topographic_map_3d.stl" download="thailand_topographic_map_3d.stl" class="btn-download">
+        <a id="download-link" href="../models_3d/thailand_map/thailand_topographic_map_3d.stl" download="thailand_topographic_map_3d.stl" class="btn-download">
             📥 ดาวน์โหลดโมเดล 3D STL (สลักร่องแม่น้ำ)
         </a>
     </div>
@@ -620,7 +620,7 @@
 
         function loadModelFile(path, callback) {
             document.getElementById('hud-text').textContent = 'กำลังโหลดโมเดล ' + path + '...';
-            const resolvedPath = window.location.pathname.includes('/web/') ? '../models_3d/' + path : path;
+            const resolvedPath = window.location.pathname.includes('/web/') ? '../models_3d/thailand_map/' + path : path;
             loader.load(resolvedPath, (geometry) => {
                 applyVertexColors(geometry, currentTheme);
                 const mat = getMaterial(currentTheme);
@@ -658,7 +658,7 @@
                 }
                 groupRivers.visible = riverVisible;
                 groupEstuaries.visible = estuaryVisible;
-                downloadLink.href = 'thailand_topographic_map_3d.stl';
+                downloadLink.href = window.location.pathname.includes('/web/') ? '../models_3d/thailand_map/thailand_topographic_map_3d.stl' : 'thailand_topographic_map_3d.stl';
                 downloadLink.download = 'thailand_topographic_map_3d.stl';
                 document.getElementById('hud-text').textContent = 'แสดงแบบแป้นจารึกพร้อมร่องแม่น้ำ (120 x 200 mm)';
             } else {
@@ -673,7 +673,7 @@
                 }
                 groupRivers.visible = false;
                 groupEstuaries.visible = false;
-                downloadLink.href = 'thailand_country_standalone_3d.stl';
+                downloadLink.href = window.location.pathname.includes('/web/') ? '../models_3d/thailand_map/thailand_country_standalone_3d.stl' : 'thailand_country_standalone_3d.stl';
                 downloadLink.download = 'thailand_country_standalone_3d.stl';
                 document.getElementById('hud-text').textContent = 'แสดงแบบลอยตัวอิสระ Standalone Cutout (74 x 135 mm)';
             }
