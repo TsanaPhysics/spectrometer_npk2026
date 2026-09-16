@@ -121,7 +121,7 @@ def render_showcase(target_png):
         step = max(1, len(triangles) // 35000)
         tri_sub = triangles[::step]
         
-        facecolors = compute_shaded_facecolors(tri_sub, cfg["color"], light_dir=(0.4, -0.6, 0.8), ambient=0.42)
+        facecolors = compute_shaded_facecolors(tri_sub, cfg["color"], light_dir=(0.4, 0.8, 0.6), ambient=0.42)
         
         mesh_col = Poly3DCollection(tri_sub, facecolors=facecolors, edgecolors='none', shade=False)
         ax.add_collection3d(mesh_col)
@@ -131,8 +131,8 @@ def render_showcase(target_png):
         ax.set_ylim(-25, 25)
         ax.set_zlim(0, 92)
         
-        # Camera angle (charming front isometric view)
-        ax.view_init(elev=18, azim=-62)
+        # Camera angle (charming front isometric view showing face and props)
+        ax.view_init(elev=15, azim=68)
         ax.axis('off')
         
         # Panel Title Card

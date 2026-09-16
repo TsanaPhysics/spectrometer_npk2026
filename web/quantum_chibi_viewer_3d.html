@@ -449,12 +449,15 @@
         <div class="section-title">
             <span>รูปแบบโมเดล (Render Mode)</span>
         </div>
-        <div class="btn-grid">
-            <button class="tool-btn color-pbr active" id="btn-mode-pbr" onclick="setRenderFormat('glb')">
-                🌈 Full-Color PBR (GLB)
+        <div class="btn-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+            <button class="tool-btn color-pbr active" id="btn-mode-photoreal" onclick="setRenderFormat('photoreal')">
+                🌟 Photoreal 8K
+            </button>
+            <button class="tool-btn" id="btn-mode-colored" onclick="setRenderFormat('colored')">
+                🎨 PBR สีโมเดล
             </button>
             <button class="tool-btn" id="btn-mode-stl" onclick="setRenderFormat('stl')">
-                ⚙️ Solid Slicer (STL)
+                ⚙️ Slicer STL
             </button>
         </div>
 
@@ -523,8 +526,11 @@
     </div>
 
     <div class="download-bar">
-        <a id="btn-download-glb" href="quantum_quartet_diorama_colored.glb" download="quantum_quartet_diorama_colored.glb" class="btn-download" title="ดาวน์โหลดไฟล์ 3D Full-Color GLB สำหรับเปิดดูหรือนำเข้าเกม/อนิเมชัน">
-            🌈 ดาวน์โหลด GLB (มีสี PBR)
+        <a id="btn-download-photoreal" href="quantum_quartet_diorama_photoreal.glb" download="quantum_quartet_diorama_photoreal.glb" class="btn-download" title="ดาวน์โหลดไฟล์ 3D Photoreal GLB มีเท็กซ์เจอร์ตรงตามภาพคอนเซ็ปต์ 8K">
+            🌟 ดาวน์โหลด GLB (ภาพคอนเซ็ปต์ 1:1)
+        </a>
+        <a id="btn-download-glb" href="quantum_quartet_diorama_colored.glb" download="quantum_quartet_diorama_colored.glb" class="btn-download secondary" title="ดาวน์โหลดไฟล์ 3D Full-Color GLB สีโพลีกอน">
+            🌈 ดาวน์โหลด GLB (สีโมเดล)
         </a>
         <a id="btn-download-ply" href="quantum_quartet_diorama_colored.ply" download="quantum_quartet_diorama_colored.ply" class="btn-download secondary" title="ดาวน์โหลดไฟล์ Color PLY สำหรับพิมพ์ 3D สีหรือ Blender">
             🎨 ดาวน์โหลด PLY (สี Vertex)
@@ -558,11 +564,12 @@
                 title: "The Quantum Quartet (สี่บิดาแห่งควอนตัม)",
                 subtitle: "การรวมตัวของ 4 เสาหลักผู้พลิกโฉมฟิสิกส์ยุคใหม่",
                 formula: "Quantum Mechanics & Relativity",
-                desc: "ชุดรวมฟิกเกอร์สี่นักฟิสิกส์เอกของโลกในสไตล์ Chibi หัวโตน่ารัก สีสันสมบูรณ์แบบตามภาพคอนเซ็ปต์: ไอน์สไตน์ (E=mc²), พลังค์ (ลูกแก้วทอง hν), ไฮเซินแบร์ก (อะตอมสีฟ้าคราม), และชเรอดิงเงอร์ (น้องแมวในกล่อง)",
+                desc: "ชุดรวมฟิกเกอร์สี่นักฟิสิกส์เอกของโลกในสไตล์ Chibi หัวโตน่ารัก สีสันและรายละเอียดคมชัดระดับ 8K ถอดแบบจากภาพคอนเซ็ปต์ 1:1 ครบทั้ง 4 ท่าน พร้อมแท่นไม้วอลนัตและป้ายทองเหลือง",
+                photorealFile: "quantum_quartet_diorama_photoreal.glb",
                 glbFile: "quantum_quartet_diorama_colored.glb",
                 plyFile: "quantum_quartet_diorama_colored.ply",
                 stlFile: "quantum_quartet_diorama_3d.stl",
-                cam: { x: 0, y: -190, z: 95, targetZ: 38 },
+                cam: { x: 0, y: 195, z: 85, targetZ: 42 },
                 pins: [
                     { name: "ไอน์สไตน์: กระดาน E=mc²", x: -78, y: 15, z: 42 },
                     { name: "พลังค์: ลูกแก้วพลังงาน hν", x: -26, y: 15, z: 40 },
@@ -575,10 +582,11 @@
                 subtitle: "ผู้ค้นพบทฤษฎีโฟโตอิเล็กทริก & สัมพัทธภาพ (Nobel 1921)",
                 formula: "E = mc²  |  hν = W + Ek",
                 desc: "ฟิกเกอร์ไอน์สไตน์ในชุดสเวตเตอร์ไหมพรมสีเทาแสนอบอุ่น ทรงผมสีขาวฟูฟ่อง หนวดหนาน่ารัก นัยน์ตาสีน้ำตาลประกายสดใส ถือกระดานชนวนชอล์กสลักสมการก้องโลก E = mc² บนแท่นไม้วอลนัตจารึกป้ายทองเหลือง",
+                photorealFile: "einstein_chibi_photoreal.glb",
                 glbFile: "einstein_chibi_colored.glb",
                 plyFile: "einstein_chibi_colored.ply",
                 stlFile: "einstein_chibi_3d.stl",
-                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                cam: { x: 0, y: 110, z: 58, targetZ: 46 },
                 pins: [
                     { name: "ทรงผมฟูฟ่องสีขาวสไตล์พิกซาร์", x: 0, y: -10, z: 78 },
                     { name: "นัยน์ตาสีน้ำตาลประกายแวววาว", x: 0, y: 15, z: 62 },
@@ -591,10 +599,11 @@
                 subtitle: "ผู้ให้กำเนิดแนวคิดควอนตัมแห่งพลังงาน (Nobel 1918)",
                 formula: "E = hν  |  h = 6.626 × 10⁻³⁴ J·s",
                 desc: "สุภาพบุรุษนักฟิสิกส์เยอรมัน สวมสูททักซิโด้สีดำติดหูกระต่ายและแว่นตาหนีบจมูก (Pince-Nez) สองมือประคอง 'ลูกแก้วควอนตัมแห่งพลังงาน' สีทองเปล่งประกายเรืองแสง (Emissive Glow) มีวงแหวนพลังงานหมุนวนรอบตัว",
+                photorealFile: "planck_chibi_photoreal.glb",
                 glbFile: "planck_chibi_colored.glb",
                 plyFile: "planck_chibi_colored.ply",
                 stlFile: "planck_chibi_3d.stl",
-                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                cam: { x: 0, y: 110, z: 58, targetZ: 46 },
                 pins: [
                     { name: "แว่นตากลมสไตล์ Pince-Nez", x: 0, y: 17, z: 62 },
                     { name: "ชุดสูทคอทักซิโด้พร้อมหูกระต่าย", x: 0, y: 7, z: 46 },
@@ -607,10 +616,11 @@
                 subtitle: "บิดาแห่งกลศาสตร์เมทริกซ์ & หลักความไม่แน่นอน (Nobel 1932)",
                 formula: "Δx · Δp ≥ ℏ/2",
                 desc: "นักทฤษฎีหนุ่มอัจฉริยะยุค 1920s ทรงผมลอนสีน้ำตาลเชสต์นัตปัดข้าง เสื้อคาร์ดิแกนสีน้ำเงินสดใสผูกเนกไท มือขวายกชูแบบจำลองอะตอมและกลุ่มหมอกอิเล็กตรอนสีฟ้าครามเรืองแสง สะท้อนหลักความไม่แน่นอน",
+                photorealFile: "heisenberg_chibi_photoreal.glb",
                 glbFile: "heisenberg_chibi_colored.glb",
                 plyFile: "heisenberg_chibi_colored.ply",
                 stlFile: "heisenberg_chibi_3d.stl",
-                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                cam: { x: 0, y: 110, z: 58, targetZ: 46 },
                 pins: [
                     { name: "ทรงผมลอนสีน้ำตาลเชสต์นัต", x: -2, y: 2, z: 78 },
                     { name: "คาร์ดิแกนน้ำเงินและเนกไท", x: 0, y: 7, z: 42 },
@@ -623,10 +633,11 @@
                 subtitle: "ผู้คิดค้นสมการคลื่นควอนตัม & ปริศนาแมวในกล่อง (Nobel 1933)",
                 formula: "iℏ ∂ψ/∂t = Ĥψ",
                 desc: "ศาสตราจารย์ผู้เปี่ยมเสน่ห์ สวมแว่นตากรอบกลมและเสื้อกั๊กไหมพรมสีเขียว สองมือโอบอุ้ม 'กล่องกระดาษคราฟต์สลักสัญลักษณ์ Ψ?' พร้อมน้องแมวลายส้มสุดน่ารักโผล่หัวหูตั้งสีชมพู สองอุ้งเท้าสีขาวเกาะขอบกล่อง",
+                photorealFile: "schrodinger_chibi_photoreal.glb",
                 glbFile: "schrodinger_chibi_colored.glb",
                 plyFile: "schrodinger_chibi_colored.ply",
                 stlFile: "schrodinger_chibi_3d.stl",
-                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                cam: { x: 0, y: 110, z: 58, targetZ: 46 },
                 pins: [
                     { name: "แว่นตากรอบกลมและทรงผมหวีเรียบ", x: 0, y: 17, z: 62 },
                     { name: "เสื้อกั๊กไหมพรมสีเขียววินเทจ", x: 0, y: 6, z: 45 },
@@ -642,7 +653,7 @@
         scene.fog = new THREE.FogExp2(0x070b14, 0.0022);
 
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 2000);
-        camera.position.set(0, -180, 95);
+        camera.position.set(0, 195, 85);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -651,13 +662,13 @@
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         // Cinematic Tone Mapping
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.15;
+        renderer.toneMappingExposure = 1.22;
         container.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.06;
-        controls.target.set(0, 0, 38);
+        controls.target.set(0, 0, 42);
         controls.maxPolarAngle = Math.PI / 2 - 0.01;
         controls.minDistance = 20;
         controls.maxDistance = 500;
@@ -665,11 +676,11 @@
         controls.autoRotateSpeed = 0.8;
 
         // Lighting System
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.60);
         scene.add(ambientLight);
 
-        const keyLight = new THREE.DirectionalLight(0xfffaed, 1.40);
-        keyLight.position.set(90, -100, 140);
+        const keyLight = new THREE.DirectionalLight(0xfffaed, 1.45);
+        keyLight.position.set(90, 100, 140);
         keyLight.castShadow = true;
         keyLight.shadow.mapSize.width = 2048;
         keyLight.shadow.mapSize.height = 2048;
@@ -678,11 +689,11 @@
         scene.add(keyLight);
 
         const fillLight = new THREE.DirectionalLight(0x00e5ff, 0.45);
-        fillLight.position.set(-110, 100, 80);
+        fillLight.position.set(-110, -100, 80);
         scene.add(fillLight);
 
-        const rimLight = new THREE.DirectionalLight(0xf59e0b, 0.55);
-        rimLight.position.set(70, 110, 90);
+        const rimLight = new THREE.DirectionalLight(0xf59e0b, 0.65);
+        rimLight.position.set(70, -110, 90);
         scene.add(rimLight);
 
         // Floor Grid & Pedestal
@@ -704,7 +715,7 @@
 
         // State variables
         let currentChar = 'diorama';
-        let currentFormat = 'glb'; // 'glb' or 'stl'
+        let currentFormat = 'photoreal'; // 'photoreal', 'colored', or 'stl'
         let currentLighting = 'pixar';
         let isWireframe = false;
         let showPins = true;
@@ -722,10 +733,12 @@
             const data = charData[charKey];
             loadingText.innerText = `กำลังโหลดโมเดล 3D (${format.toUpperCase()}) ${data.title}...`;
 
-            const fileName = format === 'glb' ? data.glbFile : data.stlFile;
+            let fileName = data.photorealFile;
+            if (format === 'colored') fileName = data.glbFile;
+            else if (format === 'stl') fileName = data.stlFile;
             const url = stlBase + fileName;
 
-            function onMeshReady(rootObj, isGlb) {
+            function onMeshReady(rootObj, isGlb, isPhotoreal) {
                 if (activeModel) {
                     scene.remove(activeModel);
                 }
@@ -733,6 +746,8 @@
                 scene.add(activeModel);
 
                 // Update download links
+                document.getElementById('btn-download-photoreal').href = stlBase + data.photorealFile;
+                document.getElementById('btn-download-photoreal').download = data.photorealFile;
                 document.getElementById('btn-download-glb').href = stlBase + data.glbFile;
                 document.getElementById('btn-download-glb').download = data.glbFile;
                 document.getElementById('btn-download-ply').href = stlBase + data.plyFile;
@@ -740,9 +755,11 @@
                 document.getElementById('btn-download-stl').href = stlBase + data.stlFile;
                 document.getElementById('btn-download-stl').download = data.stlFile;
 
-                hudText.innerText = isGlb 
-                    ? `โมเดล 3D Full-Color PBR (${charKey.toUpperCase()}) โหลดสำเร็จ (สีสมจริงตรงตามภาพคอนเซ็ปต์)`
-                    : `โมเดล 3D Solid Mesh STL โหลดสำเร็จ (100% Watertight Solid สำหรับพิมพ์ 3D)`;
+                hudText.innerText = isPhotoreal
+                    ? `โมเดล 3D Photoreal 8K (${charKey.toUpperCase()}) โหลดสำเร็จ (Texture บากจากภาพคอนเซ็ปต์ 1:1)`
+                    : (isGlb 
+                        ? `โมเดล 3D Full-Color PBR (${charKey.toUpperCase()}) โหลดสำเร็จ (สีโพลีกอน)`
+                        : `โมเดล 3D Solid Mesh STL โหลดสำเร็จ (100% Watertight Solid สำหรับพิมพ์ 3D)`);
 
                 updateBioCard(data);
                 setupCameraForChar(data);
@@ -752,7 +769,7 @@
                 loadingOverlay.style.pointerEvents = 'none';
             }
 
-            if (format === 'glb') {
+            if (format === 'photoreal' || format === 'colored') {
                 gltfLoader.load(url, (gltf) => {
                     const model = gltf.scene;
                     model.traverse((child) => {
@@ -761,12 +778,12 @@
                             child.receiveShadow = true;
                             if (child.material) {
                                 child.material.wireframe = isWireframe;
-                                child.material.roughness = currentLighting === 'marble' ? 0.3 : 0.42;
-                                child.material.metalness = currentLighting === 'marble' ? 0.1 : 0.18;
+                                child.material.roughness = currentLighting === 'marble' ? 0.28 : 0.38;
+                                child.material.metalness = currentLighting === 'marble' ? 0.08 : 0.14;
                             }
                         }
                     });
-                    onMeshReady(model, true);
+                    onMeshReady(model, true, format === 'photoreal');
                 }, (xhr) => {
                     if (xhr.lengthComputable) {
                         const percent = Math.round((xhr.loaded / xhr.total) * 100);
@@ -788,7 +805,7 @@
                     const mesh = new THREE.Mesh(geometry, mat);
                     mesh.castShadow = true;
                     mesh.receiveShadow = true;
-                    onMeshReady(mesh, false);
+                    onMeshReady(mesh, false, false);
                 }, (xhr) => {
                     if (xhr.lengthComputable) {
                         const percent = Math.round((xhr.loaded / xhr.total) * 100);
@@ -804,7 +821,8 @@
         function setRenderFormat(format) {
             if (currentFormat === format) return;
             currentFormat = format;
-            document.getElementById('btn-mode-pbr').classList.toggle('active', format === 'glb');
+            document.getElementById('btn-mode-photoreal').classList.toggle('active', format === 'photoreal');
+            document.getElementById('btn-mode-colored').classList.toggle('active', format === 'colored');
             document.getElementById('btn-mode-stl').classList.toggle('active', format === 'stl');
             loadModel(currentChar, currentFormat);
         }
