@@ -51,6 +51,18 @@ models_3d/
 │   ├── tzr_viewer_3d.html                # เว็บแอป Three.js เรนเดอร์ 3D เลือกลายแข่ง/ส่องเฟรม X-Ray/ป้ายชิ้นส่วน
 │   └── README.md                         # คู่มือวิศวกรรมยานยนต์ 7 เสาหลักและคู่มือการสไลซ์พิมพ์ 3 มิติ
 │
+├── quantum_physicists_chibi/             # ⚛️ โครงการฟิกเกอร์ 3 มิติสี่บิดาแห่งควอนตัม สไตล์ Pixar/Ghibli
+│   ├── quantum_physicists_chibi.scad     # สคริปต์พารามิเตอร์ OpenSCAD ฟิกเกอร์ทั้ง 4 ท่านและไดโอรามา
+│   ├── einstein_chibi_3d.stl             # โมเดล 3D STL ไอน์สไตน์ถือกระดาน E=mc² (Watertight 100%)
+│   ├── planck_chibi_3d.stl               # โมเดล 3D STL พลังค์ถือลูกแก้วควอนตัม hν (Watertight 100%)
+│   ├── heisenberg_chibi_3d.stl           # โมเดล 3D STL ไฮเซินแบร์กถือออร์บิทัลอะตอม (Watertight 100%)
+│   ├── schrodinger_chibi_3d.stl          # โมเดล 3D STL ชเรอดิงเงอร์และน้องแมวในกล่อง (Watertight 100%)
+│   ├── quantum_quartet_diorama_3d.stl    # โมเดล 3D STL รวม 4 บิดาควอนตัมบนฐานแกรนด์ไดโอรามา (Watertight 100%)
+│   ├── quantum_chibi_showcase.png        # ภาพพล็อตเปรียบเทียบเมช 3D 4 ท่านความละเอียดสูง
+│   ├── quantum_chibi_quartet.jpg         # คอนเซ็ปต์อาร์ต 3D Pixar/Ghibli สี่บิดาควอนตัม
+│   ├── quantum_chibi_viewer_3d.html      # เว็บแอป Three.js พรีวิว 3D สลับตัวละคร ปรับแสงสตูดิโอ 4 ธีม
+│   └── README.md                         # คู่มือชีวประวัติวิทยาศาสตร์ และคำแนะนำการสไลซ์พิมพ์ 3 มิติ
+│
 └── README.md                             # (ไฟล์นี้) ดัชนีภาพรวมและแนวทางการจัดระเบียบ 3D
 ```
 
@@ -72,6 +84,11 @@ models_3d/
 * **โครงสร้างโมเดล:** ถอดรหัสสถาปัตยกรรม 7 เสาหลักของ Yamaha TZR 150/250 (เฟรม Deltabox อะลูมิเนียม, เครื่องยนต์ 2 จังหวะ YPVS, ท่อรีดไอเสีย Hydroformed Expansion Chamber, สวิงอาร์ม Monocross, โช้คหน้า 38mm พร้อมแฮนด์จับโช้ค, ล้อแม็ก 3 ก้าน 17 นิ้ว และแฟริ่งแอโรไดนามิกส์ 90s GP)
 * **โมเดล 3 มิติ:** ไฟล์ STL ทั้งสองเวอร์ชันมีความสมบูรณ์แบบระดับ Manifold 100% (Watertight, Boundary Edges = 0) พร้อมพิมพ์ 3D ทุกระบบ
 * **โปรแกรมจำลอง 3 มิติ:** เปิด [`yamaha_tzr/tzr_viewer_3d.html`](yamaha_tzr/tzr_viewer_3d.html) หรือ [`../web/tzr_viewer_3d.html`](../web/tzr_viewer_3d.html) เพื่อเลือกลายแข่ง (Speedblock, Tech Blue, Stealth, Deltabox Silver, 60th GP Yellow), โหมดส่องโครงสร้างโปร่งใส X-Ray Naked Frame, และป้ายชี้ตำแหน่งชิ้นส่วนวิศวกรรม 8 จุด
+
+### 2.4 กลุ่มงานฟิกเกอร์วิทยาศาสตร์และศิลปะ 3 มิติ (`quantum_physicists_chibi/`)
+* **แนวคิดการออกแบบ:** ถ่ายทอดมรดกทางฟิสิกส์ควอนตัมของ 4 บิดาแห่งควอนตัม (ไอน์สไตน์, พลังค์, ไฮเซินแบร์ก, และชเรอดิงเงอร์) ในรูปแบบฟิกเกอร์ Chibi สไตล์ Pixar/Ghibli หัวโตตัวเล็ก อัตราส่วน 1:2.5 พร้อมพร็อพสัญลักษณ์ประจำตัวและแท่นวางจารึกชื่อ
+* **ไฟล์โมเดล 3 มิติ:** ให้ไฟล์ STL แบบแยกเดี่ยว 4 ชิ้น และไดโอรามา 4 ท่านรวมกัน ทุกชิ้นมีความสมบูรณ์แบบระดับ 100% Watertight Solid (0 Boundary Edges)
+* **โปรแกรมจำลอง 3 มิติ:** เปิด [`quantum_physicists_chibi/quantum_chibi_viewer_3d.html`](quantum_physicists_chibi/quantum_chibi_viewer_3d.html) หรือ [`../web/quantum_chibi_viewer_3d.html`](../web/quantum_chibi_viewer_3d.html) เพื่อสลับตัวละคร ปรับแสงสตูดิโอ 4 บรรยากาศ (Pixar Warm, Ghibli Sunlight, Quantum Cyber, Alabaster Marble) และอ่านการ์ดประวัติศาสตร์สมการ
 
 ---
 

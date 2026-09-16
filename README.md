@@ -313,17 +313,30 @@ spectrometer_npk2026/
 │   │   ├── thailand_map.scad           # สคริปต์ OpenSCAD ปรับสเกลอิสระ
 │   │   ├── thailand_map_analysis.png   # แผนผังวิเคราะห์ภูมิประเทศและไฮโดรโลยี 4 มุมมอง
 │   │   └── thailand_viewer_3d.html     # เว็บแอป Three.js สกรีนความสูง 7 ระดับและเครือข่ายแม่น้ำ 3D
-│   └── yamaha_tzr/                     # 🏍️ แบบจำลอง 3 มิติวิศวกรรมยานยนต์เรซซิ่ง Yamaha TZR (Deltabox & YPVS)
-│       ├── README.md                   # คู่มือสถาปัตยกรรมยานยนต์ 7 เสาหลักและคู่มือสไลซ์พิมพ์ 3D
-│       ├── yamaha_tzr.scad             # สคริปต์พารามิเตอร์ OpenSCAD โครงสร้างมอเตอร์ไซค์
-│       ├── yamaha_tzr_3d.stl           # ไฟล์โมเดล 3D STL รถอิสระ (Watertight 100% | 656,754 Tris)
-│       ├── yamaha_tzr_on_stand_3d.stl  # ไฟล์โมเดล 3D STL พร้อมสแตนด์แข่ง (Watertight 100% | 904,638 Tris)
-│       ├── yamaha_tzr_analysis.png     # ภาพพิมพ์เขียววิศวกรรม 4 มุมมองความละเอียดสูง 3,800 x 2,300 px
-│       └── tzr_viewer_3d.html          # เว็บแอป Three.js พรีวิว 3D เลือกลายแข่ง/ส่องเฟรม X-Ray
+│   ├── yamaha_tzr/                     # 🏍️ แบบจำลอง 3 มิติวิศวกรรมยานยนต์เรซซิ่ง Yamaha TZR (Deltabox & YPVS)
+│   │   ├── README.md                   # คู่มือสถาปัตยกรรมยานยนต์ 7 เสาหลักและคู่มือสไลซ์พิมพ์ 3D
+│   │   ├── yamaha_tzr.scad             # สคริปต์พารามิเตอร์ OpenSCAD โครงสร้างมอเตอร์ไซค์
+│   │   ├── yamaha_tzr_3d.stl           # ไฟล์โมเดล 3D STL รถอิสระ (Watertight 100% | 656,754 Tris)
+│   │   ├── yamaha_tzr_on_stand_3d.stl  # ไฟล์โมเดล 3D STL พร้อมสแตนด์แข่ง (Watertight 100% | 904,638 Tris)
+│   │   ├── yamaha_tzr_analysis.png     # ภาพพิมพ์เขียววิศวกรรม 4 มุมมองความละเอียดสูง 3,800 x 2,300 px
+│   │   └── tzr_viewer_3d.html          # เว็บแอป Three.js พรีวิว 3D เลือกลายแข่ง/ส่องเฟรม X-Ray
+│   └── quantum_physicists_chibi/       # ⚛️ ฟิกเกอร์ 3 มิติสี่บิดาควอนตัม สไตล์ Pixar/Ghibli หัวโตตัวเล็ก
+│       ├── README.md                   # คู่มือชีวประวัติวิทยาศาสตร์ และคำแนะนำการสไลซ์พิมพ์ 3 มิติ
+│       ├── quantum_physicists_chibi.scad # สคริปต์พารามิเตอร์ OpenSCAD ฟิกเกอร์ 4 ท่านและไดโอรามา
+│       ├── einstein_chibi_3d.stl       # ไฟล์ 3D STL ไอน์สไตน์ถือกระดาน E=mc² (Watertight 100%)
+│       ├── planck_chibi_3d.stl         # ไฟล์ 3D STL พลังค์ถือลูกแก้วควอนตัม hν (Watertight 100%)
+│       ├── heisenberg_chibi_3d.stl     # ไฟล์ 3D STL ไฮเซินแบร์กถือออร์บิทัลอะตอม (Watertight 100%)
+│       ├── schrodinger_chibi_3d.stl    # ไฟล์ 3D STL ชเรอดิงเงอร์และน้องแมวในกล่อง (Watertight 100%)
+│       ├── quantum_quartet_diorama_3d.stl # ไฟล์ 3D STL รวม 4 บิดาควอนตัม (Watertight 100%)
+│       ├── quantum_chibi_showcase.png  # ภาพพล็อตเปรียบเทียบเมช 3D 4 ท่านความละเอียดสูง
+│       ├── quantum_chibi_quartet.jpg   # ภาพเรนเดอร์คอนเซ็ปต์อาร์ต 3D Pixar/Ghibli
+│       └── quantum_chibi_viewer_3d.html# เว็บแอป Three.js พรีวิว 3D สลับตัวละคร ปรับแสงสตูดิโอ 4 ธีม
 ├── scripts/
 │   ├── generate_3d_models.py           # สคริปต์สร้างโมเดล 3D STL ด้วย Signed Distance Fields & Marching Cubes
 │   ├── generate_yamaha_tzr_3d.py       # สคริปต์สร้างโมเดล 3D Yamaha TZR ด้วย SDF เวกเตอร์
 │   ├── render_yamaha_tzr_analysis.py   # สคริปต์เรนเดอร์พิมพ์เขียววิศวกรรมหลายมุมมอง Yamaha TZR
+│   ├── generate_quantum_chibi_3d.py    # สคริปต์สร้างโมเดล 3D สี่บิดาควอนตัม Chibi ด้วย SDF เวกเตอร์
+│   ├── render_quantum_chibi_showcase.py# สคริปต์เรนเดอร์ภาพพล็อตเปรียบเทียบ 3D เมชสี่บิดาควอนตัม
 │   ├── npk_master_pipeline.py          # ไปป์ไลน์ประมวลผลข้อมูลและฝึกสอนแบบจำลองครบวงจร
 │   ├── build_academic_pdfs.py          # สคริปต์คอมไพล์เอกสารวิจัยเป็น PDF มาตรฐานการพิมพ์
 │   └── update_documentation_8screens.py# สคริปต์อัปเดตสถาปัตยกรรมเอกสารคู่มือ 8 หน้าจอ
@@ -331,7 +344,8 @@ spectrometer_npk2026/
 │   ├── index.html                      # แดชบอร์ดมอนิเตอร์ NPK และสมบัติของเหลว
 │   ├── viewer_3d.html                  # ระบบพรีวิว 3 มิติห้องตรวจวัดแสง (Three.js Interactive Viewer)
 │   ├── thailand_viewer_3d.html         # ระบบพรีวิว 3 มิติแผนที่ประเทศไทยและลุ่มน้ำ (Three.js)
-│   └── tzr_viewer_3d.html              # ระบบพรีวิว 3 มิติมอเตอร์ไซค์ Yamaha TZR เรซซิ่ง (Three.js)
+│   ├── tzr_viewer_3d.html              # ระบบพรีวิว 3 มิติมอเตอร์ไซค์ Yamaha TZR เรซซิ่ง (Three.js)
+│   └── quantum_chibi_viewer_3d.html    # ระบบพรีวิว 3 มิติฟิกเกอร์สี่บิดาควอนตัม Chibi (Three.js)
 └── data/
     ├── NPK.csv                         # ตัวอย่างประวัติการวัดความเข้มข้นดิน
     ├── SPECTRUM.csv                    # ตัวอย่างสเปกตรัมการดูดกลืนแสง

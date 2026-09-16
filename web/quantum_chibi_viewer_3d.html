@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Physicists Chibi 3D Viewer - Pixar/Ghibli Collection</title>
+    <style>
+        :root {
+            --primary: #00e5ff;
+            --accent: #f59e0b;
+            --einstein: #fb923c;
+            --planck: #eab308;
+            --heisenberg: #06b6d4;
+            --schrodinger: #10b981;
+            --bg-dark: #070b14;
+            --panel-bg: rgba(11, 16, 30, 0.92);
+            --border-color: rgba(0, 229, 255, 0.28);
+            --text-main: #f1f5f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Sarabun", "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        header {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            z-index: 10;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, #06b6d4, #0284c7);
+            color: #fff;
+            font-weight: 900;
+            font-size: 0.95rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        header h1 span.highlight {
+            color: var(--primary);
+        }
+
+        header p {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .controls-panel {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 10;
+            width: 360px;
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .char-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .char-btn {
+            background: rgba(30, 41, 59, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .char-btn:hover {
+            background: rgba(0, 229, 255, 0.18);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .char-btn.active {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(14, 165, 233, 0.2));
+            border-color: var(--primary);
+            color: #00e5ff;
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.35);
+        }
+
+        .char-btn.full-width {
+            grid-column: span 2;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.2));
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #fef08a;
+        }
+
+        .char-btn.full-width.active {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(217, 119, 6, 0.35));
+            border-color: #f59e0b;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+            color: #fff;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .tool-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 0.74rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tool-btn:hover {
+            background: rgba(0, 229, 255, 0.18);
+            border-color: var(--primary);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(14, 165, 233, 0.25));
+            border-color: var(--primary);
+            color: #00e5ff;
+            font-weight: 600;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+        }
+
+        .bio-card {
+            background: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.74rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .bio-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .formula-tag {
+            background: rgba(0, 229, 255, 0.15);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin: 3px 0;
+        }
+
+        .specs-badge {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px dashed rgba(255, 255, 255, 0.18);
+            border-radius: 8px;
+            padding: 9px 11px;
+            font-size: 0.70rem;
+            line-height: 1.45;
+            color: #94a3b8;
+        }
+
+        .specs-badge ul {
+            list-style: none;
+            margin-top: 3px;
+        }
+
+        .specs-badge li {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 2px;
+        }
+
+        .specs-badge li::before {
+            content: "✦";
+            position: absolute;
+            left: 2px;
+            color: var(--accent);
+        }
+
+        .hud-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .download-bar {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #06b6d4, #0284c7);
+            color: #ffffff;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(6, 182, 212, 0.65);
+        }
+
+        .btn-download.secondary {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            color: var(--primary);
+        }
+
+        .btn-download.secondary:hover {
+            background: rgba(0, 229, 255, 0.2);
+        }
+
+        /* Loading spinner */
+        #loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(7, 10, 18, 0.92);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            transition: opacity 0.4s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 229, 255, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-text {
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+
+        .annotation-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: rgba(13, 20, 36, 0.92);
+            border: 1px solid var(--primary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            color: #fff;
+            pointer-events: none;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+
+        .annotation-label::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px;
+            border-style: solid;
+            border-color: var(--primary) transparent transparent transparent;
+        }
+    </style>
+    <!-- Three.js + OrbitControls + STLLoader from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div id="loading-text">กำลังโหลดโมเดล 3D Chibi Quantum...</div>
+    </div>
+
+    <header>
+        <div class="brand-badge">PIXAR × GHIBLI</div>
+        <div>
+            <h1><span class="highlight">The Quantum Quartet</span> • 3D Chibi Collection</h1>
+            <p>Albert Einstein • Max Planck • Werner Heisenberg • Erwin Schrödinger | AI4D AgriPhysics CAD</p>
+        </div>
+    </header>
+
+    <div class="controls-panel">
+        <div class="section-title">
+            <span>เลือกฟิกเกอร์ (Select Character)</span>
+        </div>
+        <div class="char-grid">
+            <button class="char-btn full-width active" id="btn-char-diorama" onclick="switchCharacter('diorama')">
+                🌟 สี่บิดาควอนตัมครบทีม (Grand Diorama)
+            </button>
+            <button class="char-btn" id="btn-char-einstein" onclick="switchCharacter('einstein')">
+                🍎 ไอน์สไตน์ (Einstein)
+            </button>
+            <button class="char-btn" id="btn-char-planck" onclick="switchCharacter('planck')">
+                💡 พลังค์ (Planck)
+            </button>
+            <button class="char-btn" id="btn-char-heisenberg" onclick="switchCharacter('heisenberg')">
+                ⚛️ ไฮเซินแบร์ก (Heisenberg)
+            </button>
+            <button class="char-btn" id="btn-char-schrodinger" onclick="switchCharacter('schrodinger')">
+                🐱 ชเรอดิงเงอร์ (Schrödinger)
+            </button>
+        </div>
+
+        <div class="section-title">
+            <span>ข้อมูลและสมการเอกลักษณ์ (Discovery Card)</span>
+        </div>
+        <div class="bio-card" id="bio-card-content">
+            <!-- Dynamically populated -->
+        </div>
+
+        <div class="section-title">
+            <span>แสงและบรรยากาศเรนเดอร์ (Lighting Studio)</span>
+        </div>
+        <div class="btn-grid">
+            <button class="tool-btn active" id="btn-light-pixar" onclick="setLightingTheme('pixar')">🎨 Pixar Warm Studio</button>
+            <button class="tool-btn" id="btn-light-ghibli" onclick="setLightingTheme('ghibli')">🌿 Ghibli Sunlight</button>
+            <button class="tool-btn" id="btn-light-cyber" onclick="setLightingTheme('cyber')">⚡ Quantum Cyber</button>
+            <button class="tool-btn" id="btn-light-marble" onclick="setLightingTheme('marble')">🏛️ Alabaster Marble</button>
+        </div>
+
+        <div class="section-title">
+            <span>ตัวช่วยแสดงผล (Display Tools)</span>
+        </div>
+        <div class="btn-grid">
+            <button class="tool-btn active" id="btn-toggle-pins" onclick="togglePins()">📍 ป้ายชี้ 3D</button>
+            <button class="tool-btn" id="btn-wireframe" onclick="toggleWireframe()">🕸️ โครงตาข่าย Mesh</button>
+            <button class="tool-btn active" id="btn-autorotate" onclick="toggleAutoRotate()">🔄 หมุนรอบตัว</button>
+            <button class="tool-btn" onclick="resetCamera()">🎯 รีเซ็ตมุมมอง</button>
+        </div>
+
+        <div class="specs-badge">
+            <b>มาตรฐานการสร้างเมช 3 มิติ (3D Mesh Specs):</b>
+            <ul>
+                <li><b>สไตล์ศิลปะ:</b> Pixar / Studio Ghibli Chibi (อัตราส่วน 1:2.5)</li>
+                <li><b>ความสูงโมเดล:</b> 90 - 100 mm (ขนาดตั้งโต๊ะพิมพ์ 3D สมบูรณ์แบบ)</li>
+                <li><b>โทโพโลยี:</b> 100% Watertight Manifold (ไร้ขอบรั่ว Boundary Edges = 0)</li>
+                <li><b>เทคโนโลยี:</b> Vectorized Signed Distance Fields & Marching Cubes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="hud-status">
+        <div class="status-dot"></div>
+        <span id="hud-text">โมเดล 3D โหลดสำเร็จ: 290,830 สามเหลี่ยม (Watertight Manifold)</span>
+    </div>
+
+    <div class="download-bar">
+        <a id="btn-download-scad" href="quantum_physicists_chibi.scad" download="quantum_physicists_chibi.scad" class="btn-download secondary" title="ดาวน์โหลดโค้ดพารามิเตอร์ OpenSCAD">
+            📐 โค้ด OpenSCAD
+        </a>
+        <a id="btn-download-art" href="quantum_chibi_quartet.jpg" target="_blank" class="btn-download secondary" title="เปิดดูภาพคอนเซ็ปต์อาร์ต 3D Pixar/Ghibli">
+            🖼️ คอนเซ็ปต์อาร์ต
+        </a>
+        <a id="btn-download-stl" href="quantum_quartet_diorama_3d.stl" download="quantum_quartet_diorama_3d.stl" class="btn-download" title="ดาวน์โหลดไฟล์โมเดล 3D STL">
+            📥 ดาวน์โหลด 3D STL
+        </a>
+    </div>
+
+    <div id="labels-container"></div>
+
+    <script>
+        // Check relative path context
+        const inModelsDir = window.location.pathname.includes('/models_3d/');
+        const stlBase = inModelsDir ? './' : '../models_3d/quantum_physicists_chibi/';
+
+        document.getElementById('btn-download-scad').href = stlBase + 'quantum_physicists_chibi.scad';
+        document.getElementById('btn-download-art').href = stlBase + 'quantum_chibi_quartet.jpg';
+
+        const container = document.getElementById('canvas-container');
+        const labelsContainer = document.getElementById('labels-container');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const hudText = document.getElementById('hud-text');
+        const bioContent = document.getElementById('bio-card-content');
+
+        // Character Biographies & Meta
+        const charData = {
+            diorama: {
+                title: "The Quantum Quartet (สี่บิดาแห่งควอนตัม)",
+                subtitle: "การรวมตัวของ 4 เสาหลักผู้พลิกโฉมฟิสิกส์ยุคใหม่",
+                formula: "Quantum Mechanics & Relativity",
+                desc: "ชุดรวมฟิกเกอร์สี่นักฟิสิกส์เอกของโลกในสไตล์ Chibi หัวโตน่ารัก ตั้งบนแท่นไม้วอลนัต พร้อมพร็อพสัญลักษณ์ประจำตัว: ไอน์สไตน์ (E=mc²), พลังค์ (hν), ไฮเซินแบร์ก (ΔxΔp), และชเรอดิงเงอร์ (น้องแมวในกล่อง)",
+                file: "quantum_quartet_diorama_3d.stl",
+                cam: { x: 0, y: -190, z: 95, targetZ: 38 },
+                pins: [
+                    { name: "ไอน์สไตน์: กระดาน E=mc²", x: -78, y: 15, z: 42 },
+                    { name: "พลังค์: ลูกแก้วพลังงาน hν", x: -26, y: 15, z: 40 },
+                    { name: "ไฮเซินแบร์ก: วงโคจรอะตอม", x: 26, y: 15, z: 46 },
+                    { name: "ชเรอดิงเงอร์: กล่องน้องแมว", x: 78, y: 15, z: 44 }
+                ]
+            },
+            einstein: {
+                title: "Albert Einstein (อัลเบิร์ต ไอน์สไตน์)",
+                subtitle: "ผู้ค้นพบทฤษฎีโฟโตอิเล็กทริก & สัมพัทธภาพ (Nobel 1921)",
+                formula: "E = mc²  |  hν = W + Ek",
+                desc: "ฟิกเกอร์ไอน์สไตน์ในชุดสเวตเตอร์ไหมพรมแสนอบอุ่น ทรงผมสีขาวฟูฟ่องอันเป็นเอกลักษณ์ หนวดหนาน่ารัก ถือกระดานชนวนชอล์กสลักสมการก้องโลก E = mc² ด้วยสองมืออย่างภูมิใจ",
+                file: "einstein_chibi_3d.stl",
+                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                pins: [
+                    { name: "ทรงผมฟูฟ่องสีขาวสไตล์พิกซาร์", x: 0, y: -10, z: 78 },
+                    { name: "หนวดหนาและจมูกกระดุมน่ารัก", x: 0, y: 17, z: 58 },
+                    { name: "กระดานชนวนไม้สลัก E = mc²", x: 0, y: 16, z: 40 },
+                    { name: "แท่นวางไม้แกะสลักป้ายทองเหลือง", x: 0, y: -18, z: 5 }
+                ]
+            },
+            planck: {
+                title: "Max Planck (มักซ์ พลังค์)",
+                subtitle: "ผู้ให้กำเนิดแนวคิดควอนตัมแห่งพลังงาน (Nobel 1918)",
+                formula: "E = hν  |  h = 6.626 × 10⁻³⁴ J·s",
+                desc: "สุภาพบุรุษนักฟิสิกส์เยอรมันผู้ทรงภูมิ สวมสูททักซิโด้ติดหูกระต่ายและแว่นตาหนีบจมูก (Pince-Nez) สองมือประคอง 'ลูกแก้วควอนตัมแห่งพลังงาน' เรืองแสงสีทองอร่าม ที่มีวงแหวนพลังงานหมุนวนรอบตัว",
+                file: "planck_chibi_3d.stl",
+                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                pins: [
+                    { name: "แว่นตากลมสไตล์ Pince-Nez", x: 0, y: 17, z: 62 },
+                    { name: "ชุดสูทคอทักซิโด้พร้อมหูกระต่าย", x: 0, y: 7, z: 46 },
+                    { name: "ลูกแก้วควอนตัมเรืองแสง (hν)", x: 0, y: 16, z: 38 },
+                    { name: "วงแหวนระดับพลังงานควอนตัม", x: 0, y: 16, z: 47 }
+                ]
+            },
+            heisenberg: {
+                title: "Werner Heisenberg (แวร์เนอร์ ไฮเซินแบร์ก)",
+                subtitle: "บิดาแห่งกลศาสตร์เมทริกซ์ & หลักความไม่แน่นอน (Nobel 1932)",
+                formula: "Δx · Δp ≥ ℏ/2",
+                desc: "นักทฤษฎีหนุ่มอัจฉริยะในยุค 1920s ทรงผมลอนปัดข้างสุดเท่ สวมสูทผูกเนกไท มือขวายกชูแบบจำลองอะตอมควอนตัมพร้อมกลุ่มหมอกวงแหวนความน่าจะเป็น สะท้อนหลักความไม่แน่นอนอันลือลั่น",
+                file: "heisenberg_chibi_3d.stl",
+                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                pins: [
+                    { name: "ทรงผมลอนปัดข้างสไตล์หนุ่ม 1920s", x: -2, y: 2, z: 78 },
+                    { name: "เนกไทและเสื้อคลุมสไตล์นักวิชาการ", x: 0, y: 7, z: 42 },
+                    { name: "นิวเคลียสอะตอมและกลุ่มหมอกอิเล็กตรอน", x: 13, y: 14, z: 43 },
+                    { name: "วงแหวนความน่าจะเป็นตัดกัน 2 ระนาบ", x: 13, y: 14, z: 52 }
+                ]
+            },
+            schrodinger: {
+                title: "Erwin Schrödinger (แอร์วิน ชเรอดิงเงอร์)",
+                subtitle: "ผู้คิดค้นสมการคลื่นควอนตัม & ปริศนาแมวในกล่อง (Nobel 1933)",
+                formula: "iℏ ∂ψ/∂t = Ĥψ",
+                desc: "ศาสตราจารย์ผู้เปี่ยมเสน่ห์ สวมแว่นตากรอบกลมและเสื้อกั๊กไหมพรม สองมือโอบอุ้ม 'กล่องทดลองทางความคิด' ที่มีน้องแมวสีส้มลายสลิดโผล่หัวหูตั้ง พร้อมสองอุ้งเท้าเกาะขอบกล่องอย่างน่าเอ็นดู",
+                file: "schrodinger_chibi_3d.stl",
+                cam: { x: 0, y: -95, z: 65, targetZ: 46 },
+                pins: [
+                    { name: "แว่นตากรอบกลมศาสตราจารย์", x: 0, y: 17, z: 62 },
+                    { name: "เสื้อกั๊กไหมพรมสไตล์วินเทจ", x: 0, y: 6, z: 45 },
+                    { name: "กล่องกระดาษทดลองชเรอดิงเงอร์", x: 8, y: 14, z: 36 },
+                    { name: "น้องแมวควอนตัมโผล่หัวเกาะขอบกล่อง", x: 8, y: 15, z: 46 }
+                ]
+            }
+        };
+
+        // Scene, Camera, Renderer
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x070b14);
+        scene.fog = new THREE.FogExp2(0x070b14, 0.0022);
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 2000);
+        camera.position.set(0, -180, 95);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // OrbitControls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.target.set(0, 0, 38);
+        controls.maxPolarAngle = Math.PI / 2 - 0.01; // Don't clip below floor
+        controls.minDistance = 20;
+        controls.maxDistance = 500;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.8;
+
+        // Lighting System
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.50);
+        scene.add(ambientLight);
+
+        const keyLight = new THREE.DirectionalLight(0xfffaed, 1.35);
+        keyLight.position.set(90, -100, 140);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.camera.near = 10;
+        keyLight.shadow.camera.far = 450;
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0x00e5ff, 0.45);
+        fillLight.position.set(-110, 100, 80);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0xf59e0b, 0.50);
+        rimLight.position.set(70, 110, 90);
+        scene.add(rimLight);
+
+        // Floor Grid & Pedestal
+        const gridHelper = new THREE.GridHelper(360, 36, 0x00e5ff, 0x1e293b);
+        gridHelper.rotation.x = Math.PI / 2;
+        gridHelper.position.z = 0;
+        scene.add(gridHelper);
+
+        const floorGeom = new THREE.PlaneGeometry(500, 500);
+        const floorMat = new THREE.MeshStandardMaterial({
+            color: 0x060911,
+            roughness: 0.85,
+            metalness: 0.2
+        });
+        const floorMesh = new THREE.Mesh(floorGeom, floorMat);
+        floorMesh.position.z = -0.1;
+        floorMesh.receiveShadow = true;
+        scene.add(floorMesh);
+
+        // State variables
+        let currentChar = 'diorama';
+        let currentLighting = 'pixar';
+        let isWireframe = false;
+        let showPins = true;
+        let activeMesh = null;
+        const groupPins = new THREE.Group();
+        scene.add(groupPins);
+
+        // Pixar / Ghibli Vertex Color Assignment based on 3D geometry
+        function applyPixarVertexColors(geometry, charKey) {
+            const pos = geometry.attributes.position;
+            const count = pos.count;
+            let colors = geometry.attributes.color ? geometry.attributes.color.array : new Float32Array(count * 3);
+            const tempColor = new THREE.Color();
+
+            for (let i = 0; i < count; i++) {
+                const x = pos.getX(i);
+                const y = pos.getY(i);
+                const z = pos.getZ(i);
+
+                // 1. Plinth base
+                if (z < 10.0) {
+                    // Brass nameplate on front
+                    if (y < -15.0 && z > 3.0 && z < 9.0) {
+                        tempColor.setHex(0xeab308); // Polished brass
+                    } else {
+                        tempColor.setHex(0x451a03); // Warm mahogany wood
+                    }
+                }
+                // 2. Shoes
+                else if (z < 14.5 && Math.abs(y) < 12.0) {
+                    tempColor.setHex(0x18181b); // Classic leather shoes
+                }
+                // 3. Trousers
+                else if (z < 25.0) {
+                    if (charKey === 'einstein') tempColor.setHex(0x57534e); // Brownish grey
+                    else if (charKey === 'planck') tempColor.setHex(0x1e293b); // Dark charcoal suit
+                    else if (charKey === 'heisenberg') tempColor.setHex(0x78716c); // Warm khaki
+                    else tempColor.setHex(0x475569); // Slate grey
+                }
+                // 4. Torso Clothing
+                else if (z < 49.0) {
+                    // Props detection in front (y > 10.0)
+                    if (y > 9.5) {
+                        if (charKey === 'einstein' || (charKey === 'diorama' && x < -50)) {
+                            // Chalkboard
+                            tempColor.setHex(z > 37 && z < 42 ? 0x0f172a : 0xb45309); // Slate & wood frame
+                        } else if (charKey === 'planck' || (charKey === 'diorama' && x >= -50 && x < 0)) {
+                            // Glowing quantum orb
+                            tempColor.setHex(0xfacc15); // Glowing gold
+                        } else if (charKey === 'heisenberg' || (charKey === 'diorama' && x >= 0 && x < 50)) {
+                            // Uncertainty atom orbital ring
+                            tempColor.setHex(0x38bdf8); // Glowing cyan
+                        } else {
+                            // Schrödinger's Box & Cat
+                            if (z > 43.0) {
+                                tempColor.setHex(0xf97316); // Ginger tabby cat
+                            } else {
+                                tempColor.setHex(0xd97706); // Cardboard kraft box
+                            }
+                        }
+                    } else {
+                        // Sweater / Jacket
+                        if (charKey === 'einstein') tempColor.setHex(0xa8a29e); // Cozy knitted wool sweater
+                        else if (charKey === 'planck') tempColor.setHex(0x0f172a); // Frock coat with bowtie
+                        else if (charKey === 'heisenberg') tempColor.setHex(0x1e40af); // 1920s blue jacket
+                        else tempColor.setHex(0x15803d); // Green sweater vest
+                    }
+                }
+                // 5. Head & Facial Features
+                else {
+                    // Hair detection
+                    const distFromCenter = Math.hypot(x % 52, y);
+                    if (z > 70.0 || (distFromCenter > 17.5 && y < 8.0) || (y < -10.0)) {
+                        if (charKey === 'einstein' || (charKey === 'diorama' && x < -50)) {
+                            tempColor.setHex(0xf1f5f9); // Fluffy white hair
+                        } else if (charKey === 'planck' || (charKey === 'diorama' && x >= -50 && x < 0)) {
+                            tempColor.setHex(0x94a3b8); // Silver-grey distinguished hair
+                        } else if (charKey === 'heisenberg' || (charKey === 'diorama' && x >= 0 && x < 50)) {
+                            tempColor.setHex(0x78350f); // Warm wavy chestnut hair
+                        } else {
+                            tempColor.setHex(0x451a03); // Deep brown combed hair
+                        }
+                    }
+                    // Mustache detection
+                    else if (y > 15.0 && z > 54.0 && z < 58.5) {
+                        if (charKey === 'einstein' || (charKey === 'diorama' && x < -50)) {
+                            tempColor.setHex(0xe2e8f0); // White bushy mustache
+                        } else {
+                            tempColor.setHex(0x64748b); // Grey mustache
+                        }
+                    }
+                    // Cute soft skin tone
+                    else {
+                        // Rosy cheeks
+                        if (y > 7.0 && z > 54.0 && z < 61.0 && Math.abs(x % 52) > 8.0) {
+                            tempColor.setHex(0xfca5a5); // Rosy blush
+                        } else {
+                            tempColor.setHex(0xfed7aa); // Warm peach skin
+                        }
+                    }
+                }
+
+                colors[i * 3] = tempColor.r;
+                colors[i * 3 + 1] = tempColor.g;
+                colors[i * 3 + 2] = tempColor.b;
+            }
+
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        }
+
+        // STLLoader
+        const loader = new THREE.STLLoader();
+
+        function loadModel(charKey) {
+            loadingOverlay.style.opacity = '1';
+            loadingOverlay.style.pointerEvents = 'auto';
+            const data = charData[charKey];
+            loadingText.innerText = `กำลังโหลดโมเดล 3D ${data.title}...`;
+
+            const url = stlBase + data.file;
+
+            loader.load(url, function (geometry) {
+                if (activeMesh) {
+                    scene.remove(activeMesh);
+                    activeMesh.geometry.dispose();
+                    activeMesh.material.dispose();
+                }
+
+                geometry.computeVertexNormals();
+                applyPixarVertexColors(geometry, charKey);
+
+                const mat = new THREE.MeshStandardMaterial({
+                    vertexColors: true,
+                    wireframe: isWireframe,
+                    roughness: currentLighting === 'marble' ? 0.35 : 0.45,
+                    metalness: currentLighting === 'marble' ? 0.1 : 0.25
+                });
+
+                activeMesh = new THREE.Mesh(geometry, mat);
+                activeMesh.castShadow = true;
+                activeMesh.receiveShadow = true;
+                scene.add(activeMesh);
+
+                const triCount = geometry.attributes.position.count / 3;
+                hudText.innerText = `โมเดล 3D โหลดสำเร็จ: ${triCount.toLocaleString()} สามเหลี่ยม (Watertight Manifold)`;
+
+                // Update download link
+                document.getElementById('btn-download-stl').href = url;
+                document.getElementById('btn-download-stl').download = data.file;
+
+                // Update Bio Card
+                updateBioCard(data);
+
+                // Update Camera & Pins
+                setupCameraForChar(data);
+                buildPins(data.pins);
+
+                loadingOverlay.style.opacity = '0';
+                loadingOverlay.style.pointerEvents = 'none';
+            }, function (xhr) {
+                if (xhr.lengthComputable) {
+                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                    loadingText.innerText = `กำลังดาวน์โหลดเมช 3D... ${percent}%`;
+                }
+            }, function (error) {
+                console.error("Error loading STL:", error);
+                loadingText.innerText = `⚠️ ไม่พบไฟล์โมเดลที่ ${url}`;
+            });
+        }
+
+        function updateBioCard(data) {
+            bioContent.innerHTML = `
+                <div class="bio-title">
+                    <span>${data.title}</span>
+                </div>
+                <div style="font-size:0.72rem; color:#94a3b8;">${data.subtitle}</div>
+                <div><span class="formula-tag">${data.formula}</span></div>
+                <p style="margin-top:2px;">${data.desc}</p>
+            `;
+        }
+
+        function switchCharacter(key) {
+            if (currentChar === key) return;
+            currentChar = key;
+            document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-char-${key}`).classList.add('active');
+            loadModel(key);
+        }
+
+        function setupCameraForChar(data) {
+            controls.autoRotate = true;
+            document.getElementById('btn-autorotate').classList.add('active');
+            const camTarget = new THREE.Vector3(0, 0, data.cam.targetZ);
+            const camPos = new THREE.Vector3(data.cam.x, data.cam.y, data.cam.z);
+            animateCamera(camPos, camTarget);
+        }
+
+        function animateCamera(targetCamPos, targetLookAt) {
+            const startPos = camera.position.clone();
+            const startTarget = controls.target.clone();
+            const startTime = performance.now();
+            const duration = 600;
+
+            function updateCam() {
+                const elapsed = performance.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                camera.position.lerpVectors(startPos, targetCamPos, ease);
+                controls.target.lerpVectors(startTarget, targetLookAt, ease);
+                if (progress < 1) requestAnimationFrame(updateCam);
+            }
+            updateCam();
+        }
+
+        // 3D Callout Pins
+        function buildPins(pinsList) {
+            while (groupPins.children.length > 0) {
+                groupPins.remove(groupPins.children[0]);
+            }
+            labelsContainer.innerHTML = '';
+
+            const pinGeom = new THREE.SphereGeometry(1.6, 16, 16);
+            pinsList.forEach((p, idx) => {
+                const pinGroup = new THREE.Group();
+                pinGroup.position.set(p.x, p.y, p.z);
+
+                const pinMat = new THREE.MeshStandardMaterial({
+                    color: 0x00e5ff,
+                    emissive: 0x00e5ff,
+                    emissiveIntensity: 0.7
+                });
+                const sphere = new THREE.Mesh(pinGeom, pinMat);
+                pinGroup.add(sphere);
+
+                // Stem
+                const stemGeom = new THREE.CylinderGeometry(0.2, 0.2, 8, 8);
+                const stemMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+                const stem = new THREE.Mesh(stemGeom, stemMat);
+                stem.position.z = -4;
+                stem.rotation.x = Math.PI / 2;
+                pinGroup.add(stem);
+
+                groupPins.add(pinGroup);
+
+                // Label Overlay
+                const label = document.createElement('div');
+                label.className = 'annotation-label';
+                label.id = `label-pin-${idx}`;
+                label.innerText = p.name;
+                labelsContainer.appendChild(label);
+            });
+        }
+
+        function togglePins() {
+            showPins = !showPins;
+            document.getElementById('btn-toggle-pins').classList.toggle('active', showPins);
+            groupPins.visible = showPins;
+            labelsContainer.style.display = showPins ? 'block' : 'none';
+        }
+
+        function toggleWireframe() {
+            isWireframe = !isWireframe;
+            document.getElementById('btn-wireframe').classList.toggle('active', isWireframe);
+            if (activeMesh) activeMesh.material.wireframe = isWireframe;
+        }
+
+        function toggleAutoRotate() {
+            controls.autoRotate = !controls.autoRotate;
+            document.getElementById('btn-autorotate').classList.toggle('active', controls.autoRotate);
+        }
+
+        function resetCamera() {
+            const data = charData[currentChar];
+            setupCameraForChar(data);
+        }
+
+        function setLightingTheme(theme) {
+            currentLighting = theme;
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                if (btn.id && btn.id.startsWith('btn-light-')) btn.classList.remove('active');
+            });
+            document.getElementById(`btn-light-${theme}`).classList.add('active');
+
+            if (theme === 'pixar') {
+                ambientLight.color.setHex(0xffffff);
+                ambientLight.intensity = 0.50;
+                keyLight.color.setHex(0xfffaed);
+                keyLight.intensity = 1.35;
+                fillLight.color.setHex(0x00e5ff);
+                fillLight.intensity = 0.45;
+                rimLight.color.setHex(0xf59e0b);
+                rimLight.intensity = 0.50;
+                scene.background.setHex(0x070b14);
+                scene.fog.color.setHex(0x070b14);
+            } else if (theme === 'ghibli') {
+                ambientLight.color.setHex(0xfff7ed);
+                ambientLight.intensity = 0.65;
+                keyLight.color.setHex(0xfef08a);
+                keyLight.intensity = 1.20;
+                fillLight.color.setHex(0x86efac);
+                fillLight.intensity = 0.35;
+                rimLight.color.setHex(0x93c5fd);
+                rimLight.intensity = 0.40;
+                scene.background.setHex(0x0f172a);
+                scene.fog.color.setHex(0x0f172a);
+            } else if (theme === 'cyber') {
+                ambientLight.color.setHex(0x1e1b4b);
+                ambientLight.intensity = 0.30;
+                keyLight.color.setHex(0x00e5ff);
+                keyLight.intensity = 1.60;
+                fillLight.color.setHex(0xd946ef);
+                fillLight.intensity = 1.10;
+                rimLight.color.setHex(0x3b82f6);
+                rimLight.intensity = 0.90;
+                scene.background.setHex(0x030508);
+                scene.fog.color.setHex(0x030508);
+            } else if (theme === 'marble') {
+                ambientLight.color.setHex(0xffffff);
+                ambientLight.intensity = 0.70;
+                keyLight.color.setHex(0xffffff);
+                keyLight.intensity = 1.10;
+                fillLight.color.setHex(0x94a3b8);
+                fillLight.intensity = 0.40;
+                rimLight.color.setHex(0xcbd5e1);
+                rimLight.intensity = 0.40;
+                scene.background.setHex(0x18181b);
+                scene.fog.color.setHex(0x18181b);
+            }
+        }
+
+        function updateLabels() {
+            if (!showPins) return;
+            const tempV = new THREE.Vector3();
+            const data = charData[currentChar];
+            data.pins.forEach((p, idx) => {
+                tempV.set(p.x, p.y, p.z + 1.8);
+                tempV.project(camera);
+
+                if (tempV.z > 1) {
+                    const label = document.getElementById(`label-pin-${idx}`);
+                    if (label) label.style.opacity = '0';
+                    return;
+                }
+
+                const x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
+
+                const label = document.getElementById(`label-pin-${idx}`);
+                if (label) {
+                    label.style.left = `${x}px`;
+                    label.style.top = `${y}px`;
+                    label.style.opacity = '1';
+                }
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            updateLabels();
+            renderer.render(scene, camera);
+        }
+
+        // Init
+        loadModel(currentChar);
+        animate();
+    </script>
+</body>
+</html>
