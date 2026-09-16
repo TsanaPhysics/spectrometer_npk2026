@@ -286,12 +286,15 @@
             <button class="tool-btn active" id="btn-toggle-pcb" onclick="toggleVisibility('pcb')">เซนเซอร์ (PCBs)</button>
         </div>
 
+        <div class="section-title">วิศวกรรมโมเดล 3D (Workstation & Chassis)</div>
         <div class="btn-grid">
-            <button class="tool-btn" id="btn-wireframe" onclick="toggleWireframe()">โครงลวด (Wireframe)</button>
-            <button class="tool-btn" id="btn-cutaway" onclick="toggleCutaway()">ผ่าครึ่ง (Cutaway)</button>
-            <button class="tool-btn" id="btn-load-spector" onclick="loadSpectorV4()">SpectorV4 Shell</button>
-            <button class="tool-btn" id="btn-reset-cam" onclick="resetCamera()">รีเซ็ตมุมกล้อง</button>
-            <button class="tool-btn" id="btn-autorotate" onclick="toggleAutoRotate()">หมุนรอบตัว</button>
+            <button class="tool-btn" id="btn-load-spector5" onclick="loadSpectorV5()">🌟 SpectorV5 Console</button>
+            <button class="tool-btn" id="btn-load-spector5-lid" onclick="loadSpectorV5Lid()">🔒 SpectorV5 Lid</button>
+            <button class="tool-btn" id="btn-load-spector" onclick="loadSpectorV4()">📦 SpectorV4 Shell</button>
+            <button class="tool-btn" id="btn-wireframe" onclick="toggleWireframe()">🕸️ โครงลวด</button>
+            <button class="tool-btn" id="btn-cutaway" onclick="toggleCutaway()">✂️ ผ่าครึ่ง</button>
+            <button class="tool-btn" id="btn-autorotate" onclick="toggleAutoRotate()">🔄 หมุนรอบตัว</button>
+            <button class="tool-btn" id="btn-reset-cam" onclick="resetCamera()">🎯 รีเซ็ตมุม</button>
         </div>
 
         <div class="specs-badge">
@@ -530,6 +533,9 @@
         sliderExploded.addEventListener('input', (e) => {
             currentExploded = parseFloat(e.target.value);
             groupLid.position.y = 36 + currentExploded;
+            if (spectorV5LidMesh) {
+                spectorV5LidMesh.position.y = currentExploded;
+            }
             valExploded.textContent = currentExploded + ' mm';
             document.getElementById('hud-text').textContent = `Lid Elevation: ${currentExploded} mm ${currentExploded === 0 ? '(Sealed - 100% Light Tight)' : '(Exploded View)'}`;
         });
@@ -540,7 +546,9 @@
             matLiquid.color.setHex(colorHex);
             
             document.querySelectorAll('.btn-grid button').forEach(b => {
-                if (b.id && b.id.startsWith('btn-')) b.classList.remove('active');
+                if (b.id && b.id.startsWith('btn-') && !['btn-wireframe', 'btn-cutaway', 'btn-load-spector5', 'btn-load-spector5-lid', 'btn-load-spector', 'btn-autorotate', 'btn-reset-cam', 'btn-toggle-lid', 'btn-toggle-cuvette', 'btn-toggle-beam', 'btn-toggle-pcb'].includes(b.id)) {
+                    b.classList.remove('active');
+                }
             });
             if (colorHex === 0x00a8ff) document.getElementById('btn-blue').classList.add('active');
             if (colorHex === 0x00e676) document.getElementById('btn-green').classList.add('active');
@@ -572,6 +580,9 @@
             matChamber.wireframe = isWireframe;
             matLid.wireframe = isWireframe;
             matGlass.wireframe = isWireframe;
+            if (spectorMesh) spectorMesh.material.wireframe = isWireframe;
+            if (spectorV5Mesh) spectorV5Mesh.material.wireframe = isWireframe;
+            if (spectorV5LidMesh) spectorV5LidMesh.material.wireframe = isWireframe;
             document.getElementById('btn-wireframe').classList.toggle('active', isWireframe);
         };
 
@@ -584,6 +595,9 @@
                 renderer.clippingPlanes = [];
                 document.getElementById('btn-cutaway').classList.remove('active');
             }
+            if (spectorMesh) spectorMesh.material.clippingPlanes = renderer.clippingPlanes;
+            if (spectorV5Mesh) spectorV5Mesh.material.clippingPlanes = renderer.clippingPlanes;
+            if (spectorV5LidMesh) spectorV5LidMesh.material.clippingPlanes = renderer.clippingPlanes;
         };
 
         window.resetCamera = function() {
@@ -608,14 +622,17 @@
                 return;
             }
             const loader = new THREE.STLLoader();
-            loader.load('SpectorV4.stl', function(geometry) {
+            const url = window.location.pathname.includes('/web/') ? '../models_3d/SpectorV4.stl' : 'SpectorV4.stl';
+            loader.load(url, function(geometry) {
+                geometry.rotateX(-Math.PI / 2);
                 const matSpector = new THREE.MeshStandardMaterial({
                     color: 0x38bdf8,
                     metalness: 0.25,
                     roughness: 0.6,
                     transparent: true,
                     opacity: 0.75,
-                    wireframe: isWireframe
+                    wireframe: isWireframe,
+                    clippingPlanes: renderer.clippingPlanes
                 });
                 spectorMesh = new THREE.Mesh(geometry, matSpector);
                 spectorMesh.castShadow = true;
@@ -624,7 +641,77 @@
                 document.getElementById('btn-load-spector').classList.add('active');
                 document.getElementById('hud-text').textContent = 'Loaded SpectorV4.stl Master Chassis (13,120 Triangles)';
             }, undefined, function(err) {
-                document.getElementById('hud-text').textContent = 'Cannot auto-load SpectorV4.stl via local file protocol. Drag & drop SpectorV4.stl file directly!';
+                document.getElementById('hud-text').textContent = 'Cannot auto-load SpectorV4.stl. Drag & drop SpectorV4.stl directly!';
+            });
+        };
+
+        let spectorV5Mesh = null;
+        window.loadSpectorV5 = function() {
+            if (spectorV5Mesh) {
+                spectorV5Mesh.visible = !spectorV5Mesh.visible;
+                document.getElementById('btn-load-spector5').classList.toggle('active', spectorV5Mesh.visible);
+                document.getElementById('hud-text').textContent = `SpectorV5 Workstation: ${spectorV5Mesh.visible ? 'Visible' : 'Hidden'}`;
+                return;
+            }
+            const loader = new THREE.STLLoader();
+            const url = window.location.pathname.includes('/web/') ? '../models_3d/spector_v5_workstation.stl' : 'spector_v5_workstation.stl';
+            document.getElementById('hud-text').textContent = 'Loading SpectorV5 Workstation STL mesh...';
+            loader.load(url, function(geometry) {
+                geometry.rotateX(-Math.PI / 2);
+                const matSpector5 = new THREE.MeshStandardMaterial({
+                    color: 0x06b6d4, // High-contrast cyan/teal
+                    metalness: 0.35,
+                    roughness: 0.45,
+                    transparent: true,
+                    opacity: 0.85,
+                    wireframe: isWireframe,
+                    clippingPlanes: renderer.clippingPlanes
+                });
+                spectorV5Mesh = new THREE.Mesh(geometry, matSpector5);
+                spectorV5Mesh.castShadow = true;
+                spectorV5Mesh.receiveShadow = true;
+                scene.add(spectorV5Mesh);
+                document.getElementById('btn-load-spector5').classList.add('active');
+                document.getElementById('hud-text').textContent = 'Loaded SpectorV5-Pro Workstation (585,536 Triangles)';
+                groupChamber.visible = false;
+                document.getElementById('btn-toggle-lid').classList.remove('active');
+                groupLid.visible = false;
+            }, undefined, function(err) {
+                document.getElementById('hud-text').textContent = 'Cannot auto-load spector_v5_workstation.stl. Drag & drop file directly!';
+            });
+        };
+
+        let spectorV5LidMesh = null;
+        window.loadSpectorV5Lid = function() {
+            if (spectorV5LidMesh) {
+                spectorV5LidMesh.visible = !spectorV5LidMesh.visible;
+                document.getElementById('btn-load-spector5-lid').classList.toggle('active', spectorV5LidMesh.visible);
+                document.getElementById('hud-text').textContent = `SpectorV5 Lid: ${spectorV5LidMesh.visible ? 'Visible' : 'Hidden'}`;
+                return;
+            }
+            const loader = new THREE.STLLoader();
+            const url = window.location.pathname.includes('/web/') ? '../models_3d/spector_v5_lid.stl' : 'spector_v5_lid.stl';
+            loader.load(url, function(geometry) {
+                geometry.rotateX(-Math.PI / 2);
+                const matLid5 = new THREE.MeshStandardMaterial({
+                    color: 0xf59e0b, // Amber gold
+                    metalness: 0.3,
+                    roughness: 0.5,
+                    transparent: true,
+                    opacity: 0.90,
+                    wireframe: isWireframe,
+                    clippingPlanes: renderer.clippingPlanes
+                });
+                spectorV5LidMesh = new THREE.Mesh(geometry, matLid5);
+                spectorV5LidMesh.position.set(0, currentExploded, -35.0);
+                spectorV5LidMesh.castShadow = true;
+                spectorV5LidMesh.receiveShadow = true;
+                scene.add(spectorV5LidMesh);
+                document.getElementById('btn-load-spector5-lid').classList.add('active');
+                document.getElementById('hud-text').textContent = 'Loaded SpectorV5-Pro Labyrinth Lid (148,484 Triangles)';
+                groupLid.visible = false;
+            }, undefined, function(err) {
+                document.getElementById('hud-text').textContent = 'Cannot auto-load spector_v5_lid.stl. Drag & drop file directly!';
             });
         };
 

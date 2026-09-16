@@ -40,13 +40,32 @@
 
 | ชื่อไฟล์ | ชนิดข้อมูล | บทบาทหน้าที่ |
 | :--- | :--- | :--- |
-| `cuvette_optical_chamber.scad` | OpenSCAD Script | โค้ด 3D แบบพารามิเตอร์ของห้องวัดแสง ปรับแก้ขนาดความหนาและระยะเผื่อได้อิสระ |
+| `spector_v5_workstation.scad` | OpenSCAD Script | โค้ด 3D โมเดล Workstation All-in-One เจนเนอเรชันใหม่ รวมแท่น Wio Terminal เอียง 22° และห้องวัดแสงเข้าด้วยกัน |
+| `spector_v5_lid.scad` | OpenSCAD Script | โค้ด 3D ฝาปิดเขี้ยวซ้อน 2 ชั้น (Double-stepped Labyrinth Lid) พร้อมกริปกันลื่นสำหรับ SpectorV5 |
+| `spector_v5_workstation.stl` | Binary STL Mesh | **ไฟล์พร้อมพิมพ์ 3D ทันที** สำหรับตัวเครื่อง SpectorV5 Workstation (585,536 Triangles, 27.9 MB, 100% Watertight) |
+| `spector_v5_lid.stl` | Binary STL Mesh | **ไฟล์พร้อมพิมพ์ 3D ทันที** สำหรับฝาปิดเขี้ยวซ้อน SpectorV5 (148,484 Triangles, 7.08 MB, 100% Watertight) |
+| `SpectorV4.stl` | Binary STL Mesh | โมเดลมาสเตอร์คลาสสิก SpectorV4 ต้นแบบวิศวกรรมโครงสร้าง (13,120 Triangles) |
+| `cuvette_optical_chamber.scad` | OpenSCAD Script | โค้ด 3D แบบพารามิเตอร์ของห้องวัดแสงแยกชิ้น (Modular Chamber) |
 | `light_tight_lid.scad` | OpenSCAD Script | โค้ด 3D แบบพารามิเตอร์ของฝาปิดกันแสงและกริปจับ |
 | `spectrometer_assembly.scad` | OpenSCAD Script | โมเดลรวมแบบ Exploded View พร้อมจำลองลำแสงเลเซอร์และหลอดคิวเวตต์ |
-| `cuvette_optical_chamber.stl` | Binary STL Mesh | **ไฟล์พร้อมพิมพ์ 3D ทันที** สำหรับห้องวัดแสง (286,800 Triangles) |
-| `light_tight_lid.stl` | Binary STL Mesh | **ไฟล์พร้อมพิมพ์ 3D ทันที** สำหรับฝาปิดกันแสง (209,088 Triangles) |
-| `viewer_3d.html` | Three.js Web Viewer | หน้าเว็บจำลอง 3 มิติแบบโต้ตอบ หมุน ซูม ปรับระยะยกฝา และสลับสีลำแสงได้สดๆ |
-| `../scripts/generate_3d_models.py` | Python Generator | สคริปต์คำนวณ Signed Distance Fields & Marching Cubes สำหรับสร้างไฟล์ `.stl` |
+| `cuvette_optical_chamber.stl` | Binary STL Mesh | ไฟล์ห้องวัดแสงแยกชิ้น (286,800 Triangles) |
+| `light_tight_lid.stl` | Binary STL Mesh | ไฟล์ฝาปิดกันแสงแยกชิ้น (209,088 Triangles) |
+| `viewer_3d.html` | Three.js Web Viewer | หน้าเว็บจำลอง 3 มิติแบบโต้ตอบ รองรับทั้ง SpectorV5, SpectorV4 และห้องวัดแสงแยกชิ้น |
+| `../scripts/generate_spector_v5_stl.py` | Python Generator | สคริปต์คำนวณ SDF & Marching Cubes สำหรับสร้างไฟล์ `.stl` ของ SpectorV5-Pro |
+| `../scripts/generate_3d_models.py` | Python Generator | สคริปต์คำนวณ Signed Distance Fields & Marching Cubes สำหรับสร้างไฟล์ `.stl` โมดูลาร์ |
+
+---
+
+## 2.1 สเปกวิศวกรรม SpectorV5-Pro Workstation (Master All-in-One Console)
+
+SpectorV5-Pro ได้รับการออกแบบตามกฎวิศวกรรม 5 ข้อ (The 5 Optical Rig Design Laws) ของสกิล `spectrometer-3d-chassis-architect`:
+1. **Integrated Ergonomic Console:** หน้าปัดเอียง **22 องศา** ออกแบบตามสรีรศาสตร์สายตาผู้ปฏิบัติงานในห้องปฏิบัติการและภาคสนาม มองเห็นจอ 2.4" TFT LCD ได้ชัดเจนไร้แสงสะท้อน
+2. **Coaxial Optical Alignment (Law 1):** แกนลำแสงตรง 100% เชื่อมต่อระหว่างหลอด WS2812B, ช่องรับแสงเข้า, คิวเวตต์ และเซนเซอร์ TCS34725 ที่ความสูง $Z_{\text{opt}} = 33.0\text{ mm}$ ($15.0\text{ mm}$ เหนือก้นคิวเวตต์)
+3. **Dual Collimators (Law 2):** รูจำกัดลำแสงขนาด $\varnothing 3.0\text{ mm}$ ลึก $4.0\text{ mm}$ ตัดลำแสงฟุ้งกระจายและแสงกระเจิง
+4. **Interlocking Labyrinth Seal (Law 3):** บ่าเขี้ยวซ้อนรอบเบ้าคิวเวตต์สูง $3.5\text{ mm}$ เข้าล็อกแนบสนิทกับฝาครอบ $42 \times 42\text{ mm}$
+5. **Calibrated 10mm Cuvette Slot (Law 4):** ช่องใส่คิวเวตต์ขนาด $12.75 \times 12.75\text{ mm}$ รองรับคิวเวตต์มาตรฐานได้อย่างแม่นยำ พร้อมปากร่องนำศูนย์ (Lead-in Chamfer)
+6. **High-Density Light-Tight Barrier (Law 5):** ความหนาผนังทึบแสงขั้นต่ำ $3.5\text{ mm}$ แข็งแกร่ง ทนทานต่อแรงบิด
+7. **Internal Conduit & Li-Po Bay:** ท่อร้อยสายสัญญาณ Grove ภายในซ่อนมิดชิด พร้อมห้องบรรจุแบตเตอรี่ Li-Po $80 \times 50 \times 22\text{ mm}$ ใต้เครื่องสำหรับการพกพา
 
 ---
 
