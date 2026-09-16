@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Physicists Chibi 3D Viewer - Pixar/Ghibli Collection</title>
+    <title>The Quantum Quartet 3D Viewer - Pixar / Ghibli Full-Color PBR Collection</title>
     <style>
         :root {
             --primary: #00e5ff;
@@ -13,7 +13,7 @@
             --heisenberg: #06b6d4;
             --schrodinger: #10b981;
             --bg-dark: #070b14;
-            --panel-bg: rgba(11, 16, 30, 0.92);
+            --panel-bg: rgba(11, 16, 30, 0.93);
             --border-color: rgba(0, 229, 255, 0.28);
             --text-main: #f1f5f9;
         }
@@ -106,11 +106,11 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 11px;
         }
 
         .section-title {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.8px;
@@ -134,7 +134,7 @@
             color: #e2e8f0;
             padding: 8px 10px;
             border-radius: 8px;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -184,7 +184,7 @@
             color: #e2e8f0;
             padding: 7px 10px;
             border-radius: 7px;
-            font-size: 0.74rem;
+            font-size: 0.73rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -206,22 +206,35 @@
             box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
         }
 
+        .tool-btn.color-pbr {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(168, 85, 247, 0.3));
+            border-color: rgba(236, 72, 153, 0.5);
+            color: #fbcfe8;
+        }
+
+        .tool-btn.color-pbr.active {
+            background: linear-gradient(135deg, #ec4899, #a855f7);
+            border-color: #f472b6;
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(236, 72, 153, 0.5);
+        }
+
         .bio-card {
             background: rgba(15, 23, 42, 0.88);
             border: 1px solid rgba(0, 229, 255, 0.2);
             border-radius: 10px;
             padding: 12px;
-            font-size: 0.74rem;
+            font-size: 0.73rem;
             line-height: 1.5;
             color: #cbd5e1;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
         .bio-title {
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             color: #ffffff;
             display: flex;
             align-items: center;
@@ -236,7 +249,7 @@
             border-radius: 4px;
             font-family: monospace;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             display: inline-block;
             margin: 3px 0;
         }
@@ -307,44 +320,47 @@
             right: 20px;
             z-index: 10;
             display: flex;
-            gap: 8px;
+            flex-wrap: wrap;
+            gap: 7px;
+            max-width: 620px;
+            justify-content: flex-end;
         }
 
         .btn-download {
-            background: linear-gradient(135deg, #06b6d4, #0284c7);
+            background: linear-gradient(135deg, #ec4899, #a855f7);
             color: #ffffff;
             border: none;
-            padding: 9px 16px;
+            padding: 8px 14px;
             border-radius: 8px;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 700;
             letter-spacing: 0.5px;
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
+            gap: 5px;
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);
             transition: all 0.2s ease;
         }
 
         .btn-download:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 22px rgba(6, 182, 212, 0.65);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
         }
 
         .btn-download.secondary {
             background: rgba(30, 41, 59, 0.85);
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
             color: var(--primary);
         }
 
         .btn-download.secondary:hover {
             background: rgba(0, 229, 255, 0.2);
+            box-shadow: 0 6px 18px rgba(0, 229, 255, 0.35);
         }
 
-        /* Loading spinner */
         #loading-overlay {
             position: absolute;
             top: 0;
@@ -407,9 +423,10 @@
             border-color: var(--primary) transparent transparent transparent;
         }
     </style>
-    <!-- Three.js + OrbitControls + STLLoader from CDN -->
+    <!-- Three.js + OrbitControls + GLTFLoader + STLLoader from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
 </head>
 <body>
@@ -417,18 +434,30 @@
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <div id="loading-text">กำลังโหลดโมเดล 3D Chibi Quantum...</div>
+        <div id="loading-text">กำลังโหลดโมเดล 3D Full-Color PBR...</div>
     </div>
 
     <header>
         <div class="brand-badge">PIXAR × GHIBLI</div>
         <div>
-            <h1><span class="highlight">The Quantum Quartet</span> • 3D Chibi Collection</h1>
+            <h1><span class="highlight">The Quantum Quartet</span> • 3D Full-Color PBR</h1>
             <p>Albert Einstein • Max Planck • Werner Heisenberg • Erwin Schrödinger | AI4D AgriPhysics CAD</p>
         </div>
     </header>
 
     <div class="controls-panel">
+        <div class="section-title">
+            <span>รูปแบบโมเดล (Render Mode)</span>
+        </div>
+        <div class="btn-grid">
+            <button class="tool-btn color-pbr active" id="btn-mode-pbr" onclick="setRenderFormat('glb')">
+                🌈 Full-Color PBR (GLB)
+            </button>
+            <button class="tool-btn" id="btn-mode-stl" onclick="setRenderFormat('stl')">
+                ⚙️ Solid Slicer (STL)
+            </button>
+        </div>
+
         <div class="section-title">
             <span>เลือกฟิกเกอร์ (Select Character)</span>
         </div>
@@ -454,7 +483,7 @@
             <span>ข้อมูลและสมการเอกลักษณ์ (Discovery Card)</span>
         </div>
         <div class="bio-card" id="bio-card-content">
-            <!-- Dynamically populated -->
+            <!-- Populated dynamically -->
         </div>
 
         <div class="section-title">
@@ -478,41 +507,42 @@
         </div>
 
         <div class="specs-badge">
-            <b>มาตรฐานการสร้างเมช 3 มิติ (3D Mesh Specs):</b>
+            <b>เทคโนโลยีการแสดงผลสีสมจริง (Color & PBR Specs):</b>
             <ul>
-                <li><b>สไตล์ศิลปะ:</b> Pixar / Studio Ghibli Chibi (อัตราส่วน 1:2.5)</li>
-                <li><b>ความสูงโมเดล:</b> 90 - 100 mm (ขนาดตั้งโต๊ะพิมพ์ 3D สมบูรณ์แบบ)</li>
-                <li><b>โทโพโลยี:</b> 100% Watertight Manifold (ไร้ขอบรั่ว Boundary Edges = 0)</li>
-                <li><b>เทคโนโลยี:</b> Vectorized Signed Distance Fields & Marching Cubes</li>
+                <li><b>ฟอร์แมตสีสมจริง:</b> GLB (glTF 2.0 PBR) & Color PLY</li>
+                <li><b>คุณสมบัติผิว:</b> PBR Metallic-Roughness, Glossy Eyes, Emissive Glow</li>
+                <li><b>โทนแมปปิ้ง:</b> ACESFilmic Studio Tone-mapping (Cinematic Pixar Look)</li>
+                <li><b>การพิมพ์ 3D สี:</b> รองรับ 3MF / Color Slicer (Bambu AMS / Prusa MMU)</li>
             </ul>
         </div>
     </div>
 
     <div class="hud-status">
         <div class="status-dot"></div>
-        <span id="hud-text">โมเดล 3D โหลดสำเร็จ: 290,830 สามเหลี่ยม (Watertight Manifold)</span>
+        <span id="hud-text">โมเดล 3D Full-Color PBR โหลดสำเร็จ (ตรงตามภาพคอนเซ็ปต์)</span>
     </div>
 
     <div class="download-bar">
-        <a id="btn-download-scad" href="quantum_physicists_chibi.scad" download="quantum_physicists_chibi.scad" class="btn-download secondary" title="ดาวน์โหลดโค้ดพารามิเตอร์ OpenSCAD">
-            📐 โค้ด OpenSCAD
+        <a id="btn-download-glb" href="quantum_quartet_diorama_colored.glb" download="quantum_quartet_diorama_colored.glb" class="btn-download" title="ดาวน์โหลดไฟล์ 3D Full-Color GLB สำหรับเปิดดูหรือนำเข้าเกม/อนิเมชัน">
+            🌈 ดาวน์โหลด GLB (มีสี PBR)
+        </a>
+        <a id="btn-download-ply" href="quantum_quartet_diorama_colored.ply" download="quantum_quartet_diorama_colored.ply" class="btn-download secondary" title="ดาวน์โหลดไฟล์ Color PLY สำหรับพิมพ์ 3D สีหรือ Blender">
+            🎨 ดาวน์โหลด PLY (สี Vertex)
+        </a>
+        <a id="btn-download-stl" href="quantum_quartet_diorama_3d.stl" download="quantum_quartet_diorama_3d.stl" class="btn-download secondary" title="ดาวน์โหลดไฟล์ STL สำหรับเครื่องพิมพ์ 3D">
+            🖨️ ดาวน์โหลด STL (พิมพ์ 3D)
         </a>
         <a id="btn-download-art" href="quantum_chibi_quartet.jpg" target="_blank" class="btn-download secondary" title="เปิดดูภาพคอนเซ็ปต์อาร์ต 3D Pixar/Ghibli">
-            🖼️ คอนเซ็ปต์อาร์ต
-        </a>
-        <a id="btn-download-stl" href="quantum_quartet_diorama_3d.stl" download="quantum_quartet_diorama_3d.stl" class="btn-download" title="ดาวน์โหลดไฟล์โมเดล 3D STL">
-            📥 ดาวน์โหลด 3D STL
+            🖼️ คอนเซ็ปต์อาร์ต 8K
         </a>
     </div>
 
     <div id="labels-container"></div>
 
     <script>
-        // Check relative path context
         const inModelsDir = window.location.pathname.includes('/models_3d/');
         const stlBase = inModelsDir ? './' : '../models_3d/quantum_physicists_chibi/';
 
-        document.getElementById('btn-download-scad').href = stlBase + 'quantum_physicists_chibi.scad';
         document.getElementById('btn-download-art').href = stlBase + 'quantum_chibi_quartet.jpg';
 
         const container = document.getElementById('canvas-container');
@@ -522,14 +552,16 @@
         const hudText = document.getElementById('hud-text');
         const bioContent = document.getElementById('bio-card-content');
 
-        // Character Biographies & Meta
+        // Character Meta
         const charData = {
             diorama: {
                 title: "The Quantum Quartet (สี่บิดาแห่งควอนตัม)",
                 subtitle: "การรวมตัวของ 4 เสาหลักผู้พลิกโฉมฟิสิกส์ยุคใหม่",
                 formula: "Quantum Mechanics & Relativity",
-                desc: "ชุดรวมฟิกเกอร์สี่นักฟิสิกส์เอกของโลกในสไตล์ Chibi หัวโตน่ารัก ตั้งบนแท่นไม้วอลนัต พร้อมพร็อพสัญลักษณ์ประจำตัว: ไอน์สไตน์ (E=mc²), พลังค์ (hν), ไฮเซินแบร์ก (ΔxΔp), และชเรอดิงเงอร์ (น้องแมวในกล่อง)",
-                file: "quantum_quartet_diorama_3d.stl",
+                desc: "ชุดรวมฟิกเกอร์สี่นักฟิสิกส์เอกของโลกในสไตล์ Chibi หัวโตน่ารัก สีสันสมบูรณ์แบบตามภาพคอนเซ็ปต์: ไอน์สไตน์ (E=mc²), พลังค์ (ลูกแก้วทอง hν), ไฮเซินแบร์ก (อะตอมสีฟ้าคราม), และชเรอดิงเงอร์ (น้องแมวในกล่อง)",
+                glbFile: "quantum_quartet_diorama_colored.glb",
+                plyFile: "quantum_quartet_diorama_colored.ply",
+                stlFile: "quantum_quartet_diorama_3d.stl",
                 cam: { x: 0, y: -190, z: 95, targetZ: 38 },
                 pins: [
                     { name: "ไอน์สไตน์: กระดาน E=mc²", x: -78, y: 15, z: 42 },
@@ -542,12 +574,14 @@
                 title: "Albert Einstein (อัลเบิร์ต ไอน์สไตน์)",
                 subtitle: "ผู้ค้นพบทฤษฎีโฟโตอิเล็กทริก & สัมพัทธภาพ (Nobel 1921)",
                 formula: "E = mc²  |  hν = W + Ek",
-                desc: "ฟิกเกอร์ไอน์สไตน์ในชุดสเวตเตอร์ไหมพรมแสนอบอุ่น ทรงผมสีขาวฟูฟ่องอันเป็นเอกลักษณ์ หนวดหนาน่ารัก ถือกระดานชนวนชอล์กสลักสมการก้องโลก E = mc² ด้วยสองมืออย่างภูมิใจ",
-                file: "einstein_chibi_3d.stl",
+                desc: "ฟิกเกอร์ไอน์สไตน์ในชุดสเวตเตอร์ไหมพรมสีเทาแสนอบอุ่น ทรงผมสีขาวฟูฟ่อง หนวดหนาน่ารัก นัยน์ตาสีน้ำตาลประกายสดใส ถือกระดานชนวนชอล์กสลักสมการก้องโลก E = mc² บนแท่นไม้วอลนัตจารึกป้ายทองเหลือง",
+                glbFile: "einstein_chibi_colored.glb",
+                plyFile: "einstein_chibi_colored.ply",
+                stlFile: "einstein_chibi_3d.stl",
                 cam: { x: 0, y: -95, z: 65, targetZ: 46 },
                 pins: [
                     { name: "ทรงผมฟูฟ่องสีขาวสไตล์พิกซาร์", x: 0, y: -10, z: 78 },
-                    { name: "หนวดหนาและจมูกกระดุมน่ารัก", x: 0, y: 17, z: 58 },
+                    { name: "นัยน์ตาสีน้ำตาลประกายแวววาว", x: 0, y: 15, z: 62 },
                     { name: "กระดานชนวนไม้สลัก E = mc²", x: 0, y: 16, z: 40 },
                     { name: "แท่นวางไม้แกะสลักป้ายทองเหลือง", x: 0, y: -18, z: 5 }
                 ]
@@ -556,8 +590,10 @@
                 title: "Max Planck (มักซ์ พลังค์)",
                 subtitle: "ผู้ให้กำเนิดแนวคิดควอนตัมแห่งพลังงาน (Nobel 1918)",
                 formula: "E = hν  |  h = 6.626 × 10⁻³⁴ J·s",
-                desc: "สุภาพบุรุษนักฟิสิกส์เยอรมันผู้ทรงภูมิ สวมสูททักซิโด้ติดหูกระต่ายและแว่นตาหนีบจมูก (Pince-Nez) สองมือประคอง 'ลูกแก้วควอนตัมแห่งพลังงาน' เรืองแสงสีทองอร่าม ที่มีวงแหวนพลังงานหมุนวนรอบตัว",
-                file: "planck_chibi_3d.stl",
+                desc: "สุภาพบุรุษนักฟิสิกส์เยอรมัน สวมสูททักซิโด้สีดำติดหูกระต่ายและแว่นตาหนีบจมูก (Pince-Nez) สองมือประคอง 'ลูกแก้วควอนตัมแห่งพลังงาน' สีทองเปล่งประกายเรืองแสง (Emissive Glow) มีวงแหวนพลังงานหมุนวนรอบตัว",
+                glbFile: "planck_chibi_colored.glb",
+                plyFile: "planck_chibi_colored.ply",
+                stlFile: "planck_chibi_3d.stl",
                 cam: { x: 0, y: -95, z: 65, targetZ: 46 },
                 pins: [
                     { name: "แว่นตากลมสไตล์ Pince-Nez", x: 0, y: 17, z: 62 },
@@ -570,33 +606,37 @@
                 title: "Werner Heisenberg (แวร์เนอร์ ไฮเซินแบร์ก)",
                 subtitle: "บิดาแห่งกลศาสตร์เมทริกซ์ & หลักความไม่แน่นอน (Nobel 1932)",
                 formula: "Δx · Δp ≥ ℏ/2",
-                desc: "นักทฤษฎีหนุ่มอัจฉริยะในยุค 1920s ทรงผมลอนปัดข้างสุดเท่ สวมสูทผูกเนกไท มือขวายกชูแบบจำลองอะตอมควอนตัมพร้อมกลุ่มหมอกวงแหวนความน่าจะเป็น สะท้อนหลักความไม่แน่นอนอันลือลั่น",
-                file: "heisenberg_chibi_3d.stl",
+                desc: "นักทฤษฎีหนุ่มอัจฉริยะยุค 1920s ทรงผมลอนสีน้ำตาลเชสต์นัตปัดข้าง เสื้อคาร์ดิแกนสีน้ำเงินสดใสผูกเนกไท มือขวายกชูแบบจำลองอะตอมและกลุ่มหมอกอิเล็กตรอนสีฟ้าครามเรืองแสง สะท้อนหลักความไม่แน่นอน",
+                glbFile: "heisenberg_chibi_colored.glb",
+                plyFile: "heisenberg_chibi_colored.ply",
+                stlFile: "heisenberg_chibi_3d.stl",
                 cam: { x: 0, y: -95, z: 65, targetZ: 46 },
                 pins: [
-                    { name: "ทรงผมลอนปัดข้างสไตล์หนุ่ม 1920s", x: -2, y: 2, z: 78 },
-                    { name: "เนกไทและเสื้อคลุมสไตล์นักวิชาการ", x: 0, y: 7, z: 42 },
-                    { name: "นิวเคลียสอะตอมและกลุ่มหมอกอิเล็กตรอน", x: 13, y: 14, z: 43 },
-                    { name: "วงแหวนความน่าจะเป็นตัดกัน 2 ระนาบ", x: 13, y: 14, z: 52 }
+                    { name: "ทรงผมลอนสีน้ำตาลเชสต์นัต", x: -2, y: 2, z: 78 },
+                    { name: "คาร์ดิแกนน้ำเงินและเนกไท", x: 0, y: 7, z: 42 },
+                    { name: "นิวเคลียสและวงแหวนออร์บิทัลเรืองแสง", x: 13, y: 14, z: 43 },
+                    { name: "กลุ่มหมอกความน่าจะเป็น ΔxΔp", x: 13, y: 14, z: 52 }
                 ]
             },
             schrodinger: {
                 title: "Erwin Schrödinger (แอร์วิน ชเรอดิงเงอร์)",
                 subtitle: "ผู้คิดค้นสมการคลื่นควอนตัม & ปริศนาแมวในกล่อง (Nobel 1933)",
                 formula: "iℏ ∂ψ/∂t = Ĥψ",
-                desc: "ศาสตราจารย์ผู้เปี่ยมเสน่ห์ สวมแว่นตากรอบกลมและเสื้อกั๊กไหมพรม สองมือโอบอุ้ม 'กล่องทดลองทางความคิด' ที่มีน้องแมวสีส้มลายสลิดโผล่หัวหูตั้ง พร้อมสองอุ้งเท้าเกาะขอบกล่องอย่างน่าเอ็นดู",
-                file: "schrodinger_chibi_3d.stl",
+                desc: "ศาสตราจารย์ผู้เปี่ยมเสน่ห์ สวมแว่นตากรอบกลมและเสื้อกั๊กไหมพรมสีเขียว สองมือโอบอุ้ม 'กล่องกระดาษคราฟต์สลักสัญลักษณ์ Ψ?' พร้อมน้องแมวลายส้มสุดน่ารักโผล่หัวหูตั้งสีชมพู สองอุ้งเท้าสีขาวเกาะขอบกล่อง",
+                glbFile: "schrodinger_chibi_colored.glb",
+                plyFile: "schrodinger_chibi_colored.ply",
+                stlFile: "schrodinger_chibi_3d.stl",
                 cam: { x: 0, y: -95, z: 65, targetZ: 46 },
                 pins: [
-                    { name: "แว่นตากรอบกลมศาสตราจารย์", x: 0, y: 17, z: 62 },
-                    { name: "เสื้อกั๊กไหมพรมสไตล์วินเทจ", x: 0, y: 6, z: 45 },
-                    { name: "กล่องกระดาษทดลองชเรอดิงเงอร์", x: 8, y: 14, z: 36 },
-                    { name: "น้องแมวควอนตัมโผล่หัวเกาะขอบกล่อง", x: 8, y: 15, z: 46 }
+                    { name: "แว่นตากรอบกลมและทรงผมหวีเรียบ", x: 0, y: 17, z: 62 },
+                    { name: "เสื้อกั๊กไหมพรมสีเขียววินเทจ", x: 0, y: 6, z: 45 },
+                    { name: "กล่องกระดาษคราฟต์สลัก Ψ?", x: 8, y: 14, z: 36 },
+                    { name: "น้องแมวส้มควอนตัมหูชมพูเกาะขอบกล่อง", x: 8, y: 15, z: 46 }
                 ]
             }
         };
 
-        // Scene, Camera, Renderer
+        // Three.js Scene Setup
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x070b14);
         scene.fog = new THREE.FogExp2(0x070b14, 0.0022);
@@ -609,24 +649,26 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        // Cinematic Tone Mapping
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
         container.appendChild(renderer.domElement);
 
-        // OrbitControls
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.06;
         controls.target.set(0, 0, 38);
-        controls.maxPolarAngle = Math.PI / 2 - 0.01; // Don't clip below floor
+        controls.maxPolarAngle = Math.PI / 2 - 0.01;
         controls.minDistance = 20;
         controls.maxDistance = 500;
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.8;
 
         // Lighting System
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.50);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
         scene.add(ambientLight);
 
-        const keyLight = new THREE.DirectionalLight(0xfffaed, 1.35);
+        const keyLight = new THREE.DirectionalLight(0xfffaed, 1.40);
         keyLight.position.set(90, -100, 140);
         keyLight.castShadow = true;
         keyLight.shadow.mapSize.width = 2048;
@@ -639,7 +681,7 @@
         fillLight.position.set(-110, 100, 80);
         scene.add(fillLight);
 
-        const rimLight = new THREE.DirectionalLight(0xf59e0b, 0.50);
+        const rimLight = new THREE.DirectionalLight(0xf59e0b, 0.55);
         rimLight.position.set(70, 110, 90);
         scene.add(rimLight);
 
@@ -662,174 +704,117 @@
 
         // State variables
         let currentChar = 'diorama';
+        let currentFormat = 'glb'; // 'glb' or 'stl'
         let currentLighting = 'pixar';
         let isWireframe = false;
         let showPins = true;
-        let activeMesh = null;
+        let activeModel = null;
+
         const groupPins = new THREE.Group();
         scene.add(groupPins);
 
-        // Pixar / Ghibli Vertex Color Assignment based on 3D geometry
-        function applyPixarVertexColors(geometry, charKey) {
-            const pos = geometry.attributes.position;
-            const count = pos.count;
-            let colors = geometry.attributes.color ? geometry.attributes.color.array : new Float32Array(count * 3);
-            const tempColor = new THREE.Color();
+        const gltfLoader = new THREE.GLTFLoader();
+        const stlLoader = new THREE.STLLoader();
 
-            for (let i = 0; i < count; i++) {
-                const x = pos.getX(i);
-                const y = pos.getY(i);
-                const z = pos.getZ(i);
-
-                // 1. Plinth base
-                if (z < 10.0) {
-                    // Brass nameplate on front
-                    if (y < -15.0 && z > 3.0 && z < 9.0) {
-                        tempColor.setHex(0xeab308); // Polished brass
-                    } else {
-                        tempColor.setHex(0x451a03); // Warm mahogany wood
-                    }
-                }
-                // 2. Shoes
-                else if (z < 14.5 && Math.abs(y) < 12.0) {
-                    tempColor.setHex(0x18181b); // Classic leather shoes
-                }
-                // 3. Trousers
-                else if (z < 25.0) {
-                    if (charKey === 'einstein') tempColor.setHex(0x57534e); // Brownish grey
-                    else if (charKey === 'planck') tempColor.setHex(0x1e293b); // Dark charcoal suit
-                    else if (charKey === 'heisenberg') tempColor.setHex(0x78716c); // Warm khaki
-                    else tempColor.setHex(0x475569); // Slate grey
-                }
-                // 4. Torso Clothing
-                else if (z < 49.0) {
-                    // Props detection in front (y > 10.0)
-                    if (y > 9.5) {
-                        if (charKey === 'einstein' || (charKey === 'diorama' && x < -50)) {
-                            // Chalkboard
-                            tempColor.setHex(z > 37 && z < 42 ? 0x0f172a : 0xb45309); // Slate & wood frame
-                        } else if (charKey === 'planck' || (charKey === 'diorama' && x >= -50 && x < 0)) {
-                            // Glowing quantum orb
-                            tempColor.setHex(0xfacc15); // Glowing gold
-                        } else if (charKey === 'heisenberg' || (charKey === 'diorama' && x >= 0 && x < 50)) {
-                            // Uncertainty atom orbital ring
-                            tempColor.setHex(0x38bdf8); // Glowing cyan
-                        } else {
-                            // Schrödinger's Box & Cat
-                            if (z > 43.0) {
-                                tempColor.setHex(0xf97316); // Ginger tabby cat
-                            } else {
-                                tempColor.setHex(0xd97706); // Cardboard kraft box
-                            }
-                        }
-                    } else {
-                        // Sweater / Jacket
-                        if (charKey === 'einstein') tempColor.setHex(0xa8a29e); // Cozy knitted wool sweater
-                        else if (charKey === 'planck') tempColor.setHex(0x0f172a); // Frock coat with bowtie
-                        else if (charKey === 'heisenberg') tempColor.setHex(0x1e40af); // 1920s blue jacket
-                        else tempColor.setHex(0x15803d); // Green sweater vest
-                    }
-                }
-                // 5. Head & Facial Features
-                else {
-                    // Hair detection
-                    const distFromCenter = Math.hypot(x % 52, y);
-                    if (z > 70.0 || (distFromCenter > 17.5 && y < 8.0) || (y < -10.0)) {
-                        if (charKey === 'einstein' || (charKey === 'diorama' && x < -50)) {
-                            tempColor.setHex(0xf1f5f9); // Fluffy white hair
-                        } else if (charKey === 'planck' || (charKey === 'diorama' && x >= -50 && x < 0)) {
-                            tempColor.setHex(0x94a3b8); // Silver-grey distinguished hair
-                        } else if (charKey === 'heisenberg' || (charKey === 'diorama' && x >= 0 && x < 50)) {
-                            tempColor.setHex(0x78350f); // Warm wavy chestnut hair
-                        } else {
-                            tempColor.setHex(0x451a03); // Deep brown combed hair
-                        }
-                    }
-                    // Mustache detection
-                    else if (y > 15.0 && z > 54.0 && z < 58.5) {
-                        if (charKey === 'einstein' || (charKey === 'diorama' && x < -50)) {
-                            tempColor.setHex(0xe2e8f0); // White bushy mustache
-                        } else {
-                            tempColor.setHex(0x64748b); // Grey mustache
-                        }
-                    }
-                    // Cute soft skin tone
-                    else {
-                        // Rosy cheeks
-                        if (y > 7.0 && z > 54.0 && z < 61.0 && Math.abs(x % 52) > 8.0) {
-                            tempColor.setHex(0xfca5a5); // Rosy blush
-                        } else {
-                            tempColor.setHex(0xfed7aa); // Warm peach skin
-                        }
-                    }
-                }
-
-                colors[i * 3] = tempColor.r;
-                colors[i * 3 + 1] = tempColor.g;
-                colors[i * 3 + 2] = tempColor.b;
-            }
-
-            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        }
-
-        // STLLoader
-        const loader = new THREE.STLLoader();
-
-        function loadModel(charKey) {
+        function loadModel(charKey, format) {
             loadingOverlay.style.opacity = '1';
             loadingOverlay.style.pointerEvents = 'auto';
             const data = charData[charKey];
-            loadingText.innerText = `กำลังโหลดโมเดล 3D ${data.title}...`;
+            loadingText.innerText = `กำลังโหลดโมเดล 3D (${format.toUpperCase()}) ${data.title}...`;
 
-            const url = stlBase + data.file;
+            const fileName = format === 'glb' ? data.glbFile : data.stlFile;
+            const url = stlBase + fileName;
 
-            loader.load(url, function (geometry) {
-                if (activeMesh) {
-                    scene.remove(activeMesh);
-                    activeMesh.geometry.dispose();
-                    activeMesh.material.dispose();
+            function onMeshReady(rootObj, isGlb) {
+                if (activeModel) {
+                    scene.remove(activeModel);
                 }
+                activeModel = rootObj;
+                scene.add(activeModel);
 
-                geometry.computeVertexNormals();
-                applyPixarVertexColors(geometry, charKey);
+                // Update download links
+                document.getElementById('btn-download-glb').href = stlBase + data.glbFile;
+                document.getElementById('btn-download-glb').download = data.glbFile;
+                document.getElementById('btn-download-ply').href = stlBase + data.plyFile;
+                document.getElementById('btn-download-ply').download = data.plyFile;
+                document.getElementById('btn-download-stl').href = stlBase + data.stlFile;
+                document.getElementById('btn-download-stl').download = data.stlFile;
 
-                const mat = new THREE.MeshStandardMaterial({
-                    vertexColors: true,
-                    wireframe: isWireframe,
-                    roughness: currentLighting === 'marble' ? 0.35 : 0.45,
-                    metalness: currentLighting === 'marble' ? 0.1 : 0.25
-                });
+                hudText.innerText = isGlb 
+                    ? `โมเดล 3D Full-Color PBR (${charKey.toUpperCase()}) โหลดสำเร็จ (สีสมจริงตรงตามภาพคอนเซ็ปต์)`
+                    : `โมเดล 3D Solid Mesh STL โหลดสำเร็จ (100% Watertight Solid สำหรับพิมพ์ 3D)`;
 
-                activeMesh = new THREE.Mesh(geometry, mat);
-                activeMesh.castShadow = true;
-                activeMesh.receiveShadow = true;
-                scene.add(activeMesh);
-
-                const triCount = geometry.attributes.position.count / 3;
-                hudText.innerText = `โมเดล 3D โหลดสำเร็จ: ${triCount.toLocaleString()} สามเหลี่ยม (Watertight Manifold)`;
-
-                // Update download link
-                document.getElementById('btn-download-stl').href = url;
-                document.getElementById('btn-download-stl').download = data.file;
-
-                // Update Bio Card
                 updateBioCard(data);
-
-                // Update Camera & Pins
                 setupCameraForChar(data);
                 buildPins(data.pins);
 
                 loadingOverlay.style.opacity = '0';
                 loadingOverlay.style.pointerEvents = 'none';
-            }, function (xhr) {
-                if (xhr.lengthComputable) {
-                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
-                    loadingText.innerText = `กำลังดาวน์โหลดเมช 3D... ${percent}%`;
-                }
-            }, function (error) {
-                console.error("Error loading STL:", error);
-                loadingText.innerText = `⚠️ ไม่พบไฟล์โมเดลที่ ${url}`;
-            });
+            }
+
+            if (format === 'glb') {
+                gltfLoader.load(url, (gltf) => {
+                    const model = gltf.scene;
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (child.material) {
+                                child.material.wireframe = isWireframe;
+                                child.material.roughness = currentLighting === 'marble' ? 0.3 : 0.42;
+                                child.material.metalness = currentLighting === 'marble' ? 0.1 : 0.18;
+                            }
+                        }
+                    });
+                    onMeshReady(model, true);
+                }, (xhr) => {
+                    if (xhr.lengthComputable) {
+                        const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                        loadingText.innerText = `กำลังดาวน์โหลดเมช 3D สีสันสมจริง... ${percent}%`;
+                    }
+                }, (err) => {
+                    console.error("GLB Load Error, falling back to STL:", err);
+                    loadModel(charKey, 'stl');
+                });
+            } else {
+                stlLoader.load(url, (geometry) => {
+                    geometry.computeVertexNormals();
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: 0xe2e8f0,
+                        roughness: 0.45,
+                        metalness: 0.2,
+                        wireframe: isWireframe
+                    });
+                    const mesh = new THREE.Mesh(geometry, mat);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+                    onMeshReady(mesh, false);
+                }, (xhr) => {
+                    if (xhr.lengthComputable) {
+                        const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                        loadingText.innerText = `กำลังดาวน์โหลดเมช STL... ${percent}%`;
+                    }
+                }, (err) => {
+                    console.error("STL Load Error:", err);
+                    loadingText.innerText = `⚠️ ไม่พบไฟล์โมเดลที่ ${url}`;
+                });
+            }
+        }
+
+        function setRenderFormat(format) {
+            if (currentFormat === format) return;
+            currentFormat = format;
+            document.getElementById('btn-mode-pbr').classList.toggle('active', format === 'glb');
+            document.getElementById('btn-mode-stl').classList.toggle('active', format === 'stl');
+            loadModel(currentChar, currentFormat);
+        }
+
+        function switchCharacter(key) {
+            if (currentChar === key) return;
+            currentChar = key;
+            document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-char-${key}`).classList.add('active');
+            loadModel(key, currentFormat);
         }
 
         function updateBioCard(data) {
@@ -841,14 +826,6 @@
                 <div><span class="formula-tag">${data.formula}</span></div>
                 <p style="margin-top:2px;">${data.desc}</p>
             `;
-        }
-
-        function switchCharacter(key) {
-            if (currentChar === key) return;
-            currentChar = key;
-            document.querySelectorAll('.char-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-char-${key}`).classList.add('active');
-            loadModel(key);
         }
 
         function setupCameraForChar(data) {
@@ -896,7 +873,6 @@
                 const sphere = new THREE.Mesh(pinGeom, pinMat);
                 pinGroup.add(sphere);
 
-                // Stem
                 const stemGeom = new THREE.CylinderGeometry(0.2, 0.2, 8, 8);
                 const stemMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
                 const stem = new THREE.Mesh(stemGeom, stemMat);
@@ -906,7 +882,6 @@
 
                 groupPins.add(pinGroup);
 
-                // Label Overlay
                 const label = document.createElement('div');
                 label.className = 'annotation-label';
                 label.id = `label-pin-${idx}`;
@@ -925,7 +900,11 @@
         function toggleWireframe() {
             isWireframe = !isWireframe;
             document.getElementById('btn-wireframe').classList.toggle('active', isWireframe);
-            if (activeMesh) activeMesh.material.wireframe = isWireframe;
+            if (activeModel) {
+                activeModel.traverse((child) => {
+                    if (child.isMesh && child.material) child.material.wireframe = isWireframe;
+                });
+            }
         }
 
         function toggleAutoRotate() {
@@ -947,42 +926,42 @@
 
             if (theme === 'pixar') {
                 ambientLight.color.setHex(0xffffff);
-                ambientLight.intensity = 0.50;
+                ambientLight.intensity = 0.55;
                 keyLight.color.setHex(0xfffaed);
-                keyLight.intensity = 1.35;
+                keyLight.intensity = 1.40;
                 fillLight.color.setHex(0x00e5ff);
                 fillLight.intensity = 0.45;
                 rimLight.color.setHex(0xf59e0b);
-                rimLight.intensity = 0.50;
+                rimLight.intensity = 0.55;
                 scene.background.setHex(0x070b14);
                 scene.fog.color.setHex(0x070b14);
             } else if (theme === 'ghibli') {
                 ambientLight.color.setHex(0xfff7ed);
-                ambientLight.intensity = 0.65;
+                ambientLight.intensity = 0.70;
                 keyLight.color.setHex(0xfef08a);
-                keyLight.intensity = 1.20;
+                keyLight.intensity = 1.25;
                 fillLight.color.setHex(0x86efac);
-                fillLight.intensity = 0.35;
+                fillLight.intensity = 0.40;
                 rimLight.color.setHex(0x93c5fd);
-                rimLight.intensity = 0.40;
+                rimLight.intensity = 0.45;
                 scene.background.setHex(0x0f172a);
                 scene.fog.color.setHex(0x0f172a);
             } else if (theme === 'cyber') {
                 ambientLight.color.setHex(0x1e1b4b);
-                ambientLight.intensity = 0.30;
+                ambientLight.intensity = 0.35;
                 keyLight.color.setHex(0x00e5ff);
-                keyLight.intensity = 1.60;
+                keyLight.intensity = 1.70;
                 fillLight.color.setHex(0xd946ef);
-                fillLight.intensity = 1.10;
+                fillLight.intensity = 1.20;
                 rimLight.color.setHex(0x3b82f6);
-                rimLight.intensity = 0.90;
+                rimLight.intensity = 0.95;
                 scene.background.setHex(0x030508);
                 scene.fog.color.setHex(0x030508);
             } else if (theme === 'marble') {
                 ambientLight.color.setHex(0xffffff);
-                ambientLight.intensity = 0.70;
+                ambientLight.intensity = 0.75;
                 keyLight.color.setHex(0xffffff);
-                keyLight.intensity = 1.10;
+                keyLight.intensity = 1.15;
                 fillLight.color.setHex(0x94a3b8);
                 fillLight.intensity = 0.40;
                 rimLight.color.setHex(0xcbd5e1);
@@ -1032,7 +1011,7 @@
         }
 
         // Init
-        loadModel(currentChar);
+        loadModel(currentChar, currentFormat);
         animate();
     </script>
 </body>
